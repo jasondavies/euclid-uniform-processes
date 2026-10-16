@@ -1,0 +1,2 @@
+instances checked: 254722179, failures: 0
+control (hypothesis dropped, a < 400): 296615 collisions

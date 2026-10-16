@@ -1,0 +1,9 @@
+{
+  "verified_cases": 310,
+  "noncoprime_cases": 175,
+  "reservoir_phases": 335,
+  "contractions": 3543,
+  "invalid_traces_rejected": 4,
+  "seed": 20261016,
+  "base_bits": 64
+}

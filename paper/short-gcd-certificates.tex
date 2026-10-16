@@ -1,0 +1,354 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools,booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newcommand{\rem}{\operatorname{rem}}
+\newcommand{\calls}{\operatorname{calls}}
+\newcommand{\eq}{\operatorname{eq}}
+\title{Short remainder-only certificates for the greatest common divisor}
+\author{}
+\date{October 16, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+We give a remainder-only straight-line derivation of the greatest common divisor
+of two positive integers using $O(\log a/\log\log a)$ remainder calls, uniformly
+for $a>b\geq1$. Previously generated values may be retained and reused, but
+numerical constants and other arithmetic operations are not available as
+instructions. The construction combines a stored Euclidean prefix with
+three-call contractions and two smaller recursive derivations. It yields the
+same upper bound for intrinsic remainder-call complexity, and therefore a
+negative answer to the uniform-process strengthening discussed by Moschovakis.
+It does not establish a deterministic remainder-only algorithm with this cost.
+The mathematical proof below and the exact scope of the accompanying Lean
+verification are distinguished in the final section.
+\end{abstract}
+
+\section{Statement and relation to the book}
+Throughout, logarithms are to base $2$. A derivation starts with its two inputs.
+An instruction adds $\rem(x,y)$, where $x,y$ are already available and $y>0$.
+Earlier values remain available. No constants are supplied.
+Let $G(a,b)$ be the minimum number of instructions needed to make $\gcd(a,b)$
+available, and let $D(a,b)=G(a,b)$ for coprime inputs. Thus $G(a,0)=0$ and
+$D(a,1)=0$. These are costs of generating values.
+
+\begin{theorem}\label{thm:main}
+Uniformly for integers $a>b\geq1$,
+\[
+G(a,b)=O\left(\frac{\log a}{\log\log a}\right).
+\]
+In particular this bound holds for $D(a,b)$ when $\gcd(a,b)=1$.
+\end{theorem}
+As usual, the asymptotic assertion concerns sufficiently large $a$; a bound
+valid at every positive input is $O(1+\log(2+a)/\log\log(4+a))$.
+
+Moschovakis's Main Conjecture concerns logarithmic lower bounds for gcd
+algorithms from $\rem,\eq_0$ \cite[p.~2]{moschovakis2019}. The uniform-process
+strengthening is discussed after Corollary~6C.7 \cite[p.~188]{moschovakis2019};
+see also (4F-5) on p.~151. Our conclusion addresses that strengthening.
+The definitions of generated certificates and intrinsic norms are in
+\cite[\S\S1D, 4C--4E]{moschovakis2019}. Theorem~4F.1
+\cite[pp.~149--150]{moschovakis2019} transfers pointwise intrinsic bounds to a
+single uniform process. Deterministic uniform processes are treated separately
+in \cite[\S4H]{moschovakis2019}.
+
+\section{Normalization}
+Write $g=\gcd(a,b)>0$. For positive $y$,
+\[
+\rem(gx,gy)=g\rem(x,y).
+\]
+Every generated value is divisible by $g$. Consequently scaling a derivation,
+or dividing all its values by $g$, preserves its length and the validity of
+every instruction. Hence
+\begin{equation}\label{eq:normalize}
+G(a,b)=D(a/g,b/g).
+\end{equation}
+The normalized pair $(1,0)$ is understood to have cost zero. Define
+\[
+T(n)=\max_{0\leq b\leq a\leq 2^n,\ a>0}G(a,b).
+\]
+Euclid's algorithm makes this a finite maximum. Normalization reduces an upper
+bound for $T$ to coprime inputs, with equality, zero inputs, and inputs equal to
+one handled without calls.
+
+\section{Three-call contractions}
+\begin{lemma}\label{lem:gap}
+If $m>0$ is available and a finite collection $S$ of available values occupies
+$t\geq2$ residue classes modulo $m$, at most three remainder calls generate $w$
+with
+\[
+0<w<\frac{m}{t-1}.
+\]
+\end{lemma}
+\begin{proof}
+Sort the distinct residues. Some adjacent pair $u<v$ has gap
+$\delta=v-u<m/(t-1)$, because the sum of the $t-1$ adjacent gaps is less than
+$m$. Each selected residue can be generated with one call from a witness in
+$S$. If $u=0$, use $v$. If $0<u\leq\delta$, use $u$. Otherwise
+$0<\delta<u$ and $v=u+\delta$, so $\rem(v,u)=\delta$. This uses at most three
+calls. Subtraction and sorting describe the proof and the selection of
+instructions; they are not instructions of the derivation.
+\end{proof}
+
+\begin{lemma}[Euclidean-prefix lemma]\label{lem:prefix}
+Let $r_0=a>r_1=b>\cdots>r_h>0$ be a Euclidean prefix of a coprime pair, with
+$r_{i-1}=q_i r_i+r_{i+1}$ and $q_i\geq1$. For every integer $m>2a/r_h$, the
+$h$ pairs
+\[
+(r_i\bmod m,r_{i+1}\bmod m),\qquad 0\leq i<h,
+\]
+are distinct. The prefix therefore occupies $t$ residue classes with $t^2\geq h$.
+\end{lemma}
+\begin{proof}
+Suppose the pairs at $i<j$ coincide. Set
+\[
+M=\prod_{\ell=i+1}^{j}\begin{pmatrix}q_\ell&1\\1&0\end{pmatrix}
+ =\begin{pmatrix}A&B\\C&E\end{pmatrix},\qquad
+\binom{r_i}{r_{i+1}}=M\binom{r_j}{r_{j+1}}.
+\]
+All entries are nonnegative, $E\leq A$, and $\det M=(-1)^{j-i}$.
+Also $Ar_j\leq r_i\leq a$, whence $A\leq a/r_h$.
+Write
+\[
+\Delta=\det(M-I)=1+\det M-A-E.
+\]
+For an odd number of factors, $\Delta=-A-E<0$. A product of at least two
+factors has $A\geq2$ and $E\geq1$; thus for an even positive number of factors,
+$\Delta=2-A-E<0$. In either case,
+\[
+0<|\Delta|\leq A+E\leq2A\leq2a/r_h<m.
+\]
+The presumed congruence gives $(M-I)(r_j,r_{j+1})^{\mathsf T}\equiv0\pmod m$.
+Multiplication by the adjugate shows that $m$ divides both $\Delta r_j$ and
+$\Delta r_{j+1}$. Consecutive remainders are coprime, so B\'ezout's identity
+implies $m\mid\Delta$, a contradiction. Finally, $t$ individual residue classes
+give at most $t^2$ ordered pairs.
+\end{proof}
+Thus a stored prefix can be reused for every available modulus $m>2a/r_h$.
+When $\sqrt h>1$, three calls suffice to generate
+\begin{equation}\label{eq:contract}
+0<w<\frac{m}{\sqrt h-1}.
+\end{equation}
+The universal quantifier over $m$ is essential: the modulus generated by a
+contraction is not predetermined.
+
+\section{Construction and recurrence}
+Fix a sufficiently large integer $n$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil$.
+After normalization we may assume $a>b>1$ and $a\leq N$.
+Generate the Euclidean prefix until its last positive value is at most
+$N^{3/4}$ or until $r_h$ is available. Check the input $b$ as part of this
+rule. The preliminary work costs at most $h$ calls. Euclid cannot encounter
+zero first without having encountered the positive remainder $1$.
+
+If a positive remainder $c\leq N^{3/4}$ is encountered, generate the next
+remainder $s<c$ with one more call. The pair $(c,s)$ is coprime. If $s=0$, then
+$c=1$ is already available; otherwise both inputs to the remaining derivation
+are at most $2^{\lceil3n/4\rceil}$. This gives the bound
+\begin{equation}\label{eq:early}
+h+1+T(\lceil3n/4\rceil).
+\end{equation}
+
+Otherwise $r_h>N^{3/4}$, so $2a/r_h<2N^{1/4}$. For $n>12$,
+$N^{1/3}>2N^{1/4}$, and Lemma~\ref{lem:prefix} applies to every available
+$m>N^{1/3}$. Starting at $m=r_h$, repeatedly use the contraction inequality until
+$0<m\leq N^{1/3}$. Set
+\[
+\kappa_n=\sqrt h-1>1,\qquad
+J_n=\left\lceil\frac{2n/3}{\log\kappa_n}\right\rceil.
+\]
+There are at most $J_n$ contractions: if $J_n$ have occurred then
+$m<N/\kappa_n^{J_n}\leq N^{1/3}$. Since
+$\log\kappa_n=\tfrac14\log n+O(1)$, their cost is $3J_n=O(n/\log n)$.
+
+The small $m$ need not be coprime to either input. Generate
+$u=\rem(a,m)$ and $v=\rem(b,m)$, then concatenate derivations of
+$d=\gcd(m,u)$ and $e=\gcd(d,v)$. These derivations exist by the definition of
+$T$ and use only inputs bounded by $m$. They are not gcd-oracle instructions.
+The gcd identities give
+\[
+e=\gcd(\gcd(m,a\bmod m),b\bmod m)
+ =\gcd(m,\gcd(a,b))=1.
+\]
+The cost in this case is at most
+\begin{equation}\label{eq:late}
+h+3J_n+2+2T(\lceil n/3\rceil).
+\end{equation}
+Retaining values makes concatenation legitimate. In particular, the second
+recursive derivation has both $d$ and $v$ available even if the first one uses
+neither original input.
+
+The two case estimates and normalization imply
+\begin{equation}\label{eq:recurrence}
+T(n)\leq\max\{T(\lceil3n/4\rceil)+O(\sqrt n),\;
+2T(\lceil n/3\rceil)+O(n/\log n)\}.
+\end{equation}
+All implied constants are independent of the inputs.
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+For $n\geq2$ let $f(n)=n/\log n$. The ratios
+\[
+\frac{f(\lceil3n/4\rceil)}{f(n)}\longrightarrow\frac34,
+\qquad
+\frac{2f(\lceil n/3\rceil)}{f(n)}\longrightarrow\frac23
+\]
+show that, beyond a fixed threshold, the two recursive terms have potentials
+at most $\tfrac78 f(n)$ and $\tfrac56 f(n)$, respectively.
+Both overheads are at most $Af(n)$ for a fixed $A$. Choose $C\geq8A$ and
+increase $C$ to cover the finitely many initial values with indices at least
+$2$. Choose the induction threshold large enough that both recursive indices
+are at least $2$ and strictly less than $n$.
+Strong induction applied to this recurrence then gives $T(n)\leq Cf(n)$:
+the two bounds are $(7C/8+A)f(n)$ and $(5C/6+A)f(n)$, both at most $Cf(n)$.
+Finally take $n=\lceil\log a\rceil$. This also gives $G(a,b)=o(\log a)$
+uniformly as $a\to\infty$.
+\end{proof}
+
+\section{Certificates and uniform processes}
+Use the book's partial remainder operation: its second argument must be
+nonzero. Write $\mathcal N_0=(\mathbb N,\rem,\eq_0)$ and
+$\mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1)$; compare
+\cite[(1C-10), pp.~24, 142--143]{moschovakis2019}.
+A derivation determines a finite generated partial substructure by recording
+its remainder equations. Repeated equations can be discarded.
+
+For the relation $\gcd(a,b)=1$ on all natural inputs, a derivation of $1$
+together with $\eq_1(1)=\mathrm{tt}$ certifies the relation: every common
+divisor of the images of the inputs divides every transported generated
+value, hence divides $1$. Conversely, without a positive $\eq_1$ fact the
+map $x\mapsto2x$ preserves every recorded remainder and zero-test fact, as
+well as every negative one-test fact. It cannot preserve coprimeness. A
+certificate therefore reaches $1$. Enumerating a finite generated diagram
+in generation order gives a derivation using no more calls than the number
+of remainder facts. Consequently, on coprime inputs,
+\[
+\calls_{\rem}(\mathcal N_\varepsilon,\gcd=1,a,b)=D(a,b),\qquad
+\calls(\mathcal N_\varepsilon,\gcd=1,a,b)=D(a,b)+1.
+\]
+If the relation is instead defined as $a>0\wedge b>0\wedge\gcd(a,b)=1$,
+add the two input-positivity facts. The remainder count is unchanged, but
+one should state the full count as $D(a,b)+O(1)$ rather than assert the exact
+$D+1$ formula without addressing positivity. For example, the single fact
+$\eq_1(1)=\mathrm{tt}$ at $(2,1)$ allows the image $(0,1)$.
+
+For gcd as a function, the certificate must reach its output $g$, giving a
+lower bound of $G(a,b)$. For an upper bound, append
+\[
+\rem(a,g)=z,\qquad \rem(b,g)=z,\qquad \eq_0(z)=\mathrm{tt},
+\]
+where the generated $z$ is zero. Every homomorphism $\pi$ has $\pi(z)=0$ and
+$\pi(g)>0$ (by definedness of either appended remainder). Thus $\pi(g)$
+divides both input images. Conversely every common divisor of those images
+divides $\pi(g)$ by induction over the derivation. Therefore
+\[
+G(a,b)\leq\calls_{\rem}(\mathcal N_0,\gcd,a,b)\leq G(a,b)+2.
+\]
+Positivity facts may be appended if the function is restricted to positive
+inputs. For a noncoprime input, add $\eq_1(g)=\mathrm{ff}$ to this gcd
+certificate to certify noncoprimeness. Thus the sublogarithmic remainder-call
+bound holds for both truth values of coprimeness as well as for gcd.
+Theorem~4F.1 supplies a single uniform process realizing each intrinsic norm
+pointwise \cite[Theorem~4F.1]{moschovakis2019}.
+
+\section{Scope and verification}
+Selecting a close pair of residues is uncharged existential choice in a
+straight-line derivation. A deterministic remainder-only algorithm cannot
+assume that choice is available at constant cost. Computing all prefix
+residues would take about $h$ calls per contraction. The construction therefore
+does not settle the deterministic conjecture.
+
+The supplied offline Python planner uses unrestricted arithmetic to select
+instructions; its independent replay checks operand availability, nonzero
+divisors, every remainder equation, and the final gcd. Running its default
+seed reproduces:
+\begin{center}
+\begin{tabular}{rrr}\toprule
+Input bits & Derivation calls & Euclid calls to reach $1$\\\midrule
+512 & 196 & 326\\
+2048 & 669 & 1204\\
+8192 & 2059 & 4754\\\bottomrule
+\end{tabular}
+\end{center}
+These are checks of finite instances, not an asymptotic proof. A newly
+specified reproducible suite also passes 310 cases, including 175 noncoprime
+pairs, with 3,543 contractions across 335 reservoir phases. Four deliberately
+invalid traces are rejected. This suite is recorded in the repository; it is
+not claimed to reconstruct the unspecified original 310-case suite.
+
+\subsection{Machine-checked statements}
+The Lean 4.35.0 development, with mathlib pinned to version 4.35.0, proves the
+uniform real-logarithmic bound, its worst-case Big-O formulation, the
+Euclidean-prefix lemma, the complete three-call contraction lemma, normalization,
+and the certificate upper bounds. It contains no proof placeholders or added
+axioms. An axiom audit of the main results reports only the standard Lean
+foundations \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+The theorem \texttt{ShortGCD.uniform\_real\_bound} states
+\[
+\exists C>0\ \forall a,b\in\mathbb N,\quad
+4\leq a\ \wedge\ b\leq a\ \Longrightarrow\
+G(a,b)\leq C\frac{\log_2 a}{\log_2(\log_2 a)}.
+\]
+The proof starts from a finite-store instruction semantics in which the only
+instruction is remainder with a positive, available divisor. Costs are indices
+of derivations, rather than an assumed recurrence. A formal conversion to
+finite generated diagrams proves the gcd certificate bound with two extra
+remainder facts and the bound for positive and negative coprimeness instances.
+The equality with the existing $D$ definition is also checked.
+
+The intrinsic complexities themselves are also defined in Lean, directly from
+certificates: \texttt{callsCoprimeness} for the coprimeness relation in
+$N_\varepsilon$ and \texttt{callsGcd} for the gcd without $\eq_1$ facts. On
+coprime pairs the former agrees with the existing reduction to $D$
+(\texttt{callsCoprimeness\_eq\_callsRem}). The theorems
+\texttt{ShortGCD.not\_conjecture\_3\_4} and
+\texttt{ShortGCD.not\_main\_conjecture\_4F5} state that no $r>0$ satisfies
+$\mathrm{calls}(\mathrm{rem})(N_\varepsilon,\perp\!\!\!\perp,a,b)\geq r\log_2 a$
+for infinitely many $a\geq b\geq1$, and that no $K>0$ satisfies
+$2\log_2\max(x,y)\leq K\,\mathrm{calls}(\mathrm{rem})(\gcd,x,y)$ for infinitely
+many pairs. The general theory of uniform processes and Theorem~4F.1 are cited
+from the book, not re-formalized here. They are needed only to interpret these
+intrinsic bounds as statements about a single best uniform process, not for the
+refutations themselves.
+
+\subsection{Integer parameters used in Lean}
+To avoid real rounding in the construction itself, the formal proof uses, for
+$j=\lfloor\log_2 n\rfloor\geq32$,
+\[
+p=\lfloor j/4\rfloor,\quad k=2^p,\quad h=2^{2p}+1,\quad
+J=\lfloor n/p\rfloor+1,\quad
+\ell=\lceil3n/4\rceil,\quad s=\lceil n/3\rceil.
+\]
+The finite construction proves, for arbitrary natural parameters satisfying
+$k\geq1$, $k^2<h$, $L\geq1$, $2A\leq ML$, and $A\leq Mk^J$,
+\[
+S(A)\leq\max\{h+1+S(L),\ h+3J+2+2S(M)\},
+\qquad S(A)=\max_{a,b\leq A}G(a,b).
+\]
+Taking $A=2^n,L=2^\ell,M=2^s$ gives the required hypotheses. Lean checks
+\[
+(h+1)j\leq64n,\quad (h+3J+2)j\leq64n,\quad
+j-2\leq\log_2^{\mathrm{nat}}\ell,\log_2^{\mathrm{nat}}s,
+\quad 8\ell\leq7n,\quad16s\leq7n.
+\]
+The last estimates and $8j\leq9(j-2)$ give a factor $63/64$ for either
+recursive contribution after clearing denominators. Taking $C\geq4096$ and
+large enough for the finite initial segment proves
+$S(2^n)\lfloor\log_2 n\rfloor\leq Cn$ for all $n$.
+Comparing integer floors and ceilings with real base-two logarithms yields the
+stated real bound. These parameter choices change only absolute constants,
+not the proof mechanism or its asymptotic order.
+
+\begin{thebibliography}{1}
+\bibitem{moschovakis2019}
+Yiannis N. Moschovakis.
+\emph{Abstract Recursion and Intrinsic Complexity}.
+Lecture Notes in Logic, vol.~48. Cambridge University Press and Association
+for Symbolic Logic, 2019.
+\href{https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf}{Author's
+prepublication PDF}, compiled November 30, 2018.
+Page references above are to printed page numbers, not PDF page indices.
+\end{thebibliography}
+\end{document}

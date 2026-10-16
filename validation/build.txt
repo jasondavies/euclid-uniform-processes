@@ -1,0 +1,9 @@
+⚠ [9047/9064] Replayed ShortGCD.Derivation
+warning: ShortGCD/Derivation.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [9050/9064] Replayed ShortGCD.Prefix
+warning: ShortGCD/Prefix.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [9055/9064] Replayed ShortGCD.Arithmetic
+warning: ShortGCD/Arithmetic.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [9058/9064] Replayed EuclidOptimality.Certificate
+warning: vendor/EuclidOptimality/Certificate.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+Build completed successfully (9064 jobs).

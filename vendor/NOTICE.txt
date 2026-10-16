@@ -1,0 +1,6 @@
+Certificate.lean, Derivation.lean, and Gcd.lean were copied unchanged from
+/home/ttuser/euclid-optimality/EuclidOptimality on October 16, 2026.
+The source checkout HEAD was 8b421239c2656ca8022ad66bcc343174a416bdd3.
+They retain their original namespace and documentation.
+The source project's Apache License 2.0 is included as vendor/LICENSE.
+No NOTICE file was present in that source checkout.
