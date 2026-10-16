@@ -119,7 +119,9 @@ Derivations and certificates:
   (van den Dries–Moschovakis); they are not formalised either.
 - **Conventions.** Coprimeness in the refutations is the book's relation, which requires
   positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses
-  `Nat.Coprime`; `callsCoprimeness_eq_callsRem` connects the two.
+  `Nat.Coprime`; `callsCoprimeness_eq_callsRem` connects the two on positive coprime
+  inputs. For non-coprime inputs, D and `callsRem` are 0 only because their defining sets
+  are empty.
 
 ## Reproducing finite checks
 

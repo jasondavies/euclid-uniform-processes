@@ -20,9 +20,11 @@ remainder facts in `U`), we show that this least size is the length of a shortes
 * `callsRem_eq_derivLen`: the least number of remainder facts in a certificate equals
   `derivLen a b`.
 
-Here coprimeness is `Nat.Coprime`, which allows zero inputs. For positive inputs this gives the
-same complexity as the book's relation `x, y ≥ 1 ∧ gcd(x, y) = 1`
-(`callsCoprimeness_eq_callsRem` in `ShortGCD.Conjecture`).
+Here coprimeness is `Nat.Coprime`, which allows zero inputs. For positive coprime inputs this
+gives the same complexity as the book's relation `x, y ≥ 1 ∧ gcd(x, y) = 1`
+(`callsCoprimeness_eq_callsRem` in `ShortGCD.Conjecture`). For non-coprime inputs `callsRem`
+is `0` only because its defining set is empty; it is not the complexity of certifying
+non-coprimeness, which `callsCoprimeness` measures.
 -/
 
 namespace ShortGCD

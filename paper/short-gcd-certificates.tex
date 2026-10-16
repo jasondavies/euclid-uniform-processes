@@ -339,10 +339,12 @@ of remainder facts. Consequently, on coprime inputs,
 \]
 For the book's relation $\perp\!\!\!\perp$, which also requires $a,b\geq1$, it
 suffices to add the facts $\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$.
-Conversely every certificate for $\perp\!\!\!\perp$ certifies $\gcd(a,b)=1$.
-So for $a,b\geq1$ the remainder count is unchanged,
+Conversely, when $a\perp\!\!\!\perp b$, every certificate for
+$\perp\!\!\!\perp$ also certifies $\gcd(a,b)=1$. So for coprime $a,b\geq1$ the
+remainder count is unchanged,
 $\calls_{\rem}(\mathcal N_\varepsilon,\perp\!\!\!\perp,a,b)=D(a,b)$, and the
-total count is at most $D(a,b)+3$.
+total count is at most $D(a,b)+3$. For noncoprime inputs $D$ plays no role;
+the bound there comes from the gcd certificate below.
 
 For gcd as a function, the certificate must reach its output $g$, giving a
 lower bound of $G(a,b)$. For an upper bound, append
