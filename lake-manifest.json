@@ -111,7 +111,7 @@
       "configFile": "lakefile.toml"
     }
   ],
-  "name": "short_gcd_certificates",
+  "name": "euclid_uniform_processes",
   "lakeDir": ".lake",
   "fixedToolchain": false
 }
