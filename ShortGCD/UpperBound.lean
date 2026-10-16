@@ -39,15 +39,6 @@ theorem uniform_bit_bound :
         (s := Finset.range (2^32)) (Finset.mem_range.mpr hnsmall)
       exact (hb.trans (le_max_right _ _)).trans (Nat.le_mul_of_pos_right _ (by omega))
 
-/-- A direct bound on every pair of inputs in terms of the bit size of the larger one. -/
-theorem uniform_input_bound : ∃ C : ℕ, 0 < C ∧ ∀ a b, b ≤ a →
-    G a b * Nat.log 2 (Nat.clog 2 a) ≤ C * Nat.clog 2 a := by
-  obtain ⟨C,hC,hbound⟩ := uniform_bit_bound
-  refine ⟨C,hC,?_⟩
-  intro a b hba
-  have ha : a ≤ 2^(Nat.clog 2 a) := Nat.le_pow_clog (by omega) a
-  exact (Nat.mul_le_mul_right _ (G_le_sizeCost ha (hba.trans ha))).trans (hbound _)
-
 theorem uniform_size_input_bound : ∃ C : ℕ, 0 < C ∧ ∀ a,
     sizeCost a * Nat.log 2 (Nat.clog 2 a) ≤ C * Nat.clog 2 a := by
   obtain ⟨C,hC,hbound⟩ := uniform_bit_bound

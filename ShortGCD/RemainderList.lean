@@ -5,13 +5,15 @@ import ShortGCD.CoprimeCertificate
 
 A *remainder derivation* from `a, b` is a list `r₁, …, r_k` in which each `rᵢ = x % y` for
 some `x, y ≠ 0` among `a, b, r₁, …, r_{i-1}`. `D a b` is the length of a shortest derivation
-containing `1` (or `0` if `1` is an input).
+containing `1` (`0` if `1` is an input, and `0` by the `sInf ∅ = 0` convention when no
+derivation exists, that is, for non-coprime pairs).
 
 * `exists_list_iff`: a derivation of length `≤ k` reaching `1` exists iff a sound set of at
   most `k` remainder facts reaches `1`. Building a derivation from a reachability proof
   merges the derivations of the two operands and drops repeated values, so its entries are
   distinct outputs of facts.
-* `callsRem_eq_D`: the intrinsic `calls(rem)`-complexity of coprimeness in `Nε` equals `D`.
+* `callsRem_eq_D`: on coprime pairs, the intrinsic `calls(rem)`-complexity of coprimeness in
+  `Nε` equals `D`.
 -/
 
 namespace ShortGCD
@@ -180,9 +182,10 @@ theorem D_eq_derivLen (a b : ℕ) : D a b = derivLen a b := by
     obtain ⟨l, hl, h1, hk⟩ := (exists_list_iff a b k).2 ⟨F, hF, h1F, hj⟩
     exact ⟨l.length, ⟨l, hl, h1, rfl⟩, hk⟩
 
-/-- **The reformulation of the Main Conjecture for uniform processes.** The intrinsic
+/-- **The reformulation for uniform processes.** For coprime `a, b`, the intrinsic
 `calls(rem)`-complexity of coprimeness in the Euclidean structure `Nε` at `(a, b)` is the
-length of a shortest remainder derivation of `1` from `a, b`. -/
+length of a shortest remainder derivation of `1` from `a, b`. For non-coprime pairs both
+sides are `0` by the `sInf ∅ = 0` convention. -/
 theorem callsRem_eq_D (a b : ℕ) : callsRem a b = D a b := by
   rw [callsRem_eq_derivLen, D_eq_derivLen]
 
