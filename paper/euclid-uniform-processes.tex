@@ -20,21 +20,25 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We give a remainder-only straight-line derivation of the greatest common divisor
-of two positive integers using $O(\log a/\log\log a)$ remainder calls, uniformly
+We show that logarithmic remainder-call lower bounds for gcd and coprimeness
+cannot follow from uniformity alone. We give a remainder-only straight-line
+derivation of the greatest common divisor of two positive integers using
+$O(\log a/\log\log a)$ remainder calls, uniformly
 for $a>b\geq1$. Previously generated values may be retained and reused, but
 numerical constants and other arithmetic operations are not available as
 instructions. The construction combines a stored Euclidean prefix with
-three-call contractions and two smaller recursive derivations. It yields the
+three-call contractions and two smaller recursive derivations. A refinement
+gives the coefficient $6+o(1)$ when logarithms have base $2$. It yields the
 same upper bound for the intrinsic remainder-call complexity of the gcd and of
 coprimeness in the Euclidean structure. This refutes the uniform-process form
 of the conjecture of van den Dries and Moschovakis that the Euclidean algorithm
 is optimal among its peers: Conjecture~3.4 of Moschovakis's 2012 notes, and the
 precise version (4F-5) of the Main Conjecture in his book. It gives no
 remainder-only algorithm, deterministic or nondeterministic, with this cost, and
-the Main Conjecture for algorithms remains open. The upper bound, the reduction to derivations and both
-refutations are formalized in Lean~4; the final section states exactly what is
-formalized and what is cited.
+the Main Conjecture for algorithms remains open. The upper bounds, including
+the leading coefficient, the reduction to derivations and both refutations are
+formalized in Lean~4; the final section states exactly what is formalized and
+what is cited.
 \end{abstract}
 
 \section{Statement and relation to the book}
@@ -161,6 +165,18 @@ $O(\log a/\log\log a)$ remainder calls on all pairs $a\geq b\geq1$. This settles
 the possibility
 raised after Corollary~6C.7 \cite[p.~188]{moschovakis2019}: the Main Conjecture
 does not hold for all uniform processes of $\mathcal N_\varepsilon$.
+
+\paragraph{Limit of the homomorphism method.}
+The Homomorphism Test \cite[Lemma~4E.3]{moschovakis2019} proves an intrinsic
+lower bound by showing that every generated diagram below the proposed cost
+admits a homomorphism that fails to preserve the answer. Our certificates
+preclude such an argument at logarithmic cost: every input has a certifying
+diagram with $o(\log a)$ remainder facts. Thus no logarithmic remainder-call
+lower bound for gcd or coprimeness can hold for all uniform processes in these
+structures. A proof of the Main Conjecture must use restrictions on programs
+beyond preservation of generated primitive-operation diagrams. This does not
+exclude arguments that combine homomorphisms with additional restrictions on
+computations.
 
 The corollary does not settle the Main Conjecture for algorithms, that is,
 recursive programs, deterministic or nondeterministic
@@ -331,6 +347,60 @@ Finally take $n=\lceil\log a\rceil$. This also gives $G(a,b)=o(\log a)$
 uniformly as $a\to\infty$.
 \end{proof}
 
+\subsection{The leading coefficient}
+The same construction allows a more precise bound without changing either
+arithmetic lemma.
+
+\begin{corollary}\label{cor:six}
+For every $\varepsilon>0$, there is an $a_0$ such that for every
+$a\geq a_0$ and $0\leq b\leq a$,
+\[
+G(a,b)\leq(6+\varepsilon)\frac{\log a}{\log\log a}.
+\]
+Equivalently, the uniform upper bound has coefficient $6+o(1)$.
+\end{corollary}
+\begin{proof}
+Fix $0<c<1/2$ and $0<\beta<1/2$, and put $\alpha=1-\beta/2$.
+For sufficiently large $n$, choose
+\[
+p=\lfloor c\log n\rfloor,\qquad k=2^p,\qquad h=k^2+1,
+\qquad J=\lceil n/p\rceil.
+\]
+Use $N^\alpha$ as the early stopping threshold and $N^\beta$ as the
+small-modulus threshold, where $N=2^n$. Since $\alpha+\beta>1$,
+the prefix lemma applies to every modulus above $N^\beta$ for sufficiently
+large $n$. Since $k^2<h$, the prefix occupies at least $k+1$ residue classes,
+so each contraction reduces the modulus by a factor greater than $k$.
+Moreover $k^J\geq N$, so $J$ contractions suffice.
+Writing $f(n)=n/\log n$, we have
+\[
+h=O(n^{2c})=o(f(n)),\qquad
+3J=\left(\frac3c+o(1)\right)f(n).
+\]
+The two branches therefore give
+\[
+T(n)\leq\max\left\{
+ T(\lceil\alpha n\rceil)+o(f(n)),\quad
+ 2T(\lceil\beta n\rceil)+\left(\frac3c+o(1)\right)f(n)
+\right\}.
+\]
+Theorem~\ref{thm:main} implies that
+$L=\limsup_{n\to\infty}T(n)/f(n)$ is finite and nonnegative.
+For each fixed $q>0$, the ratio $f(\lceil qn\rceil)/f(n)$ tends to $q$.
+Taking upper limits in the recurrence yields
+\[
+L\leq\max\{\alpha L,\ 2\beta L+3/c\}.
+\]
+As $\alpha<1$, this implies $L(1-2\beta)\leq3/c$; the case $L=0$ is
+immediate. First let $\beta\downarrow0$ and then $c\uparrow1/2$ to obtain
+$L\leq6$. Finally, $n=\lceil\log a\rceil$ satisfies
+$f(n)\sim\log a/\log\log a$, proving the assertion. All upper limits concern
+the worst-case function $T$, so the resulting threshold is independent of $b$.
+\end{proof}
+No optimality of the coefficient $6$ is asserted. The refinement is formalized
+as \lean{ShortGCD.uniform_real_bound_six}; the original fixed parameters suffice
+for the simpler Big-O proof above.
+
 \section{Certificates and uniform processes}\label{sec:certificates}
 Use the book's partial remainder operation: its second argument must be
 nonzero. Recall $\mathcal N_0=(\mathbb N,\rem,\eq_0)$ and
@@ -379,6 +449,10 @@ Positivity facts may be appended if the function is restricted to positive
 inputs. For a noncoprime input, add $\eq_1(g)=\mathrm{ff}$ to this gcd
 certificate to certify noncoprimeness. Thus the sublogarithmic remainder-call
 bound holds for both truth values of coprimeness as well as for gcd.
+The fixed certificate overhead does not change the leading coefficient.
+Thus Corollary~\ref{cor:six} also holds for each of the three intrinsic
+complexities in Corollary~\ref{cor:refute}, on positive inputs. This is
+\lean{ShortGCD.uniform_intrinsic_bound_six}.
 Theorem~4F.1 supplies a single uniform process realizing each intrinsic norm
 pointwise \cite[Theorem~4F.1]{moschovakis2019}.
 
@@ -386,11 +460,18 @@ pointwise \cite[Theorem~4F.1]{moschovakis2019}.
 Selecting a close pair of residues is uncharged existential choice in a
 straight-line derivation. A deterministic remainder-only algorithm cannot
 assume that choice is available at constant cost. Computing all prefix
-residues would take about $h$ calls per contraction. The construction therefore
-does not settle the deterministic conjecture.
+residues would take about $h$ calls per contraction. Nondeterministic operand
+selection leaves a further question: can one fixed first-order recursive
+program retain and repeatedly access the growing prefix within the same
+remainder-call bound? Proposition~2E.1 converts each certificate into a
+computation of some program; it does not supply one program for all
+certificates \cite[\S2E]{moschovakis2019}. The book also distinguishes the
+best uniform process from a nondeterministic program \cite[p.~150]{moschovakis2019}.
+The construction therefore settles neither algorithmic version of the Main
+Conjecture.
 
-The supplied offline Python planner uses unrestricted arithmetic to select
-instructions; its independent replay checks operand availability, nonzero
+The supplied offline Python planner uses the original construction parameters
+and unrestricted arithmetic to select instructions; its independent replay checks operand availability, nonzero
 divisors, every remainder equation, and the final gcd. Below a base size
 (256 bits by default) it uses Euclid's algorithm. On one pseudorandom coprime
 pair of each size, generated from its default seed, it gives:
@@ -414,8 +495,8 @@ consecutive moduli above the threshold $2a/r_h$, restricted to $m<4a$
 
 \subsection{Machine-checked statements}
 The Lean 4.35.0 development, with mathlib pinned to version 4.35.0, proves the
-uniform real-logarithmic bound, its worst-case Big-O formulation, the
-Euclidean-prefix lemma, the complete three-call contraction lemma, normalization,
+uniform real-logarithmic bound, its worst-case Big-O formulation, the leading
+coefficient in Corollary~\ref{cor:six}, the Euclidean-prefix lemma, the complete three-call contraction lemma, normalization,
 and the certificate upper bounds. It contains no proof placeholders or added
 axioms. An axiom audit of the main results reports only the standard Lean
 foundations \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
@@ -425,6 +506,11 @@ The theorem \lean{ShortGCD.uniform_real_bound} states
 4\leq a\ \wedge\ b\leq a\ \Longrightarrow\
 G(a,b)\leq C\frac{\log_2 a}{\log_2(\log_2 a)}.
 \]
+The sharper theorem \lean{ShortGCD.uniform_real_bound_six} states that for
+every $\varepsilon>0$, eventually in $a$, the same inequality holds for all
+$b\leq a$ with $C=6+\varepsilon$.
+\lean{ShortGCD.uniform_intrinsic_bound_six} gives the corresponding statement
+for the three intrinsic complexities on positive inputs.
 The proof starts from a finite-store instruction semantics in which the only
 instruction is remainder with a positive, available divisor. Costs are indices
 of derivations, rather than an assumed recurrence. A formal conversion to
@@ -451,10 +537,10 @@ so on positive coprime pairs the complexity agrees with the reduction
 $\calls_{\rem}(\mathcal N_\varepsilon,\perp\!\!\!\perp,a,b)\geq r\log_2 a$
 for infinitely many $a\geq b\geq1$, and that no $K>0$ satisfies
 $2\log_2\max(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$ for infinitely
-many pairs in $\mathbb N^2$, for either structure. The $O(\log a/\log\log a)$
-bound on the intrinsic complexities is not a single theorem. It combines
+many pairs in $\mathbb N^2$, for either structure. The original
+$O(\log a/\log\log a)$ bounds combine
 \lean{ShortGCD.callsCoprimeness_le} and \lean{ShortGCD.callsGcd_le}, which bound
-them by $G(a,b)+2$, with \lean{ShortGCD.uniform_real_bound};
+the intrinsic complexities by $G(a,b)+2$, with \lean{ShortGCD.uniform_real_bound};
 \lean{ShortGCD.eventually_calls_le} states the resulting $o(\log)$ bound. The
 general theory of uniform
 processes, Theorem~4F.1 and the lower bounds of Section~1 are cited, not
@@ -488,7 +574,12 @@ large enough for the finite initial segment proves
 $\widehat T(2^n)\lfloor\log_2 n\rfloor\leq Cn$ for all $n$.
 Comparing integer floors and ceilings with real base-two logarithms yields the
 stated real bound. These parameter choices change only absolute constants,
-not the proof mechanism or its asymptotic order.
+not the proof mechanism or its asymptotic order. The refinement in
+\lean{ShortGCD.SharpBound} uses the tunable parameters of
+Corollary~\ref{cor:six}, with recursive size bounds
+$2^{\lceil\alpha n\rceil}$ and $2^{\lceil\beta n\rceil}$. It applies the same
+finite recurrence, uses the original bound to justify a finite upper limit,
+and checks the rounding limits needed to preserve the coefficient $6$.
 
 \begin{thebibliography}{5}
 \bibitem{bshouty1989}

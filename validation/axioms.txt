@@ -25,3 +25,7 @@
 'ShortGCD.uniform_real_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.sizeCost_isBigO' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.sizeCost_isLittleO_log' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.Sharp.limsup_profile_le_six' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.eventually_sizeCost_add_le_six' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.uniform_real_bound_six' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.uniform_intrinsic_bound_six' depends on axioms: [propext, Classical.choice, Quot.sound]

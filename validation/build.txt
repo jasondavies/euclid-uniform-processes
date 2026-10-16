@@ -1,22 +1,12 @@
-⚠ [9047/9064] Built ShortGCD.Derivation (2.2s)
+⚠ [9047/9066] Replayed ShortGCD.Derivation
 warning: ShortGCD/Derivation.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [9048/9064] Built ShortGCD.CoprimeCertificate (2.2s)
-warning: ShortGCD/CoprimeCertificate.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [9049/9064] Built ShortGCD.Prefix (3.6s)
+⚠ [9050/9066] Replayed ShortGCD.Prefix
 warning: ShortGCD/Prefix.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [9050/9064] Built ShortGCD.Arithmetic (3.8s)
+⚠ [9055/9066] Replayed ShortGCD.Arithmetic
 warning: ShortGCD/Arithmetic.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-✔ [9051/9064] Built ShortGCD.Composition (2.2s)
-✔ [9052/9064] Built ShortGCD.Gap (2.5s)
-✔ [9053/9064] Built ShortGCD.RemainderList (3.1s)
-✔ [9054/9064] Built ShortGCD.Normalization (2.2s)
-✔ [9055/9064] Built ShortGCD.Contraction (2.3s)
-✔ [9056/9064] Built ShortGCD.GcdCertificate (2.2s)
-✔ [9057/9064] Built ShortGCD.Euclid (2.1s)
-✔ [9058/9064] Built ShortGCD.FiniteBound (2.3s)
-✔ [9059/9064] Built ShortGCD.UpperBound (2.7s)
-✔ [9060/9064] Built ShortGCD.Asymptotic (2.1s)
-✔ [9061/9064] Built ShortGCD.Certificates (2.0s)
-✔ [9062/9064] Built ShortGCD.Conjecture (2.2s)
-✔ [9063/9064] Built ShortGCD (1.9s)
-Build completed successfully (9064 jobs).
+⚠ [9058/9066] Replayed ShortGCD.CoprimeCertificate
+warning: ShortGCD/CoprimeCertificate.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+✔ [9063/9066] Built ShortGCD.SharpBound (4.8s)
+✔ [9064/9066] Built ShortGCD.SharpCertificates (3.1s)
+✔ [9065/9066] Built ShortGCD (2.9s)
+Build completed successfully (9066 jobs).

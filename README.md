@@ -1,10 +1,16 @@
 # The Euclidean algorithm is not optimal among uniform processes
 
-Every pair a ≥ b has a remainder-only derivation of gcd(a, b) using
+Logarithmic remainder-call lower bounds for gcd and coprimeness cannot follow from
+uniformity alone. Every pair a ≥ b has a remainder-only derivation of gcd(a, b) using
 O(log a / log log a) remainder calls. Each call takes the remainder of two values
 already available, starting from a and b; earlier values are kept and no numerical
 constants are introduced. Euclid needs about 1.44 log₂ a calls in the worst case
 (successive Fibonacci numbers).
+
+The refined upper bound is **(6 + o(1)) log₂ a / log₂ log₂ a**, uniformly in b.
+Precisely, for every ε > 0, the coefficient 6 + ε works for all sufficiently large a
+and every 0 ≤ b ≤ a. The same leading coefficient holds for the intrinsic
+remainder-call complexities below on positive inputs. No optimality of 6 is claimed.
 
 As a consequence, the intrinsic calls(rem)-complexity of both coprimeness and gcd in
 the Euclidean structure Nε = (N, rem, eq0, eq1) is o(log a), uniformly over pairs with
@@ -30,21 +36,24 @@ conjecture that the Euclidean algorithm is optimal among its peers:
 
 **The Main Conjecture for algorithms remains open.** The construction gives no
 remainder-only algorithm, deterministic or nondeterministic, with this cost: choosing which
-two stored residues to combine is not charged, and only the best uniform process of
-Theorem 4F.1 attains the bound. It does show that a proof of the Main Conjecture must use
-properties beyond uniformity. A lower bound for intrinsic complexity, which is what the
-homomorphism method proves, cannot exceed O(log a / log log a).
+two stored residues to combine is not charged. The book's best-uniform-process theorem
+(4F.1) supplies a uniform process attaining the bound. The result shows that a proof of
+the Main Conjecture must use properties beyond uniformity. The Homomorphism Test applied to all generated primitive
+operation diagrams cannot prove a logarithmic lower bound: every input has a certificate
+with o(log a) remainder facts. This leaves open arguments combining homomorphisms with
+additional restrictions on computations. A nondeterministic program would still need
+to implement reusable access to the growing stored prefix within the claimed cost.
 
 Read `paper/euclid-uniform-processes.pdf`, built from `paper/euclid-uniform-processes.tex`.
 Page citations refer to the published edition of Moschovakis, *Abstract Recursion and
 Intrinsic Complexity* (Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019,
 doi:10.1017/9781108234238).
 
-**Status.** The upper bound and the refutations of Conjecture 3.4 and (4F-5) are
-machine-checked in Lean, as listed below. The consequence for the question on p. 188 also
-uses the cited Theorem 4F.1. A second,
-independent Lean formalisation of the same argument was developed separately. The result
-has not yet been reviewed by an expert in the area.
+**Status.** The upper bounds, including the leading coefficient 6, and the refutations
+of Conjecture 3.4 and (4F-5) are machine-checked in Lean, as listed below. The consequence
+for the question on p. 188 also uses the cited Theorem 4F.1. A second, independent Lean
+formalisation of the original Big-O argument was developed separately. The result has
+not yet been reviewed by an expert in the area.
 
 ## Lean verification
 
@@ -84,6 +93,13 @@ The conjectures:
 
 Derivations and certificates:
 
+- `ShortGCD.uniform_real_bound_six`: for every ε > 0, eventually in a, the coefficient
+  6 + ε bounds G(a, b) / (log₂ a / log₂ log₂ a) for every b ≤ a.
+- `ShortGCD.uniform_intrinsic_bound_six`: the same statement for `callsCoprimeness`,
+  `callsGcd` and `callsRemGcd`, for every positive b ≤ a.
+- `ShortGCD.Sharp.limsup_profile_le_six`: the upper limit of
+  sizeCost(2ⁿ) · log₂ n / n is at most 6. `eventually_sizeCost_add_le_six` also absorbs
+  any fixed additive instruction overhead.
 - `ShortGCD.uniform_real_bound`: one real constant bounds G(a, b), for every a ≥ 4 and
   b ≤ a, by C · logb 2 a / logb 2 (logb 2 a).
 - `ShortGCD.sizeCost_isBigO` and `ShortGCD.sizeCost_isLittleO_log`: worst-case Big-O and
@@ -105,14 +121,18 @@ Derivations and certificates:
 - **The upper bound:** Derivation → Composition → Normalization, and Derivation → Gap;
   Prefix stands alone. Gap, Composition and Prefix feed Contraction. Contraction and
   Normalization feed Euclid → FiniteBound. FiniteBound and Arithmetic feed UpperBound →
-  Asymptotic.
-- **Both strands meet** in Certificates → Conjecture.
+  Asymptotic → SharpBound.
+- **Both strands meet** in Certificates → Conjecture; SharpCertificates combines the
+  refined bound with the certificate reductions.
 
 - **The finite recurrence.** The core is `sizeCost_step`. Its hypotheses concern
   natural-number size parameters, not an assumed complexity bound.
 - **The bound.** Arithmetic discharges those hypotheses, and UpperBound proves the
   resulting bound by strong induction.
 - **The logarithms.** Asymptotic compares integer logarithms with real logarithms.
+- **The leading coefficient.** SharpBound reuses `sizeCost_step` with tunable prefix
+  and recursive-size parameters. The original Big-O theorem supplies boundedness;
+  an upper-limit argument gives 6, and rounding limits preserve it for general inputs.
 - **The conjectures.** Conjecture turns the bounds into the refutations.
 
 ### Soundness and scope

@@ -31,3 +31,8 @@ import ShortGCD
 #print axioms ShortGCD.uniform_real_bound
 #print axioms ShortGCD.sizeCost_isBigO
 #print axioms ShortGCD.sizeCost_isLittleO_log
+-- The refined leading coefficient and its certificate consequences.
+#print axioms ShortGCD.Sharp.limsup_profile_le_six
+#print axioms ShortGCD.eventually_sizeCost_add_le_six
+#print axioms ShortGCD.uniform_real_bound_six
+#print axioms ShortGCD.uniform_intrinsic_bound_six
