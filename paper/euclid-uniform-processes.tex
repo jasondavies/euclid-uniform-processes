@@ -33,12 +33,15 @@ same upper bound for the intrinsic remainder-call complexity of the gcd and of
 coprimeness in the Euclidean structure. This refutes the uniform-process form
 of the conjecture of van den Dries and Moschovakis that the Euclidean algorithm
 is optimal among its peers: Conjecture~3.4 of Moschovakis's 2012 notes, and the
-precise version (4F-5) of the Main Conjecture in his book. It gives no
-remainder-only algorithm, deterministic or nondeterministic, with this cost, and
-the Main Conjecture for algorithms remains open. The upper bounds, including
-the leading coefficient, the reduction to derivations and both refutations are
-formalized in Lean~4; the final section states exactly what is formalized and
-what is cited.
+precise version (4F-5) of the Main Conjecture in his book. We also construct,
+for every $\varepsilon>0$, a fixed finite nondeterministic recursive gcd
+program with remainder cost at most $\varepsilon\log a+B_\varepsilon$ on all
+positive inputs. Cost here is the minimum over successful computations.
+The program depends on $\varepsilon$; no single sublogarithmic program is
+obtained, and the Main Conjecture for algorithms remains open. The bounds,
+the certificate reductions, both refutations, and the finite program family
+are formalized in Lean~4. The final section distinguishes the formalized
+results from the cited theory and the mathematical model correspondence.
 \end{abstract}
 
 \section{Statement and relation to the book}
@@ -188,6 +191,15 @@ on infinitely many pairs, and $O(\log a/\log\log a)$, on all pairs. Closing this
 gap is an open problem. In particular, it is not known whether the bound of
 Theorem~\ref{thm:main} is optimal for remainder-only derivations, as the
 corresponding bound is in Bshouty's model.
+
+There is also an algorithmic consequence with a different quantifier order.
+Section~\ref{sec:programs} constructs fixed finite nondeterministic recursive
+programs with arbitrarily small logarithmic remainder-call coefficients,
+uniformly over all inputs. The programs use a fixed-length prefix and ordinary
+recursive calls. This complements Pratt's bound on successive Fibonacci
+numbers: the saving here is uniform, while the coefficient is chosen by
+enlarging the program. The Main Conjecture allows its lower-bound coefficient
+to depend on the program, so this consequence is compatible with it.
 
 \section{Normalization}
 Write $g=\gcd(a,b)>0$. For positive $y$,
@@ -456,12 +468,153 @@ complexities in Corollary~\ref{cor:refute}, on positive inputs. This is
 Theorem~4F.1 supplies a single uniform process realizing each intrinsic norm
 pointwise \cite[Theorem~4F.1]{moschovakis2019}.
 
+\section{Fixed programs with arbitrarily small coefficients}\label{sec:programs}
+
+For a nondeterministic program $P$, let $c_P(a,b)$ be the minimum number of
+remainder calls among its convergent computations. We require at least one
+such computation on each input and require every convergent computation to
+return the gcd. These are the conventions of
+\cite[(2E-2), (2E-5)]{moschovakis2019}.
+
+\begin{theorem}\label{thm:programs}
+For each integer $p\geq1$, there is a finite nondeterministic recursive program
+$P_p$ over $(\mathbb N,\rem,\eq_0)$ computing the gcd such that
+\[
+\limsup_{a\to\infty}\ \max_{1\leq b\leq a}
+\frac{c_{P_p}(a,b)}{\log a}\leq\frac3p.
+\]
+Its generator has $W=4^p+5$ individual parameters, and no internal function
+has larger arity. Consequently, for every $\varepsilon>0$ there are a fixed
+program $P$ and a constant $B\geq0$ such that
+\[
+\forall a\geq b\geq1,\qquad c_P(a,b)\leq\varepsilon\log a+B.
+\]
+\end{theorem}
+
+\paragraph{The program.}
+Fix $W\geq3$ and write $\vec x=(x_0,\ldots,x_{W-1})$ and
+$\vec x[i\leftarrow E]$ for the tuple with its $i$th expression replaced by
+$E$. The generator is given by the finite alternatives
+\begin{align*}
+\operatorname{choose}(\vec x)&=x_i &&(0\leq i<W),\\
+\operatorname{gen}(\vec x)&=\operatorname{choose}(\vec x),\\
+\operatorname{gen}(\vec x)&=\operatorname{gen}
+  (\vec x[i\leftarrow\rem(\operatorname{choose}(\vec x),
+                               \operatorname{choose}(\vec x))])
+  &&(0\leq i<W),\\
+\operatorname{gen}(\vec x)&=\operatorname{gen}
+  (\vec x[i\leftarrow\operatorname{gen}(\vec x)]) &&(0\leq i<W),\\
+\operatorname{gen}(\vec x)&=\operatorname{gen}
+  (\operatorname{choose}(\vec x),\ldots,\operatorname{choose}(\vec x)).
+\end{align*}
+There are $W$ independent selector calls in the last line. Tuple notation and
+indices are syntax abbreviations: after fixing $W$, each line expands into
+ordinary first-order terms with fixed arities. No tuple, index, numeric
+constant, or update operation is supplied as runtime data or a primitive.
+The nested generator in the fourth line is evaluated once; its caller's
+other parameters remain available when it returns. The recursion stack can
+grow, so $W$ is an arity bound, not a total storage bound.
+
+Add $\operatorname{loop}(z)=\operatorname{loop}(z)$ and define
+$\operatorname{accept}(a,b,g)$ by nested zero-test conditionals: if $g=0$,
+loop; otherwise test $\rem(a,g)=0$ and then $\rem(b,g)=0$, returning $g$ if
+both tests succeed and looping otherwise. The head is
+\[
+P_W(a,b)=\text{if }\eq_0(b)\text{ then }a\text{ else }
+\operatorname{accept}(a,b,\operatorname{gen}(a,b,a,\ldots,a)).
+\]
+The four internal symbols have arities $W,W,3,1$. Every common divisor of
+the generator's parameters divides its output, by induction on a finite
+evaluation. Thus a candidate is divisible by $\gcd(a,b)$; successful
+verification proves the reverse divisibility. Every convergent computation
+therefore returns the gcd. There is always a convergent computation following
+Euclid, using parameter selection and copying to retain the current pair.
+For $b>0$, final verification costs exactly two remainder calls.
+
+\paragraph{Operational correspondence.}
+The syntax above is a finite recursive program in the sense of
+\cite[\S\S2A, 2E]{moschovakis2019}. Its finite call-by-value evaluation trees,
+used in Lean, correspond to convergent computations of the book's recursive
+machine, preserving the result and the number of remainder calls. Here is the
+cost argument explicitly. For the forward direction, induct on the evaluation
+tree. Evaluate argument subtrees right to left, as prescribed by the machine's
+composition rule, then choose the indicated body at the internal call.
+Transition locality permits each subtree computation to be placed in its
+calling context \cite[Table~1 and Lemma~2D.1, pp.~75--76]{moschovakis2019}.
+A remainder node adds one external remainder call; a conditional evaluates
+its guard, makes one uncharged zero test, and evaluates only the selected
+branch. Variables and internal calls add no remainder calls. For the reverse
+direction, decompose a convergent computation at the completed argument
+evaluations and the selected body or branch, and induct on its length.
+This gives the same additive cost equations. Choices belong to individual
+call occurrences, and the language has no shared mutable state, so serializing
+the argument trees introduces no constraint on their choices. No successful
+tree uses a zero divisor or terminates through $\operatorname{loop}$.
+This correspondence is a mathematical argument; the book's general machine
+has not been formalized in Lean.
+
+\begin{proof}[Proof of Theorem~\ref{thm:programs}]
+Set $k=2^p$, $h=k^2+1$, and $W=h+4$, and take $P_p=P_W$.
+Store $r_0,\ldots,r_h$ in $h+1$
+parameters, reserving three parameters for the modulus and two temporary
+residues. Lemmas~\ref{lem:gap} and~\ref{lem:prefix} give a contraction by a
+factor greater than $k$ in at most three remainder calls, preserving the
+prefix. The program can choose precisely the operands that witness each
+contraction.
+
+Let $T_W(n)$ be the maximum, over $a,b\leq2^n$, of the minimum generator
+cost to return $\gcd(a,b)$ from $(a,b,a,\ldots,a)$. Euclid gives
+$T_W(n)=O(n)$. Copying parameters gives symmetry, and positive scaling
+preserves generator runs and their remainder counts. It therefore suffices
+to analyze coprime inputs.
+
+Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$. Use the early threshold
+$N^\alpha$ and the target modulus $N^\beta$, where $N=2^n$. If the prefix
+is large, $2a/r_h<2N^{1-\alpha}<N^\beta$ for all sufficiently large $n$.
+There are at least $k+1$ distinct prefix residues modulo every modulus used
+before stopping, since $h>k^2$. At most $\lceil n/p\rceil$ contractions
+produce a positive $m\leq N^\beta$.
+
+Form $u=a\bmod m$ and $v=b\bmod m$ in the temporary positions. A nested
+generator call, with its parameters routed to copies of $m,u$, returns
+$d=\gcd(m,u)$ while its caller retains $v$. Replace the modulus parameter
+by $d$ and route to copies of $d,v$ for the second gcd computation. The
+result is $\gcd(m,a,b)=1$. For general inputs the scaled witness returns
+the original gcd. In the early case, route directly to the smaller
+consecutive Euclidean pair. All these routes and nested calls are available
+in the same fixed program. Thus, eventually in $n$,
+\[
+T_W(n)\leq\max\left\{
+ T_W(\lceil\alpha n\rceil)+h+1,\quad
+ 2T_W(\lceil\beta n\rceil)+h+3\lceil n/p\rceil+2
+\right\}.
+\]
+Set $L_W=\limsup_{n\to\infty}T_W(n)/n$, finite and nonnegative by Euclid.
+Since $h$ is fixed, division by $n$ and passage to upper limits gives
+\[
+L_W\leq\max\{\alpha L_W,\ 2\beta L_W+3/p\}.
+\]
+As $\alpha<1$, this implies $(1-2\beta)L_W\leq3/p$. The program is
+independent of $\beta$, so letting $\beta\downarrow0$ gives $L_W\leq3/p$.
+Take $n=\lceil\log a\rceil$ and add the two verification calls. Finally,
+choose $p>3/\varepsilon$ and absorb the finitely many smaller inputs in $B$.
+\end{proof}
+
+The theorem is a statement about a family of programs. The prefix length
+grows when a smaller coefficient is requested, but remains fixed as the
+inputs grow. It does not exchange $\forall\varepsilon\,\exists P_\varepsilon$
+with $\exists P\,\forall\varepsilon$. Neither the coefficient nor the arity
+bound is claimed optimal. Merely inlining several remainder instructions
+into one term would still charge for each external remainder call; the saving
+here uses the prefix lemma and recursive reduction.
+
 \section{Scope and verification}\label{sec:scope}
 Selecting a close pair of residues is uncharged existential choice in a
 straight-line derivation. A deterministic remainder-only algorithm cannot
 assume that choice is available at constant cost. Computing all prefix
 residues would take about $h$ calls per contraction. Nondeterministic operand
-selection leaves a further question: can one fixed first-order recursive
+selection and the fixed-prefix programs of Section~\ref{sec:programs} leave a
+further question: can one fixed first-order recursive
 program retain and repeatedly access the growing prefix within the same
 remainder-call bound? Proposition~2E.1 converts each certificate into a
 computation of some program; it does not supply one program for all
@@ -521,8 +674,8 @@ remainder facts in a certificate for $\gcd(a,b)=1$ equals $D(a,b)$
 (\lean{ShortGCD.callsRem_eq_D}), and $G$ agrees with $D$
 (\lean{ShortGCD.G_eq_D}).
 
-The intrinsic complexities themselves are also defined in Lean, directly from
-certificates: \lean{ShortGCD.callsCoprimeness} for the book's relation
+The Lean definitions from certificates are
+\lean{ShortGCD.callsCoprimeness} for the book's relation
 $\perp\!\!\!\perp$ in $\mathcal N_\varepsilon$, with positive inputs
 (\lean{ShortGCD.BookCoprime}), and \lean{ShortGCD.callsGcd} and
 \lean{ShortGCD.callsRemGcd} for the gcd in $\mathcal N_0$ and
@@ -530,7 +683,9 @@ $\mathcal N_\varepsilon$. Adding the facts $\eq_0(a)=\mathrm{ff}$ and
 $\eq_0(b)=\mathrm{ff}$ is checked to turn a certificate for $\gcd(a,b)=1$ into
 one for $\perp\!\!\!\perp$ (\lean{ShortGCD.certifiesCoprimeness_of_certifiesCoprime}),
 so on positive coprime pairs the complexity agrees with the reduction
-(\lean{ShortGCD.callsCoprimeness_eq_callsRem}). The theorems
+(\lean{ShortGCD.callsCoprimeness_eq_callsRem}).
+
+The theorems
 \lean{ShortGCD.not_conjecture_3_4},
 \lean{ShortGCD.not_main_conjecture_4F5} and
 \lean{ShortGCD.not_main_conjecture_4F5_Neps} state that no $r>0$ satisfies
@@ -546,6 +701,26 @@ general theory of uniform
 processes, Theorem~4F.1 and the lower bounds of Section~1 are cited, not
 formalized. Theorem~4F.1 is needed only to restate these intrinsic bounds in
 terms of a single best uniform process, not for the refutations themselves.
+
+Theorem~\ref{thm:programs} is checked in the seven modules
+\lean{RegisterProgram} through \lean{RegisterSyntax}. Under
+\lean{ShortGCD.RegisterProgram}, the theorem \lean{maxCost_step} proves the
+fixed-parameter recurrence, and \lean{Fixed.limsup_profile_le} proves its
+coefficient $3/p$. The syntax development gives finite body sets for the four
+internal symbols above. \lean{Syntax.run_invokes} translates generator runs
+into evaluation trees with exactly the same remainder count;
+\lean{Syntax.accepts_eval} includes final verification.
+\lean{Syntax.eval_head_correct} proves correctness of every terminating
+evaluation, and \lean{Syntax.eval_head_exists} proves existence on every
+input. The quantified bound is \lean{Syntax.arbitrarily_small_program};
+\lean{Syntax.eventually_eval_bound} gives every coefficient greater than
+$3/p$ for a fixed $p$. These modules are included in the normal build and
+axiom audit. The correspondence with the book's machine is the mathematical
+argument in Section~\ref{sec:programs}, rather than a Lean theorem about that
+machine. An independent Python compiler and right-to-left interpreter check
+138 cases across three fixed widths, 129 additional scaled replays, and eight
+negative cases. The interpreter is not formally verified; unrestricted
+arithmetic used to plan successful choices is not part of the programs.
 
 \subsection{Integer parameters used in Lean}
 To avoid real rounding in the construction itself, the formal proof uses, for

@@ -44,13 +44,21 @@ with o(log a) remainder facts. This leaves open arguments combining homomorphism
 additional restrictions on computations. A nondeterministic program would still need
 to implement reusable access to the growing stored prefix within the claimed cost.
 
+**A further algorithmic result:** for every ε > 0, there is a fixed finite
+nondeterministic recursive gcd program using only rem and eq0 with cost at most
+ε log₂ a + Bε on all positive inputs a ≥ b. Cost is the minimum number of remainder
+calls over successful computations; every terminating computation is correct.
+The program depends on ε. This family does not give one sublogarithmic program.
+The theorem and proof are included in Section 6 of the paper and checked in Lean.
+
 Read `paper/euclid-uniform-processes.pdf`, built from `paper/euclid-uniform-processes.tex`.
 Page citations refer to the published edition of Moschovakis, *Abstract Recursion and
 Intrinsic Complexity* (Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019,
 doi:10.1017/9781108234238).
 
-**Status.** The upper bounds, including the leading coefficient 6, and the refutations
-of Conjecture 3.4 and (4F-5) are machine-checked in Lean, as listed below. The consequence
+**Status.** The upper bounds, including the leading coefficient 6, the finite
+nondeterministic program-family bound, and the refutations of Conjecture 3.4 and
+(4F-5) are machine-checked in Lean, as listed below. The consequence
 for the question on p. 188 also uses the cited Theorem 4F.1. A second, independent Lean
 formalisation of the original Big-O argument was developed separately. The result has
 not yet been reviewed by an expert in the area.
@@ -175,10 +183,12 @@ Results are in `validation/`. The planner uses unrestricted arithmetic; only the
 remainder facts it returns are counted as instructions. These finite checks supplement
 the Lean proof.
 
-## Research: nondeterministic programs
+## Nondeterministic program family
 
-The separate [research note](research/nondeterministic-prefix.pdf)
-([source](research/nondeterministic-prefix.tex)) develops a family of finite
+Section 6 of the paper proves the program-family theorem. The expanded
+[research note](research/nondeterministic-prefix.pdf)
+([source](research/nondeterministic-prefix.tex)) gives the implementation details
+and executable checks for this family of finite
 nondeterministic recursive gcd programs using only remainder and the zero test.
 For each integer p ≥ 1, a program with 4ᵖ + 5 generator parameters has worst-case
 remainder cost at most (3/p + o(1)) log₂ a. Thus, for every ε > 0, there is a
@@ -213,7 +223,11 @@ The [research entry point](research/RegisterProgram.lean) records a separate
 
 The syntax proof inlines the setter functions. It uses finite evaluation trees;
 the book's general recursive machine and the Python interpreter are not themselves
-formalized in Lean. The result remains in the separate research note.
+formalized in Lean. The paper gives a mathematical correspondence argument preserving
+results and remainder counts, including the book's right-to-left argument order.
+The [model and literature audit](research/model-novelty-audit.txt) records the
+source checks and their limits. No matching uniform coefficient result was located
+in the sources checked; this is not an exhaustive novelty determination.
 
 The executable compiler produces finite first-order syntax, which a separate
 interpreter executes using supplied nondeterministic choices. Checks cover 138

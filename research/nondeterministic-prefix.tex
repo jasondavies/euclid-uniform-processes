@@ -15,7 +15,7 @@
 \newcommand{\lean}[1]{\nolinkurl{#1}}
 \makeatletter\g@addto@macro\UrlBreaks{\do\_}\makeatother
 \emergencystretch=2em
-\title{Fixed-arity nondeterministic remainder programs:\\an intermediate result}
+\title{Fixed-arity nondeterministic remainder programs:\\expanded proof and executable checks}
 \author{Research note accompanying the uniform-process construction}
 \date{October 16, 2026}
 \begin{document}
@@ -176,6 +176,20 @@ before the chosen body and summing their remainder counts. This formalizes
 the explicit program, not the book's general recursive machine. The Python
 compiler and interpreter are independently checked executable artifacts,
 not verified implementations of the Lean semantics.
+
+For these pure terms the evaluation trees correspond, with the same result
+and remainder count, to the book's recursive machine. In the forward direction,
+induct on a tree and serialize its argument evaluations right to left before
+entering the chosen body. Transition locality embeds each evaluation in its
+caller context \cite[Table~1 and Lemma~2D.1, pp.~75--76]{book}. A remainder
+node adds one remainder call; a zero-test conditional adds none and evaluates
+only its chosen branch. Conversely, decompose a terminating machine computation
+into its completed argument computations and selected body or branch, and
+induct on its length. Each selector occurrence makes its own choice, with no
+shared mutable state. The setters in this note merely pass their evaluated
+arguments to the generator, so inlining them also preserves results and
+remainder counts. These correspondence arguments are mathematical proofs,
+not additional kernel-checked theorems about the book's machine or Python.
 
 \section{The fixed-prefix cost bound}
 
@@ -341,7 +355,10 @@ The proof modules are included in the normal \lean{lake build} target.
 The research entry point prints their axiom dependencies, recorded in
 \lean{register-axioms.txt}; only the standard axioms \lean{propext},
 \lean{Classical.choice}, and \lean{Quot.sound} occur.
-This result remains separate from the companion manuscript.
+The program-family theorem and its proof are included in Section~6 of the
+companion manuscript; this note retains the expanded operational discussion
+and executable checks. The accompanying \lean{model-novelty-audit.txt}
+records the model comparison and the scope of the primary-literature search.
 Obtaining one sublogarithmic program remains the larger open task.
 
 \begin{thebibliography}{2}
