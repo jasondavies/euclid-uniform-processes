@@ -26,8 +26,7 @@ combine is not charged. It does show that a proof of the Main Conjecture must us
 determinism. A lower bound for intrinsic complexity, which is what the homomorphism
 method proves, cannot exceed log a / log log a.
 
-Read `paper/short-gcd-certificates.pdf`, or the self-contained HTML file beside it.
-The canonical manuscript is `paper/short-gcd-certificates.tex`. Citations refer to
+Read `paper/short-gcd-certificates.pdf`, built from `paper/short-gcd-certificates.tex`. Citations refer to
 printed pages of Moschovakis, *Abstract Recursion and Intrinsic Complexity* (Cambridge
 University Press / ASL, 2019).
 
@@ -124,18 +123,16 @@ Results are in `validation/`. The planner uses unrestricted arithmetic; only the
 remainder facts it returns are counted as instructions. These finite checks supplement
 the Lean proof.
 
-## Rendering
+## Building the paper
 
 ```
-python3 scripts/render_paper.py
-python3 scripts/render_pdf.py
+cd paper
+pdflatex short-gcd-certificates.tex
+pdflatex short-gcd-certificates.tex
 ```
 
-- **`scripts/render_paper.py`** needs Pandoc. It produces HTML with native MathML and
-  embedded CSS, requiring no CDN.
-- **`scripts/render_pdf.py`** needs Playwright and an installed Chromium.
-
-The LaTeX source can also be compiled with a standard LaTeX installation.
+The second run resolves cross-references. The bibliography is written inline, so no
+BibTeX run is needed.
 
 ## Reused code
 

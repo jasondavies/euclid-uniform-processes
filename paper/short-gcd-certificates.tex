@@ -1,5 +1,6 @@
 \documentclass[11pt]{article}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsthm,mathtools,booktabs}
 \usepackage[margin=1in]{geometry}
 \usepackage[colorlinks=true,urlcolor=blue,citecolor=blue]{hyperref}
@@ -9,6 +10,10 @@
 \newcommand{\rem}{\operatorname{rem}}
 \newcommand{\calls}{\operatorname{calls}}
 \newcommand{\eq}{\operatorname{eq}}
+% Lean identifiers, breakable after dots and underscores.
+\newcommand{\lean}[1]{\nolinkurl{#1}}
+\makeatletter\g@addto@macro\UrlBreaks{\do\_}\makeatother
+\emergencystretch=2em
 \title{Short remainder-only certificates for the greatest common divisor}
 \author{Jason Davies}
 \date{October 16, 2026}
@@ -103,8 +108,8 @@ satisfy the stated inequality.
 \end{corollary}
 The corollary follows from Theorem~\ref{thm:main} and
 Section~\ref{sec:certificates}. It is formalized as
-\texttt{ShortGCD.not\_conjecture\_3\_4} and
-\texttt{ShortGCD.not\_main\_conjecture\_4F5}. The structure $A$ in (4F-5) may
+\lean{ShortGCD.not_conjecture_3_4} and
+\lean{ShortGCD.not_main_conjecture_4F5}. The structure $A$ in (4F-5) may
 include $\eq_1$; allowing more kinds of facts can only lower the complexity,
 so the refutation applies either way. Theorem~4F.1
 \cite[pp.~149--150]{moschovakis2019} transfers these pointwise intrinsic
@@ -354,7 +359,7 @@ Euclidean-prefix lemma, the complete three-call contraction lemma, normalization
 and the certificate upper bounds. It contains no proof placeholders or added
 axioms. An axiom audit of the main results reports only the standard Lean
 foundations \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
-The theorem \texttt{ShortGCD.uniform\_real\_bound} states
+The theorem \lean{ShortGCD.uniform_real_bound} states
 \[
 \exists C>0\ \forall a,b\in\mathbb N,\quad
 4\leq a\ \wedge\ b\leq a\ \Longrightarrow\
@@ -368,12 +373,12 @@ remainder facts and the bound for positive and negative coprimeness instances.
 The equality with the existing $D$ definition is also checked.
 
 The intrinsic complexities themselves are also defined in Lean, directly from
-certificates: \texttt{callsCoprimeness} for the coprimeness relation in
-$N_\varepsilon$ and \texttt{callsGcd} for the gcd without $\eq_1$ facts. On
+certificates: \lean{callsCoprimeness} for the coprimeness relation in
+$N_\varepsilon$ and \lean{callsGcd} for the gcd without $\eq_1$ facts. On
 coprime pairs the former agrees with the existing reduction to $D$
-(\texttt{callsCoprimeness\_eq\_callsRem}). The theorems
-\texttt{ShortGCD.not\_conjecture\_3\_4} and
-\texttt{ShortGCD.not\_main\_conjecture\_4F5} state that no $r>0$ satisfies
+(\lean{callsCoprimeness_eq_callsRem}). The theorems
+\lean{ShortGCD.not_conjecture_3_4} and
+\lean{ShortGCD.not_main_conjecture_4F5} state that no $r>0$ satisfies
 $\mathrm{calls}(\mathrm{rem})(N_\varepsilon,\perp\!\!\!\perp,a,b)\geq r\log_2 a$
 for infinitely many $a\geq b\geq1$, and that no $K>0$ satisfies
 $2\log_2\max(x,y)\leq K\,\mathrm{calls}(\mathrm{rem})(\gcd,x,y)$ for infinitely
