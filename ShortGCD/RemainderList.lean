@@ -12,8 +12,9 @@ derivation exists, that is, for non-coprime pairs).
   most `k` remainder facts reaches `1`. Building a derivation from a reachability proof
   merges the derivations of the two operands and drops repeated values, so its entries are
   distinct outputs of facts.
-* `callsRem_eq_D`: on coprime pairs, the intrinsic `calls(rem)`-complexity of coprimeness in
-  `Nε` equals `D`.
+* `callsRem_eq_D`: on coprime pairs, the intrinsic `calls(rem)`-complexity of `Nat.Coprime`
+  in `Nε` equals `D`. For the book's relation, which requires positive inputs, see
+  `callsCoprimeness_eq_callsRem`.
 -/
 
 namespace ShortGCD
@@ -183,7 +184,7 @@ theorem D_eq_derivLen (a b : ℕ) : D a b = derivLen a b := by
     exact ⟨l.length, ⟨l, hl, h1, rfl⟩, hk⟩
 
 /-- **The reformulation for uniform processes.** For coprime `a, b`, the intrinsic
-`calls(rem)`-complexity of coprimeness in the Euclidean structure `Nε` at `(a, b)` is the
+`calls(rem)`-complexity of `Nat.Coprime` in the Euclidean structure `Nε` at `(a, b)` is the
 length of a shortest remainder derivation of `1` from `a, b`. For non-coprime pairs both
 sides are `0` by the `sInf ∅ = 0` convention. -/
 theorem callsRem_eq_D (a b : ℕ) : callsRem a b = D a b := by

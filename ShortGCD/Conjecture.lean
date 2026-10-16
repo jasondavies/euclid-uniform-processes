@@ -233,4 +233,30 @@ theorem not_main_conjecture_4F5_Neps :
   exact hp.trans (mul_le_mul_of_nonneg_left
     (by exact_mod_cast callsRemGcd_le_callsGcd p.1 p.2) hK.le)
 
+/-- **Conjecture 3.4, read literally**: a rational `r > 0` and infinitely many `a`, each with
+some `1 ≤ b ≤ a`. This follows from `not_conjecture_3_4`, which allows real `r` and counts
+pairs. -/
+theorem not_conjecture_3_4_literal :
+    ¬ ∃ r : ℚ, 0 < r ∧ {a : ℕ | ∃ b, 1 ≤ b ∧ b ≤ a ∧
+      (r : ℝ) * Real.logb 2 a ≤ callsCoprimeness a b}.Infinite := by
+  rintro ⟨r, hr, hinf⟩
+  apply not_conjecture_3_4
+  refine ⟨r, by exact_mod_cast hr, fun hfin ↦ hinf ?_⟩
+  refine (hfin.image Prod.fst).subset ?_
+  rintro a ⟨b, h1, h2, h3⟩
+  exact ⟨(a, b), ⟨h1, h2, h3⟩, rfl⟩
+
+/-- **(4F-5), read literally**, in `Nε`: there are no set `D ⊆ ℕ²` and `K > 0` such that
+`2 log₂ max(x, y) ≤ K · calls(rem)(Nε, gcd, x, y)` on `D` while the complexity is unbounded on
+`D` (condition (4F-4)). The book's first inequality, `calls(rem)(ε, x, y) ≤ L(x, y)`, is
+dropped, which only strengthens the statement refuted. -/
+theorem not_main_conjecture_4F5_literal :
+    ¬ ∃ (D : Set (ℕ × ℕ)) (K : ℝ), 0 < K ∧
+      (∀ p ∈ D, 2 * Real.logb 2 (max p.1 p.2 : ℕ) ≤ K * callsRemGcd p.1 p.2) ∧
+      ¬ BddAbove ((fun p : ℕ × ℕ ↦ callsRemGcd p.1 p.2) '' D) := by
+  rintro ⟨D, K, hK, hD, hunb⟩
+  apply not_main_conjecture_4F5_Neps
+  refine ⟨K, hK, Set.Infinite.mono (fun p hp ↦ hD p hp) fun hfin ↦ ?_⟩
+  exact hunb (hfin.image _).bddAbove
+
 end ShortGCD

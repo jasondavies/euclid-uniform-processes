@@ -4,6 +4,8 @@ import ShortGCD
 #print axioms ShortGCD.not_conjecture_3_4
 #print axioms ShortGCD.not_main_conjecture_4F5
 #print axioms ShortGCD.not_main_conjecture_4F5_Neps
+#print axioms ShortGCD.not_conjecture_3_4_literal
+#print axioms ShortGCD.not_main_conjecture_4F5_literal
 #print axioms ShortGCD.eventually_calls_le
 -- The intrinsic complexities and their relation to the reduction.
 #print axioms ShortGCD.certifiesCoprimeness_of_certifiesCoprime

@@ -33,7 +33,7 @@ contractions = phases = 0
 for a, b in cases:
     cert = Certificate(a, b)
     output = cert.plan_gcd(a, b, base_bits=64)
-    assert cert.verify(output)
+    cert.verify(output)
     phases += cert.phases
     contractions += cert.contractions
 

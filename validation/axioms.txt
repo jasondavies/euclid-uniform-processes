@@ -1,6 +1,8 @@
 'ShortGCD.not_conjecture_3_4' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.not_main_conjecture_4F5' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.not_main_conjecture_4F5_Neps' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.not_conjecture_3_4_literal' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.not_main_conjecture_4F5_literal' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.eventually_calls_le' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.certifiesCoprimeness_of_certifiesCoprime' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.callsCoprimeness_eq_callsRem' depends on axioms: [propext, Classical.choice, Quot.sound]

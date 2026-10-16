@@ -85,14 +85,14 @@ theorem gcd_certificate_of_facts {F : Finset RemFact} {a b : ℕ}
     dsimp only [R]
     omega
 
-/-- The gcd upper certificate bound is uniform on all positive inputs. -/
+/-- The gcd certificate bound, for every `a > 0` and every `b`. -/
 theorem gcd_certificate_bound {a b : ℕ} (ha : 0 < a) :
     ∃ U : Cert, U.CertifiesGcd a b ∧ U.eq1s = ∅ ∧ U.rems.card ≤ G a b+2 := by
   obtain ⟨F,hF,hcard,hg⟩ := (generates_G a b).to_facts
   obtain ⟨U,hU,h1,hcardU⟩ := gcd_certificate_of_facts (Nat.gcd_pos_of_pos_left b ha) hF hg
   exact ⟨U,hU,h1,by omega⟩
 
-/-- Positive coprimeness instances require no more remainder facts than the derivation. -/
+/-- True instances of `Nat.Coprime` need no more remainder facts than the derivation. -/
 theorem coprime_certificate_bound {a b : ℕ} (hc : Nat.Coprime a b) :
     ∃ U : Cert, U.CertifiesCoprime a b ∧ U.rems.card ≤ G a b := by
   obtain ⟨F,hF,hcard,hg⟩ := (generates_G a b).to_facts

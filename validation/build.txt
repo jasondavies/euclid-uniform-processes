@@ -7,7 +7,7 @@ warning: ShortGCD/Arithmetic.lean: imports `Mathlib` from package `mathlib`, whi
 ⚠ [9058/9064] Replayed ShortGCD.CoprimeCertificate
 warning: ShortGCD/CoprimeCertificate.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
 ✔ [9059/9064] Built ShortGCD.RemainderList (2.7s)
-✔ [9060/9064] Built ShortGCD.GcdCertificate (1.0s)
+✔ [9060/9064] Built ShortGCD.GcdCertificate (2.0s)
 ✔ [9061/9064] Built ShortGCD.Certificates (2.0s)
 ✔ [9062/9064] Built ShortGCD.Conjecture (2.2s)
 ✔ [9063/9064] Built ShortGCD (1.9s)

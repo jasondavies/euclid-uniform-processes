@@ -30,9 +30,9 @@ same upper bound for the intrinsic remainder-call complexity of the gcd and of
 coprimeness in the Euclidean structure. This refutes the uniform-process form
 of the conjecture of van den Dries and Moschovakis that the Euclidean algorithm
 is optimal among its peers: Conjecture~3.4 of Moschovakis's 2012 notes, and the
-precise version (4F-5) of the Main Conjecture in his book. It does not give a
-deterministic remainder-only algorithm with this cost, and the deterministic
-conjecture remains open. The upper bound, the reduction to derivations and both
+precise version (4F-5) of the Main Conjecture in his book. It gives no
+remainder-only algorithm, deterministic or nondeterministic, with this cost, and
+the Main Conjecture for algorithms remains open. The upper bound, the reduction to derivations and both
 refutations are formalized in Lean~4; the final section states exactly what is
 formalized and what is cited.
 \end{abstract}
@@ -61,22 +61,24 @@ among its peers, the algorithms that compute the gcd from the remainder
 function \cite{vddm2004}. Moschovakis's Main Conjecture asserts that for every
 algorithm $\alpha$ from $\rem,\eq_0$ computing $\gcd(x,y)$ there is an $r>0$
 such that $\alpha$ makes more than $r\log x$ remainder calls on infinitely many
-pairs \cite[p.~2]{moschovakis2019}.
+pairs $x>y\geq1$ \cite[p.~2]{moschovakis2019}.
 
-The known lower bound is a logarithm smaller. A recursive program deciding
-coprimeness from $=$, $<$, $+$, truncated subtraction, $\mathrm{iq}$ and $\rem$
-makes more than $\tfrac1{10}\log\log a$ calls on infinitely many coprime pairs
-\cite[Theorem~A]{vddm2004}; see also \cite{vddm2009}. The book proves it as an
+The known lower bound is a logarithm smaller. For a recursive program deciding
+coprimeness from $=$, $<$, $+$, truncated subtraction, $\mathrm{iq}$ and $\rem$,
+the depth of nested calls to these primitives exceeds $\tfrac1{10}\log\log a$ on
+infinitely many coprime pairs \cite[Theorem~A]{vddm2004}; see also
+\cite{vddm2009}. The book proves it as an
 intrinsic bound in
 $\mathbf N_0[\div]=(\mathbb N,0,1,=,<,+,\dot{-},\mathrm{iq},\rem)$:
 $\mathrm{depth}_{\perp\!\!\!\perp}(\mathbf N_0[\div],a,b)>\tfrac1{10}\log\log a$
-for infinitely many pairs \cite[Theorem~6C.5, p.~187]{moschovakis2019}, so it
+for every ``difficult pair'', a class that contains every solution of Pell's
+equation \cite[Theorem~6C.5, p.~187]{moschovakis2019}, so it
 holds for all uniform processes, nondeterministic ones included. A certificate
 in $\mathcal N_\varepsilon$ becomes one in $\mathbf N_0[\div]$ when each $\eq_0$
 or $\eq_1$ fact is replaced by an equality with the constant $0$ or $1$, and its
 depth then exceeds its number of remainder facts by at most a constant. Hence
 $\calls_{\rem}(\mathcal N_\varepsilon,\perp\!\!\!\perp,a,b)=\Omega(\log\log a)$ on
-infinitely many pairs. Pratt's nondeterministic algorithm
+all difficult pairs. Pratt's nondeterministic algorithm
 \cite[Theorem~2E.2 and Problems x2E.17--x2E.19]{moschovakis2019} matches this
 bound up to a constant factor on successive Fibonacci numbers
 \cite[Corollary~6C.7]{moschovakis2019}. Whether a logarithmic bound holds for
@@ -84,8 +86,8 @@ all uniform processes was left open \cite[p.~188]{moschovakis2019},
 \cite[Conjecture~3.4]{moschovakis2012}.
 
 In a different model, Bshouty showed that a random access machine with linear
-operations, shifts and indirect addressing computes the gcd in
-$O(\log N/\log\log N)$ operations, by reading precomputed blocks of the binary
+operations, shifts and indirect addressing computes the gcd of two integers in
+$[0,N]$ in $O(\log N/\log\log N)$ operations, by reading precomputed blocks of the binary
 gcd algorithm from a table. He also proved that this is optimal: even with
 rational constants, multiplication and division by constants, and the floor
 function added, $\Omega(\log N/\log\log N)$ operations are necessary
@@ -99,8 +101,9 @@ The definitions of generated certificates and intrinsic complexities are in
 \cite[\S\S1D, 4C--4E]{moschovakis2019} and are recalled in
 Section~\ref{sec:certificates}. Write
 $\mathcal N_0=(\mathbb N,\rem,\eq_0)$ and
-$\mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1)$, and
-$\calls_{\rem}(\mathcal A,f,\vec x)$ for the least number of remainder facts in
+$\mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1)$; the structure
+$\mathcal N_0$ is not the book's $\mathbf N_0$, whose expansion
+$\mathbf N_0[\div]$ appears above. Write $\calls_{\rem}(\mathcal A,f,\vec x)$ for the least number of remainder facts in
 a certificate for $f$ at $\vec x$ in the structure $\mathcal A$. Coprimeness is
 the relation $x\perp\!\!\!\perp y\iff x,y\geq1\wedge\gcd(x,y)=1$
 \cite[\S1A]{moschovakis2019}, \cite{moschovakis2012}. Moschovakis's 2012 notes
@@ -118,12 +121,13 @@ and a $K>0$ such that
 \calls_{\rem}(\varepsilon,x,y)\leq L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y),
 \tag{4F-5}
 \]
-where $L(x,y)=2\log\max(x,y)$, $\varepsilon$ is the Euclidean algorithm, and
-$\mathcal D$ satisfies the
-conditions (4F-3) and (4F-4). By (4F-4) the intrinsic complexity is unbounded
-on $\mathcal D$, so $\mathcal D$ is infinite. Dropping the first inequality and
-asking only for an infinite $\mathcal D$ gives a weaker statement, and we
-refute that weaker statement.
+where $L(x,y)=2\log\max(x,y)$ and $\varepsilon$ is the Euclidean algorithm.
+The book adds that $\mathcal D$ then satisfies its conditions (4F-3) and
+(4F-4). Condition (4F-4) makes the intrinsic complexity unbounded on
+$\mathcal D$, so the intended $\mathcal D$ is infinite; for finite $\mathcal D$
+the statement would be trivial. Dropping the first inequality and asking only
+for an infinite $\mathcal D$ gives a weaker statement, and we refute that
+weaker statement.
 
 \begin{corollary}\label{cor:refute}
 The intrinsic complexities
@@ -145,14 +149,24 @@ the single fact $\eq_0(0)=\mathrm{tt}$, with no remainder facts. It is
 formalized as \lean{ShortGCD.not_conjecture_3_4},
 \lean{ShortGCD.not_main_conjecture_4F5} (for $\mathcal N_0$) and
 \lean{ShortGCD.not_main_conjecture_4F5_Neps} (for $\mathcal N_\varepsilon$).
-Theorem~4F.1
-\cite[pp.~149--150]{moschovakis2019} transfers these pointwise intrinsic
-bounds to a single uniform process.
+The literal readings, with a rational $r$ and infinitely many $a$ for
+Conjecture~3.4, and with a set $\mathcal D$ on which the complexity is unbounded
+for (4F-5), are \lean{ShortGCD.not_conjecture_3_4_literal} and
+\lean{ShortGCD.not_main_conjecture_4F5_literal}.
 
-The corollary settles neither the Main Conjecture for deterministic
-algorithms nor its form for deterministic uniform processes
-\cite[Conjecture~3.9]{moschovakis2012}, \cite[\S4H]{moschovakis2019}; see
-Section~\ref{sec:scope}. With the lower bound above, the intrinsic complexity
+Theorem~4F.1 \cite[pp.~149--150]{moschovakis2019} supplies a single uniform
+process that attains these pointwise intrinsic bounds. So some uniform process
+of $\mathcal N_\varepsilon$ decides coprimeness, and one computes the gcd, with
+$O(\log a/\log\log a)$ remainder calls on all pairs $a\geq b\geq1$. This settles
+the possibility
+raised after Corollary~6C.7 \cite[p.~188]{moschovakis2019}: the Main Conjecture
+does not hold for all uniform processes of $\mathcal N_\varepsilon$.
+
+The corollary does not settle the Main Conjecture for algorithms, that is,
+recursive programs, deterministic or nondeterministic
+\cite[p.~2]{moschovakis2019}. Nor does it settle the form for deterministic
+uniform processes \cite[Conjecture~3.9]{moschovakis2012},
+\cite[\S4H and p.~188]{moschovakis2019}; see Section~\ref{sec:scope}. With the lower bound above, the intrinsic complexity
 of coprimeness in $\mathcal N_\varepsilon$ now lies between $\Omega(\log\log a)$,
 on infinitely many pairs, and $O(\log a/\log\log a)$, on all pairs. Closing this
 gap is an open problem. In particular, it is not known whether the bound of
@@ -199,7 +213,8 @@ instructions; they are not instructions of the derivation.
 
 \begin{lemma}[Euclidean-prefix lemma]\label{lem:prefix}
 Let $r_0=a>r_1=b>\cdots>r_h>0$ be a Euclidean prefix of a coprime pair, with
-$r_{i-1}=q_i r_i+r_{i+1}$ and $q_i\geq1$. For every integer $m>2a/r_h$, the
+$r_{i-1}=q_i r_i+r_{i+1}$ and $q_i\geq1$ for $1\leq i<h$. For every integer
+$m>2a/r_h$, the
 $h$ pairs
 \[
 (r_i\bmod m,r_{i+1}\bmod m),\qquad 0\leq i<h,
@@ -318,7 +333,7 @@ uniformly as $a\to\infty$.
 
 \section{Certificates and uniform processes}\label{sec:certificates}
 Use the book's partial remainder operation: its second argument must be
-nonzero. Write $\mathcal N_0=(\mathbb N,\rem,\eq_0)$ and
+nonzero. Recall $\mathcal N_0=(\mathbb N,\rem,\eq_0)$ and
 $\mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1)$; compare
 \cite[(1C-10), pp.~24, 142--143]{moschovakis2019}.
 A derivation determines a finite generated partial substructure by recording
@@ -354,10 +369,12 @@ lower bound of $G(a,b)$. For an upper bound, append
 where the generated $z$ is zero. Every homomorphism $\pi$ has $\pi(z)=0$ and
 $\pi(g)>0$ (by definedness of either appended remainder). Thus $\pi(g)$
 divides both input images. Conversely every common divisor of those images
-divides $\pi(g)$ by induction over the derivation. Therefore
+divides $\pi(g)$ by induction over the derivation. Therefore, for
+$(a,b)\neq(0,0)$,
 \[
 G(a,b)\leq\calls_{\rem}(\mathcal N_0,\gcd,a,b)\leq G(a,b)+2.
 \]
+At $(0,0)$ the output is an input and the empty certificate suffices.
 Positivity facts may be appended if the function is restricted to positive
 inputs. For a noncoprime input, add $\eq_1(g)=\mathrm{ff}$ to this gcd
 certificate to certify noncoprimeness. Thus the sublogarithmic remainder-call
@@ -434,7 +451,12 @@ so on positive coprime pairs the complexity agrees with the reduction
 $\calls_{\rem}(\mathcal N_\varepsilon,\perp\!\!\!\perp,a,b)\geq r\log_2 a$
 for infinitely many $a\geq b\geq1$, and that no $K>0$ satisfies
 $2\log_2\max(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$ for infinitely
-many pairs in $\mathbb N^2$, for either structure. The general theory of uniform
+many pairs in $\mathbb N^2$, for either structure. The $O(\log a/\log\log a)$
+bound on the intrinsic complexities is not a single theorem. It combines
+\lean{ShortGCD.callsCoprimeness_le} and \lean{ShortGCD.callsGcd_le}, which bound
+them by $G(a,b)+2$, with \lean{ShortGCD.uniform_real_bound};
+\lean{ShortGCD.eventually_calls_le} states the resulting $o(\log)$ bound. The
+general theory of uniform
 processes, Theorem~4F.1 and the lower bounds of Section~1 are cited, not
 formalized. Theorem~4F.1 is needed only to restate these intrinsic bounds in
 terms of a single best uniform process, not for the refutations themselves.
