@@ -189,12 +189,31 @@ the Main Conjecture allows its lower-bound coefficient to depend on the program.
 The note explains the remaining difficulty with reusing a growing Euclidean
 prefix in one fixed first-order program.
 
-**Formalization status:** [RegisterProgram.lean](research/RegisterProgram.lean)
-checks arithmetic correctness, positive scaling, and existence of successful
-computations for the fixed-width semantics. The program-family cost bound and
-the correspondence with the book's recursive-machine syntax are mathematical
-arguments, **not yet Lean theorems**. They are separate from the main paper's
-formalized results.
+**Formalization status:** the program-family bound is now checked in Lean,
+including finite first-order syntax and call-by-value evaluation:
+
+- `RegisterProgram.maxCost_step` proves the operational recurrence with a fixed
+  tuple of h + 4 parameters and explicit recursive subcomputations.
+- `RegisterProgram.Fixed.limsup_profile_le` proves the coefficient 3/p.
+- `RegisterProgram.Syntax.run_invokes` and `accepts_eval` translate register runs
+  into evaluations of the finite program, preserving remainder counts exactly.
+- `RegisterProgram.Syntax.eval_head_correct` proves that every terminating
+  evaluation returns the gcd; `eval_head_exists` proves a successful evaluation
+  exists on every input.
+- `RegisterProgram.Syntax.eventually_eval_bound` gives the uniform asymptotic
+  bound, including verification. `arbitrarily_small_program` states the
+  ε log₂ a + Bε bound with the program chosen before the inputs.
+
+These names are in the `ShortGCD` namespace. The proof path is RegisterProgram →
+RegisterMachine → RegisterPrefix → RegisterCost → RegisterRecurrence →
+[RegisterAsymptotic](ShortGCD/RegisterAsymptotic.lean) →
+[RegisterSyntax](ShortGCD/RegisterSyntax.lean). All are included in `lake build`.
+The [research entry point](research/RegisterProgram.lean) records a separate
+[axiom audit](research/register-axioms.txt), using only the standard Lean axioms.
+
+The syntax proof inlines the setter functions. It uses finite evaluation trees;
+the book's general recursive machine and the Python interpreter are not themselves
+formalized in Lean. The result remains in the separate research note.
 
 The executable compiler produces finite first-order syntax, which a separate
 interpreter executes using supplied nondeterministic choices. Checks cover 138

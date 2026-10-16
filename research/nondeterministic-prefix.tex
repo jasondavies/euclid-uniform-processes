@@ -28,9 +28,10 @@ coefficients. Each program uses only remainder and the zero test, and its
 arity is fixed independently of the inputs. This does not give a single
 sublogarithmic program. We give the program schema, correctness and cost
 arguments, and an executable compilation into first-order syntax.
-Lean checks correctness and existence of successful computations for the
-register semantics; the syntax correspondence and asymptotic program bound
-are mathematical arguments, not yet Lean theorems.
+Lean checks the fixed-register recurrence, the asymptotic program bound,
+and a translation preserving remainder counts into finite first-order syntax.
+It also checks correctness of every terminating syntactic evaluation and
+existence of a successful evaluation on every input.
 \end{abstract}
 
 \section{The result and its quantifiers}
@@ -89,6 +90,13 @@ remainder call. In the subcomputation equation
 $\Set_i(\vec x,\Gen(\vec x))$, call-by-value evaluates the inner generator
 once and retains the caller's parameters until its return. The result replaces
 one parameter, and the outer generator continues.
+The Lean presentation inlines the setters: for example, the remainder
+alternative becomes
+$\Gen(\vec x)=\Gen(x_0,\ldots,x_{i-1},
+\rem(\Pick(\vec x),\Pick(\vec x)),x_{i+1},\ldots,x_{W-1})$.
+The subcomputation alternative is inlined in the same way. Its fixed
+signature has four internal symbols: choose, gen, accept, and loop.
+The executable Python presentation retains the setters.
 These are ordinary first-order calls; each recursive variable has fixed
 arity \cite[\S\S2A, 2D]{book}. The recursion stack may grow, so $W$ is not a
 bound on the total number of values in the entire computation.
@@ -150,15 +158,24 @@ return a parameter, overwrite one parameter by a remainder, route parameters,
 or run a subcomputation and overwrite one parameter by its result.
 These correspond to the four generator alternatives above. For a remainder
 step, the two selector calls choose its operands; for a routing step, the $W$
-selector calls choose its argument tuple. Internal selector and setter calls
-make no remainder calls. Induction on finite evaluations gives the
-correspondence in both directions.
+selector calls choose its argument tuple. Internal selector calls make no
+remainder calls.
 
-This last correspondence is argued here, not kernel-checked against a
-formalization of the book's recursive machine. The checked theorems are
-\lean{Run.dvd}, \lean{Run.scale}, \lean{Accepts.correct}, and
-\lean{exists_accepts}. They assume neither the prefix lemma nor an asymptotic
-program bound.
+The kernel-checked theorem \lean{Syntax.run_invokes} translates every register
+run into an evaluation of the inlined first-order generator, preserving its
+remainder count exactly. \lean{Syntax.accepts_eval} includes the verification
+wrapper. Independently, \lean{Syntax.eval_head_correct} proves correctness of
+\emph{every} terminating evaluation, and \lean{Syntax.eval_head_exists}
+proves existence of a successful evaluation on every input. Thus correctness
+is not restricted to the selected fast witnesses.
+
+The syntax contains variables, remainder, zero-test conditionals, and calls
+to a fixed finite signature; each symbol has a finite set of bodies.
+\lean{Syntax.Eval} uses call-by-value evaluation trees, evaluating all arguments
+before the chosen body and summing their remainder counts. This formalizes
+the explicit program, not the book's general recursive machine. The Python
+compiler and interpreter are independently checked executable artifacts,
+not verified implementations of the Lean semantics.
 
 \section{The fixed-prefix cost bound}
 
@@ -306,11 +323,26 @@ python3 research/check_register_program.py
 python3 -O research/check_register_program.py
 python3 research/register_program.py --width 9
 \end{verbatim}
-The mathematical program-family bound is ready for independent scrutiny.
-It is not part of the companion paper's fully formalized theorem claims.
-Formalizing its cost recurrence and the correspondence with first-order
-syntax is a possible next step; obtaining one sublogarithmic program remains
-the larger open task.
+The program-family bound is now kernel-checked as well as available for
+independent mathematical scrutiny. The main declarations, all under
+\lean{ShortGCD.RegisterProgram}, are:
+\begin{itemize}
+\item \lean{maxCost_step}: the fixed-register finite recurrence;
+\item \lean{Fixed.limsup_profile_le}: the leading coefficient $3/p$;
+\item \lean{Fixed.eventually_accepts_bound}: the bound for accepted runs,
+including the final verification;
+\item \lean{Syntax.eventually_eval_bound}: the same bound for first-order
+program evaluations;
+\item \lean{Syntax.arbitrarily_small_program}: the quantified
+$\varepsilon\log a+B_\varepsilon$ statement with the program fixed before
+the inputs are chosen.
+\end{itemize}
+The proof modules are included in the normal \lean{lake build} target.
+The research entry point prints their axiom dependencies, recorded in
+\lean{register-axioms.txt}; only the standard axioms \lean{propext},
+\lean{Classical.choice}, and \lean{Quot.sound} occur.
+This result remains separate from the companion manuscript.
+Obtaining one sublogarithmic program remains the larger open task.
 
 \begin{thebibliography}{2}
 \bibitem{book}
