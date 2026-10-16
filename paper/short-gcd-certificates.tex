@@ -10,7 +10,7 @@
 \newcommand{\calls}{\operatorname{calls}}
 \newcommand{\eq}{\operatorname{eq}}
 \title{Short remainder-only certificates for the greatest common divisor}
-\author{}
+\author{Jason Davies}
 \date{October 16, 2026}
 \begin{document}
 \maketitle
@@ -21,11 +21,14 @@ for $a>b\geq1$. Previously generated values may be retained and reused, but
 numerical constants and other arithmetic operations are not available as
 instructions. The construction combines a stored Euclidean prefix with
 three-call contractions and two smaller recursive derivations. It yields the
-same upper bound for intrinsic remainder-call complexity, and therefore a
-negative answer to the uniform-process strengthening discussed by Moschovakis.
-It does not establish a deterministic remainder-only algorithm with this cost.
-The mathematical proof below and the exact scope of the accompanying Lean
-verification are distinguished in the final section.
+same upper bound for the intrinsic remainder-call complexity of the gcd and of
+coprimeness in the Euclidean structure. This refutes the uniform-process form
+of the conjecture of van den Dries and Moschovakis that the Euclidean algorithm
+is optimal among its peers: Conjecture~3.4 of Moschovakis's 2012 notes, and the
+precise version (4F-5) of the Main Conjecture in his book. It does not give a
+deterministic remainder-only algorithm with this cost, and the deterministic
+conjecture remains open. All results are formalized in Lean~4; the final
+section states exactly what the formalization covers.
 \end{abstract}
 
 \section{Statement and relation to the book}
@@ -46,15 +49,74 @@ In particular this bound holds for $D(a,b)$ when $\gcd(a,b)=1$.
 As usual, the asymptotic assertion concerns sufficiently large $a$; a bound
 valid at every positive input is $O(1+\log(2+a)/\log\log(4+a))$.
 
-Moschovakis's Main Conjecture concerns logarithmic lower bounds for gcd
-algorithms from $\rem,\eq_0$ \cite[p.~2]{moschovakis2019}. The uniform-process
-strengthening is discussed after Corollary~6C.7 \cite[p.~188]{moschovakis2019};
-see also (4F-5) on p.~151. Our conclusion addresses that strengthening.
-The definitions of generated certificates and intrinsic norms are in
-\cite[\S\S1D, 4C--4E]{moschovakis2019}. Theorem~4F.1
-\cite[pp.~149--150]{moschovakis2019} transfers pointwise intrinsic bounds to a
-single uniform process. Deterministic uniform processes are treated separately
-in \cite[\S4H]{moschovakis2019}.
+\paragraph{Background.}
+Van den Dries and Moschovakis asked whether the Euclidean algorithm is optimal
+among its peers, the algorithms that compute the gcd from the remainder
+function \cite{vddm2004}. Moschovakis's Main Conjecture asserts that every
+algorithm from $\rem,\eq_0$ computing $\gcd(x,y)$ makes more than $r\log x$
+remainder calls on infinitely many pairs \cite[p.~2]{moschovakis2019}. The
+known lower bound is a logarithm smaller. A recursive program deciding
+coprimeness, even from $=$, $<$, $+$, truncated subtraction, $\mathrm{iq}$ and $\rem$, makes more than
+$\tfrac1{10}\log\log a$ calls on infinitely many coprime pairs
+\cite{vddm2004}; see also \cite{vddm2009} and
+\cite[Theorem~6C.5]{moschovakis2019}. This bound holds for all uniform
+processes, nondeterministic ones included. Pratt's nondeterministic algorithm
+attains it on successive Fibonacci numbers
+\cite[Theorem~2E.2, Corollary~6C.7]{moschovakis2019}. Whether a logarithmic
+bound holds for all uniform processes was left open
+\cite[p.~188]{moschovakis2019}, \cite[Conjecture~3.4]{moschovakis2012}.
+
+In a different model, Bshouty showed that a random access machine with linear
+operations, shifts and indirect addressing computes the gcd in
+$O(\log N/\log\log N)$ operations, by reading precomputed blocks of the binary
+gcd algorithm from a table \cite{bshouty1989}. The construction here uses no
+operation other than remainder and no table. Its saving of a factor
+$\log\log a$ comes instead from reusing one stored Euclidean prefix for every
+modulus.
+
+\paragraph{The conjectures refuted.}
+The definitions of generated certificates and intrinsic complexities are in
+\cite[\S\S1D, 4C--4E]{moschovakis2019} and are recalled in
+Section~\ref{sec:certificates}. Write
+$N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1)$ and $\calls_{\rem}(A,f,\vec x)$
+for the least number of remainder facts in a certificate for $f$ at $\vec x$
+in $A$. Moschovakis's 2012 notes state:
+\begin{quote}
+\textbf{Conjecture 3.4} \cite{moschovakis2012}. There is a rational number
+$r>0$ such that for infinitely many $a\geq b\geq1$,
+$\calls_{\rem}(N_\varepsilon,\perp\!\!\!\perp,a,b)\geq r\log a$.
+\end{quote}
+The book formulates one precise version of the Main Conjecture, display
+(4F-5) \cite[p.~151]{moschovakis2019}, as the existence of an infinite set $D$
+of pairs and a $K>0$ such that
+\[
+(x,y)\in D\ \Longrightarrow\ 2\log\max(x,y)\leq K\calls_{\rem}(A,\gcd,x,y).
+\]
+
+\begin{corollary}\label{cor:refute}
+The intrinsic complexities $\calls_{\rem}(N_\varepsilon,\perp\!\!\!\perp,a,b)$
+and $\calls_{\rem}(\mathcal N_0,\gcd,a,b)$ are $O(\log a/\log\log a)$,
+uniformly for $a\geq b\geq1$. Consequently Conjecture~3.4 of
+\cite{moschovakis2012} is false, and so is the version (4F-5) of the Main
+Conjecture: for every $r>0$, respectively $K>0$, only finitely many pairs
+satisfy the stated inequality.
+\end{corollary}
+The corollary follows from Theorem~\ref{thm:main} and
+Section~\ref{sec:certificates}. It is formalized as
+\texttt{ShortGCD.not\_conjecture\_3\_4} and
+\texttt{ShortGCD.not\_main\_conjecture\_4F5}. The structure $A$ in (4F-5) may
+include $\eq_1$; allowing more kinds of facts can only lower the complexity,
+so the refutation applies either way. Theorem~4F.1
+\cite[pp.~149--150]{moschovakis2019} transfers these pointwise intrinsic
+bounds to a single uniform process.
+
+The corollary settles neither the Main Conjecture for deterministic
+algorithms nor its form for deterministic uniform processes
+\cite[Conjecture~3.9]{moschovakis2012}, \cite[\S4H]{moschovakis2019}; see
+Section~\ref{sec:scope}. With the lower bound above, the intrinsic complexity
+of coprimeness in $N_\varepsilon$ now lies between $\tfrac1{10}\log\log a$, on
+infinitely many pairs, and $O(\log a/\log\log a)$, on all pairs. Closing this
+gap is an open problem.
 
 \section{Normalization}
 Write $g=\gcd(a,b)>0$. For positive $y$,
@@ -110,14 +172,19 @@ M=\prod_{\ell=i+1}^{j}\begin{pmatrix}q_\ell&1\\1&0\end{pmatrix}
  =\begin{pmatrix}A&B\\C&E\end{pmatrix},\qquad
 \binom{r_i}{r_{i+1}}=M\binom{r_j}{r_{j+1}}.
 \]
-All entries are nonnegative, $E\leq A$, and $\det M=(-1)^{j-i}$.
+Right multiplication by
+$\bigl(\begin{smallmatrix}q&1\\1&0\end{smallmatrix}\bigr)$ sends
+$(A,B,C,E)$ to $(qA+B,\,A,\,qC+E,\,C)$, starting from $(q,1,1,0)$ for a single
+factor. By induction, all entries are nonnegative, $A\geq B\geq E$,
+$A\geq C\geq1$, $B\geq1$, and $\det M=(-1)^{j-i}$.
 Also $Ar_j\leq r_i\leq a$, whence $A\leq a/r_h$.
 Write
 \[
 \Delta=\det(M-I)=1+\det M-A-E.
 \]
-For an odd number of factors, $\Delta=-A-E<0$. A product of at least two
-factors has $A\geq2$ and $E\geq1$; thus for an even positive number of factors,
+For an odd number of factors, $\Delta=-A-E<0$. By the same recursion, a
+product of at least two factors has $A\geq2$ and $E\geq1$; thus for an even
+positive number of factors,
 $\Delta=2-A-E<0$. In either case,
 \[
 0<|\Delta|\leq A+E\leq2A\leq2a/r_h<m.
@@ -207,7 +274,7 @@ Finally take $n=\lceil\log a\rceil$. This also gives $G(a,b)=o(\log a)$
 uniformly as $a\to\infty$.
 \end{proof}
 
-\section{Certificates and uniform processes}
+\section{Certificates and uniform processes}\label{sec:certificates}
 Use the book's partial remainder operation: its second argument must be
 nonzero. Write $\mathcal N_0=(\mathbb N,\rem,\eq_0)$ and
 $\mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1)$; compare
@@ -228,11 +295,10 @@ of remainder facts. Consequently, on coprime inputs,
 \calls_{\rem}(\mathcal N_\varepsilon,\gcd=1,a,b)=D(a,b),\qquad
 \calls(\mathcal N_\varepsilon,\gcd=1,a,b)=D(a,b)+1.
 \]
-If the relation is instead defined as $a>0\wedge b>0\wedge\gcd(a,b)=1$,
-add the two input-positivity facts. The remainder count is unchanged, but
-one should state the full count as $D(a,b)+O(1)$ rather than assert the exact
-$D+1$ formula without addressing positivity. For example, the single fact
-$\eq_1(1)=\mathrm{tt}$ at $(2,1)$ allows the image $(0,1)$.
+If the relation is restricted to positive inputs,
+$a>0\wedge b>0\wedge\gcd(a,b)=1$, the certificate also needs the facts
+$\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$. The remainder count is
+unchanged, and the total count is at most $D(a,b)+3$.
 
 For gcd as a function, the certificate must reach its output $g$, giving a
 lower bound of $G(a,b)$. For an upper bound, append
@@ -253,7 +319,7 @@ bound holds for both truth values of coprimeness as well as for gcd.
 Theorem~4F.1 supplies a single uniform process realizing each intrinsic norm
 pointwise \cite[Theorem~4F.1]{moschovakis2019}.
 
-\section{Scope and verification}
+\section{Scope and verification}\label{sec:scope}
 Selecting a close pair of residues is uncharged existential choice in a
 straight-line derivation. A deterministic remainder-only algorithm cannot
 assume that choice is available at constant cost. Computing all prefix
@@ -262,21 +328,24 @@ does not settle the deterministic conjecture.
 
 The supplied offline Python planner uses unrestricted arithmetic to select
 instructions; its independent replay checks operand availability, nonzero
-divisors, every remainder equation, and the final gcd. Running its default
-seed reproduces:
+divisors, every remainder equation, and the final gcd. On one pseudorandom
+coprime pair of each size, generated from its default seed, it gives:
 \begin{center}
 \begin{tabular}{rrr}\toprule
-Input bits & Derivation calls & Euclid calls to reach $1$\\\midrule
+Input bits & Derivation calls & Euclid calls to reach $1$, same pair\\\midrule
 512 & 196 & 326\\
 2048 & 669 & 1204\\
 8192 & 2059 & 4754\\\bottomrule
 \end{tabular}
 \end{center}
-These are checks of finite instances, not an asymptotic proof. A newly
-specified reproducible suite also passes 310 cases, including 175 noncoprime
-pairs, with 3,543 contractions across 335 reservoir phases. Four deliberately
-invalid traces are rejected. This suite is recorded in the repository; it is
-not claimed to reconstruct the unspecified original 310-case suite.
+Random pairs are not Euclid's worst case: on successive Fibonacci numbers
+Euclid needs about $1.44\log a$ calls. These are checks of finite instances,
+not an asymptotic proof. A reproducible suite of 310 cases also passes,
+including 175 noncoprime pairs, with 3,543 contractions across 335 reservoir
+phases, and four deliberately invalid traces are rejected. The
+Euclidean-prefix lemma was also checked exhaustively for every coprime
+$a<1500$, every prefix length, and 60 moduli above the threshold $2a/r_h$
+(254,722,179 instances, no failures).
 
 \subsection{Machine-checked statements}
 The Lean 4.35.0 development, with mathlib pinned to version 4.35.0, proves the
@@ -341,7 +410,30 @@ Comparing integer floors and ceilings with real base-two logarithms yields the
 stated real bound. These parameter choices change only absolute constants,
 not the proof mechanism or its asymptotic order.
 
-\begin{thebibliography}{1}
+\begin{thebibliography}{5}
+\bibitem{bshouty1989}
+Nader H. Bshouty.
+\emph{Euclidean GCD algorithm is not optimal}.
+Research Report 89/376/38, Department of Computer Science, University of
+Calgary, 1989.
+\url{http://hdl.handle.net/1880/46601}.
+
+\bibitem{moschovakis2012}
+Yiannis N. Moschovakis.
+\emph{Absolute lower bounds for uniform processes}.
+Draft notes, January 25, 2012.
+\url{https://www.math.ucla.edu/~ynm/nadalb.pdf}.
+
+\bibitem{vddm2004}
+Lou van den Dries and Yiannis N. Moschovakis.
+Is the Euclidean algorithm optimal among its peers?
+\emph{Bulletin of Symbolic Logic} 10(3):390--418, 2004.
+
+\bibitem{vddm2009}
+Lou van den Dries and Yiannis N. Moschovakis.
+Arithmetic complexity.
+\emph{ACM Transactions on Computational Logic} 10(1), Article~2, 2009.
+
 \bibitem{moschovakis2019}
 Yiannis N. Moschovakis.
 \emph{Abstract Recursion and Intrinsic Complexity}.

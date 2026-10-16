@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Jason Davies" />
   <meta name="dcterms.date" content="2026-10-16" />
   <title>Short remainder-only certificates for the greatest common divisor</title>
   <style>
@@ -64,6 +65,7 @@ a { color: inherit; }
 <header id="title-block-header">
 <h1 class="title">Short remainder-only certificates for the greatest
 common divisor</h1>
+<p class="author">Jason Davies</p>
 <p class="date">October 16, 2026</p>
 <div class="abstract">
 <div class="abstract-title">Abstract</div>
@@ -76,12 +78,15 @@ Previously generated values may be retained and reused, but numerical
 constants and other arithmetic operations are not available as
 instructions. The construction combines a stored Euclidean prefix with
 three-call contractions and two smaller recursive derivations. It yields
-the same upper bound for intrinsic remainder-call complexity, and
-therefore a negative answer to the uniform-process strengthening
-discussed by Moschovakis. It does not establish a deterministic
-remainder-only algorithm with this cost. The mathematical proof below
-and the exact scope of the accompanying Lean verification are
-distinguished in the final section.</p>
+the same upper bound for the intrinsic remainder-call complexity of the
+gcd and of coprimeness in the Euclidean structure. This refutes the
+uniform-process form of the conjecture of van den Dries and Moschovakis
+that the Euclidean algorithm is optimal among its peers: Conjecture 3.4
+of Moschovakis’s 2012 notes, and the precise version (4F-5) of the Main
+Conjecture in his book. It does not give a deterministic remainder-only
+algorithm with this cost, and the deterministic conjecture remains open.
+All results are formalized in Lean 4; the final section states exactly
+what the formalization covers.</p>
 </div>
 </header>
 <h1 id="statement-and-relation-to-the-book">Statement and relation to
@@ -118,18 +123,108 @@ when
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>;
 a bound valid at every positive input is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo>+</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mo>log</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>4</mn><mo>+</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1+\log(2+a)/\log\log(4+a))</annotation></semantics></math>.</p>
-<p>Moschovakis’s Main Conjecture concerns logarithmic lower bounds for
-gcd algorithms from
+<h4 id="background.">Background.</h4>
+<p>Van den Dries and Moschovakis asked whether the Euclidean algorithm
+is optimal among its peers, the algorithms that compute the gcd from the
+remainder function <span class="citation" data-cites="vddm2004">[<a href="#ref-vddm2004" role="doc-biblioref">1</a>]</span>. Moschovakis’s
+Main Conjecture asserts that every algorithm from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>rem</mo><mo>,</mo><msub><mo>eq</mo><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\operatorname{rem},\operatorname{eq}_0</annotation></semantics></math>
-<span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">1, p. 2</a>]</span>.
-The uniform-process strengthening is discussed after Corollary 6C.7
-<span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">1, p. 188</a>]</span>;
-see also (4F-5) on p. 151. Our conclusion addresses that strengthening.
-The definitions of generated certificates and intrinsic norms are in
-<span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">1, secs. 1D,
-4C–4E</a>]</span>. Theorem 4F.1 <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">1, pp. 149–150</a>]</span> transfers pointwise
-intrinsic bounds to a single uniform process. Deterministic uniform
-processes are treated separately in <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">1, sec. 4H</a>]</span>.</p>
+computing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>gcd</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\gcd(x,y)</annotation></semantics></math>
+makes more than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>log</mo><mi>x</mi></mrow><annotation encoding="application/x-tex">r\log x</annotation></semantics></math>
+remainder calls on infinitely many pairs <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2, p. 2</a>]</span>. The known lower bound is a
+logarithm smaller. A recursive program deciding coprimeness, even from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>=</mo><annotation encoding="application/x-tex">=</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>&lt;</mo><annotation encoding="application/x-tex">&lt;</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>+</mo><annotation encoding="application/x-tex">+</annotation></semantics></math>,
+truncated subtraction,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">q</mi></mrow><annotation encoding="application/x-tex">\mathrm{iq}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>rem</mo><annotation encoding="application/x-tex">\operatorname{rem}</annotation></semantics></math>,
+makes more than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac displaystyle="false"><mn>1</mn><mn>10</mn></mfrac><mo>log</mo><mo>log</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">\tfrac1{10}\log\log a</annotation></semantics></math>
+calls on infinitely many coprime pairs <span class="citation" data-cites="vddm2004">[<a href="#ref-vddm2004" role="doc-biblioref">1</a>]</span>; see also <span class="citation" data-cites="vddm2009">[<a href="#ref-vddm2009" role="doc-biblioref">3</a>]</span> and <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2</a>, Theorem 6C.5]</span>. This bound holds for
+all uniform processes, nondeterministic ones included. Pratt’s
+nondeterministic algorithm attains it on successive Fibonacci numbers
+<span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2</a>, Theorem 2E.2,
+Corollary 6C.7]</span>. Whether a logarithmic bound holds for all
+uniform processes was left open <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2, p. 188</a>]</span>, <span class="citation" data-cites="moschovakis2012">[<a href="#ref-moschovakis2012" role="doc-biblioref">4</a>, Conjecture 3.4]</span>.</p>
+<p>In a different model, Bshouty showed that a random access machine
+with linear operations, shifts and indirect addressing computes the gcd
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><mi>N</mi><mi>/</mi><mo>log</mo><mo>log</mo><mi>N</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(\log N/\log\log N)</annotation></semantics></math>
+operations, by reading precomputed blocks of the binary gcd algorithm
+from a table <span class="citation" data-cites="bshouty1989">[<a href="#ref-bshouty1989" role="doc-biblioref">5</a>]</span>. The
+construction here uses no operation other than remainder and no table.
+Its saving of a factor
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><mo>log</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">\log\log a</annotation></semantics></math>
+comes instead from reusing one stored Euclidean prefix for every
+modulus.</p>
+<h4 id="the-conjectures-refuted.">The conjectures refuted.</h4>
+<p>The definitions of generated certificates and intrinsic complexities
+are in <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2, secs. 1D,
+4C–4E</a>]</span> and are recalled in Section <a href="#sec:certificates" data-reference-type="ref" data-reference="sec:certificates">5</a>. Write
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>ε</mi></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>ℕ</mi><mo>,</mo><mo>rem</mo><mo>,</mo><msub><mo>eq</mo><mn>0</mn></msub><mo>,</mo><msub><mo>eq</mo><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N_\varepsilon=(\mathbb N,\operatorname{rem},\operatorname{eq}_0,\operatorname{eq}_1)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>calls</mo><mo>rem</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo>,</mo><mi>f</mi><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\operatorname{calls}_{\operatorname{rem}}(A,f,\vec x)</annotation></semantics></math>
+for the least number of remainder facts in a certificate for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>x</mi><mo accent="true">→</mo></mover><annotation encoding="application/x-tex">\vec x</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>.
+Moschovakis’s 2012 notes state:</p>
+<blockquote>
+<p><strong>Conjecture 3.4</strong> <span class="citation" data-cites="moschovakis2012">[<a href="#ref-moschovakis2012" role="doc-biblioref">4</a>]</span>. There is a rational number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">r&gt;0</annotation></semantics></math>
+such that for infinitely many
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>≥</mo><mi>b</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a\geq b\geq1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>calls</mo><mo>rem</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>N</mi><mi>ε</mi></msub><mo>,</mo><mo>⊥</mo><mspace width="-0.167em"></mspace><mspace width="-0.167em"></mspace><mspace width="-0.167em"></mspace><mo>⊥</mo><mo>,</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><mi>r</mi><mo>log</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">\operatorname{calls}_{\operatorname{rem}}(N_\varepsilon,\perp\!\!\!\perp,a,b)\geq r\log a</annotation></semantics></math>.</p>
+</blockquote>
+<p>The book formulates one precise version of the Main Conjecture,
+display (4F-5) <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2, p. 151</a>]</span>,
+as the existence of an infinite set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+of pairs and a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">K&gt;0</annotation></semantics></math>
+such that
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><mi>D</mi><mspace width="0.222em"></mspace><mo>⇒</mo><mspace width="0.222em"></mspace><mn>2</mn><mo>log</mo><mo>max</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mi>K</mi><msub><mo>calls</mo><mo>rem</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo>,</mo><mo>gcd</mo><mo>,</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">(x,y)\in D\ \Longrightarrow\ 2\log\max(x,y)\leq K\operatorname{calls}_{\operatorname{rem}}(A,\gcd,x,y).</annotation></semantics></math></p>
+<div id="cor:refute" class="corollary">
+<p><strong>Corollary 2</strong>. <em>The intrinsic complexities
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>calls</mo><mo>rem</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>N</mi><mi>ε</mi></msub><mo>,</mo><mo>⊥</mo><mspace width="-0.167em"></mspace><mspace width="-0.167em"></mspace><mspace width="-0.167em"></mspace><mo>⊥</mo><mo>,</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\operatorname{calls}_{\operatorname{rem}}(N_\varepsilon,\perp\!\!\!\perp,a,b)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>calls</mo><mo>rem</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝒩</mi><mn>0</mn></msub><mo>,</mo><mo>gcd</mo><mo>,</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\operatorname{calls}_{\operatorname{rem}}(\mathcal N_0,\gcd,a,b)</annotation></semantics></math>
+are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><mi>a</mi><mi>/</mi><mo>log</mo><mo>log</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(\log a/\log\log a)</annotation></semantics></math>,
+uniformly for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>≥</mo><mi>b</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a\geq b\geq1</annotation></semantics></math>.
+Consequently Conjecture 3.4 of <span class="citation" data-cites="moschovakis2012">[<a href="#ref-moschovakis2012" role="doc-biblioref">4</a>]</span> is false, and so is the version
+(4F-5) of the Main Conjecture: for every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">r&gt;0</annotation></semantics></math>,
+respectively
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">K&gt;0</annotation></semantics></math>,
+only finitely many pairs satisfy the stated inequality.</em></p>
+</div>
+<p>The corollary follows from Theorem <a href="#thm:main" data-reference-type="ref" data-reference="thm:main">1</a> and Section <a href="#sec:certificates" data-reference-type="ref" data-reference="sec:certificates">5</a>. It is formalized as
+<code>ShortGCD.not_conjecture_3_4</code> and
+<code>ShortGCD.not_main_conjecture_4F5</code>. The structure
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+in (4F-5) may include
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>eq</mo><mn>1</mn></msub><annotation encoding="application/x-tex">\operatorname{eq}_1</annotation></semantics></math>;
+allowing more kinds of facts can only lower the complexity, so the
+refutation applies either way. Theorem 4F.1 <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2, pp. 149–150</a>]</span> transfers these
+pointwise intrinsic bounds to a single uniform process.</p>
+<p>The corollary settles neither the Main Conjecture for deterministic
+algorithms nor its form for deterministic uniform processes <span class="citation" data-cites="moschovakis2012">[<a href="#ref-moschovakis2012" role="doc-biblioref">4</a>,
+Conjecture 3.9]</span>, <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2, sec. 4H</a>]</span>; see Section <a href="#sec:scope" data-reference-type="ref" data-reference="sec:scope">6</a>. With the lower bound above, the
+intrinsic complexity of coprimeness in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>ε</mi></msub><annotation encoding="application/x-tex">N_\varepsilon</annotation></semantics></math>
+now lies between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac displaystyle="false"><mn>1</mn><mn>10</mn></mfrac><mo>log</mo><mo>log</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">\tfrac1{10}\log\log a</annotation></semantics></math>,
+on infinitely many pairs, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><mi>a</mi><mi>/</mi><mo>log</mo><mo>log</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(\log a/\log\log a)</annotation></semantics></math>,
+on all pairs. Closing this gap is an open problem.</p>
 <h1 id="normalization">Normalization</h1>
 <p>Write
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>=</mo><mo>gcd</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">g=\gcd(a,b)&gt;0</annotation></semantics></math>.
@@ -153,7 +248,7 @@ to coprime inputs, with equality, zero inputs, and inputs equal to one
 handled without calls.</p>
 <h1 id="three-call-contractions">Three-call contractions</h1>
 <div id="lem:gap" class="lemma">
-<p><strong>Lemma 2</strong>. <em>If
+<p><strong>Lemma 3</strong>. <em>If
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">m&gt;0</annotation></semantics></math>
 is available and a finite collection
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
@@ -196,7 +291,7 @@ proof and the selection of instructions; they are not instructions of
 the derivation. ◻</p>
 </div>
 <div id="lem:prefix" class="lemma">
-<p><strong>Lemma 3</strong> (Euclidean-prefix lemma). <em>Let
+<p><strong>Lemma 4</strong> (Euclidean-prefix lemma). <em>Let
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>0</mn></msub><mo>=</mo><mi>a</mi><mo>&gt;</mo><msub><mi>r</mi><mn>1</mn></msub><mo>=</mo><mi>b</mi><mo>&gt;</mo><mi>⋯</mi><mo>&gt;</mo><msub><mi>r</mi><mi>h</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">r_0=a&gt;r_1=b&gt;\cdots&gt;r_h&gt;0</annotation></semantics></math>
 be a Euclidean prefix of a coprime pair, with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>q</mi><mi>i</mi></msub><msub><mi>r</mi><mi>i</mi></msub><mo>+</mo><msub><mi>r</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">r_{i-1}=q_i r_i+r_{i+1}</annotation></semantics></math>
@@ -220,8 +315,18 @@ coincide. Set
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><munderover><mo>∏</mo><mrow><mo>ℓ</mo><mo>=</mo><mi>i</mi><mo>+</mo><mn>1</mn></mrow><mi>j</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>q</mi><mo>ℓ</mo></msub></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>A</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>B</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>C</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>E</mi></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>r</mi><mi>i</mi></msub><msub><mi>r</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>M</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>r</mi><mi>j</mi></msub><msub><mi>r</mi><mrow><mi>j</mi><mo>+</mo><mn>1</mn></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">M=\prod_{\ell=i+1}^{j}\begin{pmatrix}q_\ell&amp;1\\1&amp;0\end{pmatrix}
  =\begin{pmatrix}A&amp;B\\C&amp;E\end{pmatrix},\qquad
 \binom{r_i}{r_{i+1}}=M\binom{r_j}{r_{j+1}}.</annotation></semantics></math>
-All entries are nonnegative,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>≤</mo><mi>A</mi></mrow><annotation encoding="application/x-tex">E\leq A</annotation></semantics></math>,
+Right multiplication by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>q</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr></mtable><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\bigl(\begin{smallmatrix}q&amp;1\\1&amp;0\end{smallmatrix}\bigr)</annotation></semantics></math>
+sends
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo>,</mo><mi>C</mi><mo>,</mo><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(A,B,C,E)</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>q</mi><mi>A</mi><mo>+</mo><mi>B</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>A</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>q</mi><mi>C</mi><mo>+</mo><mi>E</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>C</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(qA+B,\,A,\,qC+E,\,C)</annotation></semantics></math>,
+starting from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>q</mi><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q,1,1,0)</annotation></semantics></math>
+for a single factor. By induction, all entries are nonnegative,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>≥</mo><mi>B</mi><mo>≥</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">A\geq B\geq E</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>≥</mo><mi>C</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">A\geq C\geq1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">B\geq1</annotation></semantics></math>,
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>det</mo><mi>M</mi><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>j</mi><mo>−</mo><mi>i</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\det M=(-1)^{j-i}</annotation></semantics></math>.
 Also
@@ -232,7 +337,7 @@ Write
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mo>=</mo><mo>det</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>M</mi><mo>−</mo><mi>I</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn><mo>+</mo><mo>det</mo><mi>M</mi><mo>−</mo><mi>A</mi><mo>−</mo><mi>E</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\Delta=\det(M-I)=1+\det M-A-E.</annotation></semantics></math>
 For an odd number of factors,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mo>=</mo><mo>−</mo><mi>A</mi><mo>−</mo><mi>E</mi><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Delta=-A-E&lt;0</annotation></semantics></math>.
-A product of at least two factors has
+By the same recursion, a product of at least two factors has
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">A\geq2</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">E\geq1</annotation></semantics></math>;
@@ -312,7 +417,7 @@ so
 For
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>&gt;</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">n&gt;12</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>N</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup><mo>&gt;</mo><mn>2</mn><msup><mi>N</mi><mrow><mn>1</mn><mi>/</mi><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">N^{1/3}&gt;2N^{1/4}</annotation></semantics></math>,
-and Lemma <a href="#lem:prefix" data-reference-type="ref" data-reference="lem:prefix">3</a> applies to every available
+and Lemma <a href="#lem:prefix" data-reference-type="ref" data-reference="lem:prefix">4</a> applies to every available
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>&gt;</mo><msup><mi>N</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup></mrow><annotation encoding="application/x-tex">m&gt;N^{1/3}</annotation></semantics></math>.
 Starting at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><msub><mi>r</mi><mi>h</mi></msub></mrow><annotation encoding="application/x-tex">m=r_h</annotation></semantics></math>,
@@ -406,14 +511,13 @@ This also gives
 uniformly as
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">a\to\infty</annotation></semantics></math>. ◻</p>
 </div>
-<h1 id="certificates-and-uniform-processes">Certificates and uniform
-processes</h1>
+<h1 id="sec:certificates">Certificates and uniform processes</h1>
 <p>Use the book’s partial remainder operation: its second argument must
 be nonzero. Write
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝒩</mi><mn>0</mn></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>ℕ</mi><mo>,</mo><mo>rem</mo><mo>,</mo><msub><mo>eq</mo><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal N_0=(\mathbb N,\operatorname{rem},\operatorname{eq}_0)</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝒩</mi><mi>ε</mi></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>ℕ</mi><mo>,</mo><mo>rem</mo><mo>,</mo><msub><mo>eq</mo><mn>0</mn></msub><mo>,</mo><msub><mo>eq</mo><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal N_\varepsilon=(\mathbb N,\operatorname{rem},\operatorname{eq}_0,\operatorname{eq}_1)</annotation></semantics></math>;
-compare <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">1, pp. (1C–10)</a>,
+compare <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2, pp. (1C–10)</a>,
 pp. 24, 142–143]</span>. A derivation determines a finite generated
 partial substructure by recording its remainder equations. Repeated
 equations can be discarded.</p>
@@ -439,19 +543,14 @@ derivation using no more calls than the number of remainder facts.
 Consequently, on coprime inputs,
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>calls</mo><mo>rem</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝒩</mi><mi>ε</mi></msub><mo>,</mo><mo>gcd</mo><mo>=</mo><mn>1</mn><mo>,</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>D</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><mo>calls</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝒩</mi><mi>ε</mi></msub><mo>,</mo><mo>gcd</mo><mo>=</mo><mn>1</mn><mo>,</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>D</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>1</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">\operatorname{calls}_{\operatorname{rem}}(\mathcal N_\varepsilon,\gcd=1,a,b)=D(a,b),\qquad
 \operatorname{calls}(\mathcal N_\varepsilon,\gcd=1,a,b)=D(a,b)+1.</annotation></semantics></math>
-If the relation is instead defined as
+If the relation is restricted to positive inputs,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&gt;</mo><mn>0</mn><mo>∧</mo><mi>b</mi><mo>&gt;</mo><mn>0</mn><mo>∧</mo><mo>gcd</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a&gt;0\wedge b&gt;0\wedge\gcd(a,b)=1</annotation></semantics></math>,
-add the two input-positivity facts. The remainder count is unchanged,
-but one should state the full count as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">D(a,b)+O(1)</annotation></semantics></math>
-rather than assert the exact
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">D+1</annotation></semantics></math>
-formula without addressing positivity. For example, the single fact
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>eq</mo><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">t</mi></mrow></mrow><annotation encoding="application/x-tex">\operatorname{eq}_1(1)=\mathrm{tt}</annotation></semantics></math>
-at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2,1)</annotation></semantics></math>
-allows the image
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>.</p>
+the certificate also needs the facts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>eq</mo><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></mrow><annotation encoding="application/x-tex">\operatorname{eq}_0(a)=\mathrm{ff}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>eq</mo><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></mrow><annotation encoding="application/x-tex">\operatorname{eq}_0(b)=\mathrm{ff}</annotation></semantics></math>.
+The remainder count is unchanged, and the total count is at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">D(a,b)+3</annotation></semantics></math>.</p>
 <p>For gcd as a function, the certificate must reach its output
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>,
 giving a lower bound of
@@ -479,8 +578,8 @@ positive inputs. For a noncoprime input, add
 to this gcd certificate to certify noncoprimeness. Thus the
 sublogarithmic remainder-call bound holds for both truth values of
 coprimeness as well as for gcd. Theorem 4F.1 supplies a single uniform
-process realizing each intrinsic norm pointwise <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">1</a>, Theorem 4F.1]</span>.</p>
-<h1 id="scope-and-verification">Scope and verification</h1>
+process realizing each intrinsic norm pointwise <span class="citation" data-cites="moschovakis2019">[<a href="#ref-moschovakis2019" role="doc-biblioref">2</a>, Theorem 4F.1]</span>.</p>
+<h1 id="sec:scope">Scope and verification</h1>
 <p>Selecting a close pair of residues is uncharged existential choice in
 a straight-line derivation. A deterministic remainder-only algorithm
 cannot assume that choice is available at constant cost. Computing all
@@ -490,8 +589,9 @@ calls per contraction. The construction therefore does not settle the
 deterministic conjecture.</p>
 <p>The supplied offline Python planner uses unrestricted arithmetic to
 select instructions; its independent replay checks operand availability,
-nonzero divisors, every remainder equation, and the final gcd. Running
-its default seed reproduces:</p>
+nonzero divisors, every remainder equation, and the final gcd. On one
+pseudorandom coprime pair of each size, generated from its default seed,
+it gives:</p>
 <div class="center">
 <table>
 <thead>
@@ -499,7 +599,8 @@ its default seed reproduces:</p>
 <th style="text-align: right;">Input bits</th>
 <th style="text-align: right;">Derivation calls</th>
 <th style="text-align: right;">Euclid calls to reach
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math></th>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>,
+same pair</th>
 </tr>
 </thead>
 <tbody>
@@ -521,12 +622,18 @@ its default seed reproduces:</p>
 </tbody>
 </table>
 </div>
-<p>These are checks of finite instances, not an asymptotic proof. A
-newly specified reproducible suite also passes 310 cases, including 175
-noncoprime pairs, with 3,543 contractions across 335 reservoir phases.
-Four deliberately invalid traces are rejected. This suite is recorded in
-the repository; it is not claimed to reconstruct the unspecified
-original 310-case suite.</p>
+<p>Random pairs are not Euclid’s worst case: on successive Fibonacci
+numbers Euclid needs about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.44</mn><mo>log</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">1.44\log a</annotation></semantics></math>
+calls. These are checks of finite instances, not an asymptotic proof. A
+reproducible suite of 310 cases also passes, including 175 noncoprime
+pairs, with 3,543 contractions across 335 reservoir phases, and four
+deliberately invalid traces are rejected. The Euclidean-prefix lemma was
+also checked exhaustively for every coprime
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><mn>1500</mn></mrow><annotation encoding="application/x-tex">a&lt;1500</annotation></semantics></math>,
+every prefix length, and 60 moduli above the threshold
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>a</mi><mi>/</mi><msub><mi>r</mi><mi>h</mi></msub></mrow><annotation encoding="application/x-tex">2a/r_h</annotation></semantics></math>
+(254,722,179 instances, no failures).</p>
 <h2 id="machine-checked-statements">Machine-checked statements</h2>
 <p>The Lean 4.35.0 development, with mathlib pinned to version 4.35.0,
 proves the uniform real-logarithmic bound, its worst-case Big-O
@@ -611,11 +718,30 @@ yields the stated real bound. These parameter choices change only
 absolute constants, not the proof mechanism or its asymptotic order.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-vddm2004" class="csl-entry" role="listitem">
+[1] van den Dries, L., Moschovakis, Y. N. <em>Is the
+<span>Euclidean</span> algorithm optimal among its peers?</em> Bulletin
+of Symbolic Logic, vol. 10, no. 3, pp. 390–418, 2004.
+</div>
 <div id="ref-moschovakis2019" class="csl-entry" role="listitem">
-[1] Moschovakis, Y. N. <em>Abstract recursion and intrinsic
+[2] Moschovakis, Y. N. <em>Abstract recursion and intrinsic
 complexity</em>. Lecture notes in logic, vol. 48. Cambridge University
 Press; Association for Symbolic Logic, 2019. Author’s prepublication
 PDF, compiled November 30, 2018. Citations use printed page numbers. <a href="https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf">https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf</a>.
+</div>
+<div id="ref-vddm2009" class="csl-entry" role="listitem">
+[3] van den Dries, L., Moschovakis, Y. N. <em>Arithmetic
+complexity</em>. ACM Transactions on Computational Logic, vol. 10, no.
+1, 2009. Article 2. https://doi.org/<a href="https://doi.org/10.1145/1459010.1459012">10.1145/1459010.1459012</a>.
+</div>
+<div id="ref-moschovakis2012" class="csl-entry" role="listitem">
+[4] Moschovakis, Y. N. <em>Absolute lower bounds for uniform
+processes</em>, 2012. Draft notes, January 25, 2012 <a href="https://www.math.ucla.edu/~ynm/nadalb.pdf">https://www.math.ucla.edu/~ynm/nadalb.pdf</a>.
+</div>
+<div id="ref-bshouty1989" class="csl-entry" role="listitem">
+[5] Bshouty, N. H. <em><span>Euclidean GCD</span> algorithm is not
+optimal</em>. Research Report 89/376/38. Department of Computer Science,
+University of Calgary, 1989 <a href="http://hdl.handle.net/1880/46601">http://hdl.handle.net/1880/46601</a>.
 </div>
 </div>
 </body>

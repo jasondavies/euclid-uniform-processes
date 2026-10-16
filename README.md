@@ -32,9 +32,8 @@ printed pages of Moschovakis, *Abstract Recursion and Intrinsic Complexity* (Cam
 University Press / ASL, 2019).
 
 **Status.** The whole argument is machine-checked in Lean, as listed below. A second,
-independent Lean formalisation exists in the companion repository
-`euclid-uniform-processes`. The result has not yet been reviewed by an expert in the
-area.
+independent Lean formalisation of the same argument was developed separately. The result
+has not yet been reviewed by an expert in the area.
 
 ## Lean verification
 
@@ -141,6 +140,6 @@ The LaTeX source can also be compiled with a standard LaTeX installation.
 ## Reused code
 
 `vendor/EuclidOptimality` contains the unchanged `Certificate.lean`, `Derivation.lean`
-and `Gcd.lean` from the local `euclid-optimality` project, under its Apache-2.0 license.
+and `Gcd.lean` from the `euclid-optimality` project, under its Apache-2.0 license.
 See `vendor/NOTICE.txt` and `vendor/LICENSE`. The new `ShortGCD` code supplies the upper
 bound and connects it to those certificate definitions.
