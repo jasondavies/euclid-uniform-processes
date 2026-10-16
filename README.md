@@ -1,4 +1,4 @@
-# Short remainder-only gcd certificates
+# The Euclidean algorithm is not optimal among uniform processes
 
 Every pair a ≥ b has a remainder-only derivation of gcd(a, b) using
 O(log a / log log a) remainder calls. Each call takes the remainder of two values
