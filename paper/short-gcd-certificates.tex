@@ -390,8 +390,9 @@ Euclid needs about $1.44\log a$ calls. These are checks of finite instances,
 not an asymptotic proof. A reproducible suite of 310 cases also passes,
 including 175 noncoprime pairs, with base size 64 bits and 3,543
 contractions in total, and four deliberately invalid traces are rejected. The
-Euclidean-prefix lemma was also checked exhaustively for every coprime
-$a<1500$, every prefix length, and 60 moduli above the threshold $2a/r_h$
+Euclidean-prefix lemma was also checked exhaustively for every coprime pair
+with $3\leq a<1500$ and $1\leq b<a$, every prefix length, and up to 60
+consecutive moduli above the threshold $2a/r_h$, restricted to $m<4a$
 (254,722,179 instances, no failures).
 
 \subsection{Machine-checked statements}

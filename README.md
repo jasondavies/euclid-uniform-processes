@@ -27,8 +27,8 @@ conjecture that the Euclidean algorithm is optimal among its peers:
 **The deterministic Main Conjecture remains open.** The construction does not give a
 deterministic algorithm with this cost, because choosing which two stored residues to
 combine is not charged. It does show that a proof of the Main Conjecture must use
-determinism. A lower bound for intrinsic complexity, which is what the homomorphism
-method proves, cannot exceed log a / log log a.
+properties beyond uniformity. A lower bound for intrinsic complexity, which is what the
+homomorphism method proves, cannot exceed log a / log log a.
 
 Read `paper/short-gcd-certificates.pdf`, built from `paper/short-gcd-certificates.tex`.
 Page citations refer to the published edition of Moschovakis, *Abstract Recursion and
@@ -137,9 +137,10 @@ python3 scripts/check_prefix_lemma.py
 - **`remainder_only_certificate.py`** reproduces the three numerical examples in the
   manuscript.
 - **`scripts/check_prefix_lemma.py`** checks the Euclidean-prefix lemma exhaustively for
-  every coprime a < 1500, every prefix length, and 60 moduli above the threshold
-  2a/r_h, which is 254,722,179 instances. As a control it counts collisions when the
-  threshold is dropped, which shows the test can fail.
+  every coprime pair with 3 ≤ a < 1500 and 1 ≤ b < a, every prefix length, and up to
+  60 consecutive moduli above the threshold 2a/r_h, restricted to m < 4a. This gives
+  254,722,179 instances. A failure exits with a nonzero status and reports the first
+  counterexample. As a control it also counts collisions when the threshold is dropped.
 
 Results are in `validation/`. The planner uses unrestricted arithmetic; only the
 remainder facts it returns are counted as instructions. These finite checks supplement

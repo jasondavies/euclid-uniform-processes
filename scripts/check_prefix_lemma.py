@@ -1,9 +1,10 @@
 """Exhaustive check of the Euclidean-prefix lemma (Lean: ShortGCD.prefix_pairs_distinct).
 
-For every coprime a > b with a < A, every prefix length h, and moduli m just
-above the threshold 2a / r_h, the ordered pairs (r_i mod m, r_{i+1} mod m),
-0 <= i < h, must be pairwise distinct. As a control, it also counts collisions
-when the hypothesis is dropped, to show the test can fail.
+For every coprime pair with 3 <= a < A and 1 <= b < a, every prefix length h,
+and up to the requested number of consecutive moduli above 2a / r_h (with
+m < 4a), check that the pairs (r_i mod m, r_{i+1} mod m), 0 <= i < h, are
+distinct. Any failure produces a nonzero exit status and a counterexample.
+As a control, it also counts collisions when the hypothesis is dropped.
 
     python3 scripts/check_prefix_lemma.py [A] [moduli per prefix]
 """
@@ -22,6 +23,7 @@ def remainders(a, b):
 
 def main(limit=1500, width=60, control_limit=400):
     checked = failures = 0
+    first_failure = None
     for a in range(3, limit):
         for b in range(1, a):
             if gcd(a, b) != 1:
@@ -33,7 +35,11 @@ def main(limit=1500, width=60, control_limit=400):
                     checked += 1
                     if len({(rs[i] % m, rs[i + 1] % m) for i in range(h)}) != h:
                         failures += 1
+                        if first_failure is None:
+                            first_failure = (a, b, h, m)
     print(f"instances checked: {checked}, failures: {failures}")
+    if failures:
+        raise SystemExit(f"Prefix lemma failed; first counterexample (a, b, h, m): {first_failure}")
 
     collisions = 0
     for a in range(3, control_limit):
