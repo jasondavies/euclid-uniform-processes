@@ -20,7 +20,7 @@ remainder facts in `U`), we show that this least size is the length of a shortes
   equals `derivLen a b`.
 -/
 
-namespace EuclidOptimality
+namespace ShortGCD
 
 open Finset
 
@@ -189,4 +189,4 @@ theorem callsRem_eq_derivLen (a b : ℕ) : callsRem a b = derivLen a b := by
     obtain ⟨U, hU, hk⟩ := (exists_cert_iff a b k).2 ⟨F, hF, h1, hj⟩
     exact ⟨U.rems.card, ⟨U, hU, rfl⟩, hk⟩
 
-end EuclidOptimality
+end ShortGCD

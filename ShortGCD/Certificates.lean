@@ -1,9 +1,9 @@
 import ShortGCD.Asymptotic
-import EuclidOptimality.Gcd
+import ShortGCD.GcdCertificate
 
 namespace ShortGCD
 
-open EuclidOptimality Finset
+open Finset
 
 /-- A sequential derivation determines at most one remainder fact per call. -/
 theorem Derives.to_facts {S T n a b} (h : Derives S n T) :
@@ -167,8 +167,8 @@ theorem generates_of_reach {F : Finset RemFact} {a b w : ℕ} (hF : SoundRems F)
 theorem gcd_certificate_lower {U : Cert} {a b} (hU : U.CertifiesGcd a b) :
     G a b ≤ U.rems.card := G_le (generates_of_reach hU.1.1 hU.2.2.1)
 
-/-- Agreement with the pre-existing minimal derivation and certificate definitions. -/
-theorem G_eq_D {a b} (hc : Nat.Coprime a b) : G a b = EuclidOptimality.D a b := by
+/-- Agreement with `D`, the shortest list derivation of `1`, on coprime inputs. -/
+theorem G_eq_D {a b} (hc : Nat.Coprime a b) : G a b = D a b := by
   rw [D_eq_derivLen]
   apply Nat.le_antisymm
   · obtain ⟨F,hF,h1,hcard⟩ := Nat.sInf_mem (derivLen_set_nonempty hc)

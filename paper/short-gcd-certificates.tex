@@ -370,12 +370,15 @@ instruction is remainder with a positive, available divisor. Costs are indices
 of derivations, rather than an assumed recurrence. A formal conversion to
 finite generated diagrams proves the gcd certificate bound with two extra
 remainder facts and the bound for positive and negative coprimeness instances.
-The equality with the existing $D$ definition is also checked.
+The reduction itself is also checked: on coprime inputs, the least number of
+remainder facts in a coprimeness certificate equals $D(a,b)$
+(\lean{ShortGCD.callsRem_eq_D}), and $G$ agrees with $D$
+(\lean{ShortGCD.G_eq_D}).
 
 The intrinsic complexities themselves are also defined in Lean, directly from
 certificates: \lean{callsCoprimeness} for the coprimeness relation in
 $N_\varepsilon$ and \lean{callsGcd} for the gcd without $\eq_1$ facts. On
-coprime pairs the former agrees with the existing reduction to $D$
+coprime pairs the former agrees with this reduction
 (\lean{callsCoprimeness_eq_callsRem}). The theorems
 \lean{ShortGCD.not_conjecture_3_4} and
 \lean{ShortGCD.not_main_conjecture_4F5} state that no $r>0$ satisfies

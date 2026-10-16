@@ -9,6 +9,7 @@
 'ShortGCD.gcd_certificate_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.G_eq_D' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.sizeCost_isLittleO_log' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.callsRem_eq_D' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.callsCoprimeness_eq_callsRem' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.eventually_calls_le' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.not_conjecture_3_4' depends on axioms: [propext, Classical.choice, Quot.sound]

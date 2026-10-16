@@ -1,11 +1,11 @@
-import EuclidOptimality.Certificate
+import ShortGCD.CoprimeCertificate
 
 /-!
 # Remainder derivations
 
 A *remainder derivation* from `a, b` is a list `r₁, …, r_k` in which each `rᵢ = x % y` for
 some `x, y ≠ 0` among `a, b, r₁, …, r_{i-1}`. `D a b` is the length of a shortest derivation
-containing `1` (or `0` if `1` is an input). This is what `experiments/derivation.c` computes.
+containing `1` (or `0` if `1` is an input).
 
 * `exists_list_iff`: a derivation of length `≤ k` reaching `1` exists iff a sound set of at
   most `k` remainder facts reaches `1`. Building a derivation from a reachability proof
@@ -14,7 +14,7 @@ containing `1` (or `0` if `1` is an input). This is what `experiments/derivation
 * `callsRem_eq_D`: the intrinsic `calls(rem)`-complexity of coprimeness in `Nε` equals `D`.
 -/
 
-namespace EuclidOptimality
+namespace ShortGCD
 
 open Finset
 
@@ -186,4 +186,4 @@ length of a shortest remainder derivation of `1` from `a, b`. -/
 theorem callsRem_eq_D (a b : ℕ) : callsRem a b = D a b := by
   rw [callsRem_eq_derivLen, D_eq_derivLen]
 
-end EuclidOptimality
+end ShortGCD

@@ -1,4 +1,4 @@
-import EuclidOptimality.Derivation
+import ShortGCD.RemainderList
 
 /-!
 # The gcd version
@@ -14,7 +14,7 @@ the gcd.
 * `D_le_callsRemGcd`, `callsRemGcd_le_D_add_two`: `D ≤ callsRemGcd ≤ D + 2` for coprime inputs.
 -/
 
-namespace EuclidOptimality
+namespace ShortGCD
 
 open Finset
 
@@ -131,4 +131,4 @@ theorem callsRemGcd_le_D_add_two {a b : ℕ} (hab : Nat.Coprime a b) :
     ⟨U, hU, rfl⟩
   exact (Nat.sInf_le hmem).trans hcard
 
-end EuclidOptimality
+end ShortGCD

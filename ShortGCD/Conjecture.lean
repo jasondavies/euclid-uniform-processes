@@ -17,7 +17,7 @@ conjectures fail. The deterministic Main Conjecture is not addressed.
 
 namespace ShortGCD
 
-open EuclidOptimality Filter
+open Filter
 
 /-- `U` certifies the truth value of `a ⊥⊥ b` in `Nε = (ℕ, rem, eq0, eq1)`. -/
 def CertifiesCoprimeness (U : Cert) (a b : ℕ) : Prop :=

@@ -59,8 +59,12 @@ The conjectures:
   or function.
 - `ShortGCD.eventually_calls_le`: for every ε > 0, eventually in M, both intrinsic
   complexities are at most ε log₂ M on all pairs bounded by M.
+- `ShortGCD.callsRem_eq_D` (the reduction): on coprime pairs, the least number of
+  remainder facts in a coprimeness certificate equals D(a, b), the length of a shortest
+  remainder derivation of 1. The doubling map u ↦ 2u shows that every certificate must
+  reach 1.
 - `ShortGCD.callsCoprimeness_eq_callsRem`: on coprime pairs, `callsCoprimeness` agrees
-  with the `callsRem` of the existing reduction, which equals D(a, b).
+  with that `callsRem`.
 
 Derivations and certificates:
 
@@ -72,14 +76,16 @@ Derivations and certificates:
   bound plus two remainder facts, and no eq1 facts.
 - `ShortGCD.coprime_certificate_bound` and `noncoprime_certificate_bound`: both truth
   values of coprimeness have certificates within the corresponding bound.
-- `ShortGCD.G_eq_D`: agreement with the existing minimal derivation definition.
+- `ShortGCD.G_eq_D`: G agrees with D, the list-derivation definition, on coprime inputs.
 - `ShortGCD.gcd_certificate_lower`: every generated gcd certificate has at least G(a, b)
   remainder facts.
 
 ### Proof path
 
-Derivation / Composition → Gap and Prefix → Contraction → Euclid → FiniteBound →
-Arithmetic → UpperBound → Asymptotic → Certificates → Conjecture.
+CoprimeCertificate → RemainderList → GcdCertificate (certificates and the reduction to
+derivations), and separately Derivation / Composition → Gap and Prefix → Contraction →
+Euclid → FiniteBound → Arithmetic → UpperBound → Asymptotic (the upper bound). Both feed
+Certificates → Conjecture.
 
 - **The finite recurrence.** The core is `sizeCost_step`. Its hypotheses concern
   natural-number size parameters, not an assumed complexity bound.
@@ -134,9 +140,6 @@ pdflatex short-gcd-certificates.tex
 The second run resolves cross-references. The bibliography is written inline, so no
 BibTeX run is needed.
 
-## Reused code
+## License
 
-`vendor/EuclidOptimality` contains the unchanged `Certificate.lean`, `Derivation.lean`
-and `Gcd.lean` from the `euclid-optimality` project, under its Apache-2.0 license.
-See `vendor/NOTICE.txt` and `vendor/LICENSE`. The new `ShortGCD` code supplies the upper
-bound and connects it to those certificate definitions.
+Apache License 2.0; see `LICENSE`.
