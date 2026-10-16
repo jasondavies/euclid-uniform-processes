@@ -35,7 +35,7 @@ Theorem 4F.1 attains the bound. It does show that a proof of the Main Conjecture
 properties beyond uniformity. A lower bound for intrinsic complexity, which is what the
 homomorphism method proves, cannot exceed O(log a / log log a).
 
-Read `paper/short-gcd-certificates.pdf`, built from `paper/short-gcd-certificates.tex`.
+Read `paper/euclid-uniform-processes.pdf`, built from `paper/euclid-uniform-processes.tex`.
 Page citations refer to the published edition of Moschovakis, *Abstract Recursion and
 Intrinsic Complexity* (Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019,
 doi:10.1017/9781108234238).
@@ -159,8 +159,8 @@ the Lean proof.
 
 ```
 cd paper
-pdflatex short-gcd-certificates.tex
-pdflatex short-gcd-certificates.tex
+pdflatex euclid-uniform-processes.tex
+pdflatex euclid-uniform-processes.tex
 ```
 
 The second run resolves cross-references. The bibliography is written inline, so no
