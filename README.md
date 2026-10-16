@@ -26,9 +26,10 @@ combine is not charged. It does show that a proof of the Main Conjecture must us
 determinism. A lower bound for intrinsic complexity, which is what the homomorphism
 method proves, cannot exceed log a / log log a.
 
-Read `paper/short-gcd-certificates.pdf`, built from `paper/short-gcd-certificates.tex`. Citations refer to
-printed pages of Moschovakis, *Abstract Recursion and Intrinsic Complexity* (Cambridge
-University Press / ASL, 2019).
+Read `paper/short-gcd-certificates.pdf`, built from `paper/short-gcd-certificates.tex`.
+Page citations refer to the published edition of Moschovakis, *Abstract Recursion and
+Intrinsic Complexity* (Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019,
+doi:10.1017/9781108234238).
 
 **Status.** The whole argument is machine-checked in Lean, as listed below. A second,
 independent Lean formalisation of the same argument was developed separately. The result
