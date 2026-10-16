@@ -86,7 +86,10 @@ all uniform processes was left open \cite[p.~188]{moschovakis2019},
 In a different model, Bshouty showed that a random access machine with linear
 operations, shifts and indirect addressing computes the gcd in
 $O(\log N/\log\log N)$ operations, by reading precomputed blocks of the binary
-gcd algorithm from a table \cite{bshouty1989}. The construction here uses no
+gcd algorithm from a table. He also proved that this is optimal: even with
+rational constants, multiplication and division by constants, and the floor
+function added, $\Omega(\log N/\log\log N)$ operations are necessary
+\cite[Theorems~i and~ii]{bshouty1989}. The construction here uses no
 operation other than remainder and no table. Its saving of a factor
 $\log\log a$ comes instead from reusing one stored Euclidean prefix for every
 modulus.
@@ -152,7 +155,9 @@ algorithms nor its form for deterministic uniform processes
 Section~\ref{sec:scope}. With the lower bound above, the intrinsic complexity
 of coprimeness in $\mathcal N_\varepsilon$ now lies between $\Omega(\log\log a)$,
 on infinitely many pairs, and $O(\log a/\log\log a)$, on all pairs. Closing this
-gap is an open problem.
+gap is an open problem. In particular, it is not known whether the bound of
+Theorem~\ref{thm:main} is optimal for remainder-only derivations, as the
+corresponding bound is in Bshouty's model.
 
 \section{Normalization}
 Write $g=\gcd(a,b)>0$. For positive $y$,
