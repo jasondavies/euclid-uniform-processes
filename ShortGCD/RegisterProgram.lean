@@ -10,8 +10,8 @@ program. Only remainder calls are charged.
 Arithmetic soundness, homogeneity, and existence of successful computations
 are checked here. `RegisterRecurrence` and `RegisterAsymptotic` establish the
 program cost bound; `RegisterSyntax` compiles these runs to finite first-order
-syntax with call-by-value evaluation trees. The book's general recursive
-machine is not re-formalized here.
+syntax with call-by-value evaluation trees. `RegisterSmallStep` proves
+exact-cost correspondence with the specialized two-stack recursive machine.
 -/
 
 namespace ShortGCD.RegisterProgram

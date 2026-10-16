@@ -1,0 +1,39 @@
+{
+  "program_functions": 7,
+  "maximum_arity": 3,
+  "runs": 270,
+  "scaled_replays": 270,
+  "same_program_for_all_depths": true,
+  "examples": [
+    {
+      "bits": 2048,
+      "planning_h": 2,
+      "remainder_calls": 1941,
+      "contractions": 538,
+      "rebuilding_calls": 373,
+      "local_calls": 1566,
+      "verification_calls": 2,
+      "expected_calls": 1941
+    },
+    {
+      "bits": 2048,
+      "planning_h": 5,
+      "remainder_calls": 2100,
+      "contractions": 349,
+      "rebuilding_calls": 1056,
+      "local_calls": 1042,
+      "verification_calls": 2,
+      "expected_calls": 2100
+    },
+    {
+      "bits": 2048,
+      "planning_h": 45,
+      "remainder_calls": 7867,
+      "contractions": 169,
+      "rebuilding_calls": 7359,
+      "local_calls": 506,
+      "verification_calls": 2,
+      "expected_calls": 7867
+    }
+  ]
+}

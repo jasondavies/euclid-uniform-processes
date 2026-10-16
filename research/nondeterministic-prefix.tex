@@ -29,7 +29,8 @@ arity is fixed independently of the inputs. This does not give a single
 sublogarithmic program. We give the program schema, correctness and cost
 arguments, and an executable compilation into first-order syntax.
 Lean checks the fixed-register recurrence, the asymptotic program bound,
-and a translation preserving remainder counts into finite first-order syntax.
+and translations preserving remainder counts into finite first-order syntax
+and a specialized two-stack recursive machine.
 It also checks correctness of every terminating syntactic evaluation and
 existence of a successful evaluation on every input.
 \end{abstract}
@@ -172,8 +173,11 @@ is not restricted to the selected fast witnesses.
 The syntax contains variables, remainder, zero-test conditionals, and calls
 to a fixed finite signature; each symbol has a finite set of bodies.
 \lean{Syntax.Eval} uses call-by-value evaluation trees, evaluating all arguments
-before the chosen body and summing their remainder counts. This formalizes
-the explicit program, not the book's general recursive machine. The Python
+before the chosen body and summing their remainder counts.
+\lean{RegisterSmallStep} gives an explicit two-stack machine for this language:
+it evaluates arguments right to left and has separate transitions for
+zero tests and branching. Its closures encode substituted source terms,
+not a new data type available to the program. The Python
 compiler and interpreter are independently checked executable artifacts,
 not verified implementations of the Lean semantics.
 
@@ -188,8 +192,12 @@ into its completed argument computations and selected body or branch, and
 induct on its length. Each selector occurrence makes its own choice, with no
 shared mutable state. The setters in this note merely pass their evaluated
 arguments to the generator, so inlining them also preserves results and
-remainder counts. These correspondence arguments are mathematical proofs,
-not additional kernel-checked theorems about the book's machine or Python.
+remainder counts. \lean{Syntax.Machine.eval_iff_steps} now checks the
+tree-to-machine equivalence in both directions; \lean{Machine.Step.context}
+checks transition locality. The machine specializes the book's transition
+table to the fixed language and signature, rather than formalizing arbitrary
+structures and vocabularies. The separate equivalence with the Python
+presentation retaining setters remains a mathematical argument.
 
 \section{The fixed-prefix cost bound}
 
@@ -350,6 +358,10 @@ program evaluations;
 \item \lean{Syntax.arbitrarily_small_program}: the quantified
 $\varepsilon\log a+B_\varepsilon$ statement with the program fixed before
 the inputs are chosen.
+\item \lean{Syntax.Machine.eval_iff_steps}: exact-cost equivalence between
+evaluation trees and terminating small-step executions;
+\item \lean{Syntax.Machine.arbitrarily_small_program}: the same quantified
+bound directly for finite machine transition sequences.
 \end{itemize}
 The proof modules are included in the normal \lean{lake build} target.
 The research entry point prints their axiom dependencies, recorded in
@@ -360,6 +372,9 @@ companion manuscript; this note retains the expanded operational discussion
 and executable checks. The accompanying \lean{model-novelty-audit.txt}
 records the model comparison and the scope of the primary-literature search.
 Obtaining one sublogarithmic program remains the larger open task.
+The separate investigation \lean{single-program-investigation.pdf} tests a
+fixed program that regenerates selected prefix operands, analyzes its
+accounting limitation, and identifies a possible structural direction.
 
 \begin{thebibliography}{2}
 \bibitem{book}

@@ -40,8 +40,9 @@ positive inputs. Cost here is the minimum over successful computations.
 The program depends on $\varepsilon$; no single sublogarithmic program is
 obtained, and the Main Conjecture for algorithms remains open. The bounds,
 the certificate reductions, both refutations, and the finite program family
-are formalized in Lean~4. The final section distinguishes the formalized
-results from the cited theory and the mathematical model correspondence.
+are formalized in Lean~4, including exact-cost correspondence with a
+specialized small-step recursive machine. The final section distinguishes
+the formalized results from the cited general theory.
 \end{abstract}
 
 \section{Statement and relation to the book}
@@ -533,10 +534,14 @@ For $b>0$, final verification costs exactly two remainder calls.
 
 \paragraph{Operational correspondence.}
 The syntax above is a finite recursive program in the sense of
-\cite[\S\S2A, 2E]{moschovakis2019}. Its finite call-by-value evaluation trees,
-used in Lean, correspond to convergent computations of the book's recursive
-machine, preserving the result and the number of remainder calls. Here is the
-cost argument explicitly. For the forward direction, induct on the evaluation
+\cite[\S\S2A, 2E]{moschovakis2019}. In Lean we specialize the book's
+two-stack transition table to this language and program family. Closures
+represent substitution of actual values into terms; they are machine states,
+not additional program data. The control stack has its top at the head, and
+the value stack distinguishes individuals from booleans. Argument evaluation,
+zero testing, and branching are explicit transitions. The finite evaluation
+trees correspond to convergent machine computations, preserving both result
+and remainder count. For the forward direction, induct on the evaluation
 tree. Evaluate argument subtrees right to left, as prescribed by the machine's
 composition rule, then choose the indicated body at the internal call.
 Transition locality permits each subtree computation to be placed in its
@@ -550,8 +555,11 @@ This gives the same additive cost equations. Choices belong to individual
 call occurrences, and the language has no shared mutable state, so serializing
 the argument trees introduces no constraint on their choices. No successful
 tree uses a zero divisor or terminates through $\operatorname{loop}$.
-This correspondence is a mathematical argument; the book's general machine
-has not been formalized in Lean.
+The exact-cost equivalence is checked as
+\lean{ShortGCD.RegisterProgram.Syntax.Machine.eval_iff_steps}; transition
+locality is checked as \lean{Machine.Step.context} in the same namespace.
+This formalizes the machine needed here, not the book's theory for arbitrary
+structures and program vocabularies.
 
 \begin{proof}[Proof of Theorem~\ref{thm:programs}]
 Set $k=2^p$, $h=k^2+1$, and $W=h+4$, and take $P_p=P_W$.
@@ -702,8 +710,8 @@ processes, Theorem~4F.1 and the lower bounds of Section~1 are cited, not
 formalized. Theorem~4F.1 is needed only to restate these intrinsic bounds in
 terms of a single best uniform process, not for the refutations themselves.
 
-Theorem~\ref{thm:programs} is checked in the seven modules
-\lean{RegisterProgram} through \lean{RegisterSyntax}. Under
+Theorem~\ref{thm:programs} is checked in the eight modules
+\lean{RegisterProgram} through \lean{RegisterSmallStep}. Under
 \lean{ShortGCD.RegisterProgram}, the theorem \lean{maxCost_step} proves the
 fixed-parameter recurrence, and \lean{Fixed.limsup_profile_le} proves its
 coefficient $3/p$. The syntax development gives finite body sets for the four
@@ -714,10 +722,13 @@ into evaluation trees with exactly the same remainder count;
 evaluation, and \lean{Syntax.eval_head_exists} proves existence on every
 input. The quantified bound is \lean{Syntax.arbitrarily_small_program};
 \lean{Syntax.eventually_eval_bound} gives every coefficient greater than
-$3/p$ for a fixed $p$. These modules are included in the normal build and
-axiom audit. The correspondence with the book's machine is the mathematical
-argument in Section~\ref{sec:programs}, rather than a Lean theorem about that
-machine. An independent Python compiler and right-to-left interpreter check
+$3/p$ for a fixed $p$. \lean{Syntax.Machine.eval_iff_steps} proves the
+correspondence with the specialized small-step machine in both directions.
+\lean{Syntax.Machine.head_correct} and \lean{Syntax.Machine.head_exists}
+give correctness and convergence, while
+\lean{Syntax.Machine.arbitrarily_small_program} states the bound directly
+for finite transition sequences. These modules are included in the normal
+build and axiom audit. An independent Python compiler and right-to-left interpreter check
 138 cases across three fixed widths, 129 additional scaled replays, and eight
 negative cases. The interpreter is not formally verified; unrestricted
 arithmetic used to plan successful choices is not part of the programs.

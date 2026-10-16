@@ -13,3 +13,13 @@
 'ShortGCD.RegisterProgram.Syntax.eval_head_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Syntax.eventually_eval_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Syntax.arbitrarily_small_program' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.Step.context' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.eval_iff_steps' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.head_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.head_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.eventually_steps_bound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.arbitrarily_small_program' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

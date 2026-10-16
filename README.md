@@ -213,18 +213,27 @@ including finite first-order syntax and call-by-value evaluation:
 - `RegisterProgram.Syntax.eventually_eval_bound` gives the uniform asymptotic
   bound, including verification. `arbitrarily_small_program` states the
   ε log₂ a + Bε bound with the program chosen before the inputs.
+- `RegisterProgram.Syntax.Machine.eval_iff_steps` proves exact-cost equivalence
+  between evaluation trees and a specialized two-stack small-step machine.
+  `Step.context` proves transition locality. `head_correct` and `head_exists`
+  give correctness of every terminating execution and existence on every input.
+- `RegisterProgram.Syntax.Machine.eventually_steps_bound` and
+  `arbitrarily_small_program` state the bounds directly for machine executions.
 
 These names are in the `ShortGCD` namespace. The proof path is RegisterProgram →
 RegisterMachine → RegisterPrefix → RegisterCost → RegisterRecurrence →
 [RegisterAsymptotic](ShortGCD/RegisterAsymptotic.lean) →
-[RegisterSyntax](ShortGCD/RegisterSyntax.lean). All are included in `lake build`.
+[RegisterSyntax](ShortGCD/RegisterSyntax.lean) →
+[RegisterSmallStep](ShortGCD/RegisterSmallStep.lean). All are included in `lake build`.
 The [research entry point](research/RegisterProgram.lean) records a separate
 [axiom audit](research/register-axioms.txt), using only the standard Lean axioms.
 
-The syntax proof inlines the setter functions. It uses finite evaluation trees;
-the book's general recursive machine and the Python interpreter are not themselves
-formalized in Lean. The paper gives a mathematical correspondence argument preserving
-results and remainder counts, including the book's right-to-left argument order.
+The syntax proof inlines the setter functions. Lean now also checks correspondence
+with an explicit specialization of the book's two-stack machine, including
+right-to-left argument order and separate zero-test and branch transitions.
+Only remainder transitions carry a nonzero cost. This covers the language and
+program family used here; the book's theory for arbitrary structures and the
+Python interpreter are not formalized.
 The [model and literature audit](research/model-novelty-audit.txt) records the
 source checks and their limits. No matching uniform coefficient result was located
 in the sources checked; this is not an exhaustive novelty determination.
@@ -243,6 +252,36 @@ python3 research/register_program.py --width 9
 
 Build the research PDF by running `pdflatex nondeterministic-prefix.tex` twice
 from `research/`.
+
+### Investigating one fixed sublogarithmic program
+
+The [investigation](research/single-program-investigation.pdf)
+([source](research/single-program-investigation.tex)) separates tested constructions,
+restricted accounting results, and open questions. A new
+[fixed program](research/rebuilding_program.py), of maximum arity three, can select
+arbitrarily deep Euclidean-prefix operands by recomputing them. The same syntax
+passes 270 runs and 270 scaled replays across different planning depths.
+On the recorded 2,048-bit example, longer prefixes reduce the number of contractions
+but increase the cost of rebuilding their operands.
+
+The Lean lemma in [PrefixPolicies.lean](research/PrefixPolicies.lean) shows that a
+fresh-prefix budget is at least four times its guaranteed bit progress, even with
+varying prefix lengths. This limits that accounting argument; it is **not a lower
+bound on the minimum cost of the program**, whose contractions can exceed the
+guarantee. No single sublogarithmic program has been obtained.
+
+```
+lake env lean research/PrefixPolicies.lean
+python3 research/rebuilding_program.py
+python3 -O research/rebuilding_program.py
+```
+
+Build this note with two runs of `pdflatex single-program-investigation.tex`
+from `research/`.
+
+The note also proposes studying computation graphs with a fixed bound on
+treewidth as a way to capture the restriction imposed by a finite program.
+That direction is exploratory and is not part of the main paper's theorems.
 
 ## Building the paper
 

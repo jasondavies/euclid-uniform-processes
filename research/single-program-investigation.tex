@@ -1,0 +1,273 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue]{hyperref}
+\newtheorem{proposition}{Proposition}
+\newcommand{\rem}{\operatorname{rem}}
+\newcommand{\eq}{\operatorname{eq}}
+\newcommand{\lean}[1]{\nolinkurl{#1}}
+\makeatletter\g@addto@macro\UrlBreaks{\do\_}\makeatother
+\emergencystretch=2em
+\title{Growing prefixes in a fixed remainder program}
+\author{Research note accompanying the uniform-process construction}
+\date{October 16, 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The fixed-program family does not yet give one sublogarithmic remainder
+program. We investigate recomputation, destructive traversal, and recursive
+reuse of a growing prefix. A concrete finite program of maximum arity three
+can select arbitrarily deep prefix operands, but the tested computations pay
+for repeated regeneration. We formalize a limitation of the corresponding
+cost accounting, and describe a structural direction based on the interfaces
+between recursive calls. No sublogarithmic algorithm or algorithmic lower
+bound is established here.
+\end{abstract}
+
+\section{The target and the operational model}
+
+The desired statement is the existence of one finite nondeterministic
+recursive program over $(\mathbb N,\rem,\eq_0)$ computing the gcd with
+\[
+\max_{1\leq b\leq a} c_P(a,b)=o(\log a),
+\]
+where $c_P$ is the minimum remainder count of a convergent computation.
+Every convergent computation must be correct, and at least one must exist
+on every input. These are the conventions of \cite[\S2E]{book}.
+The existing theorem chooses a different fixed program for each desired
+coefficient; its generator arity is $4^p+5$ and its coefficient is at most
+$3/p$. The quantifiers cannot simply be exchanged.
+
+The module \lean{ShortGCD.RegisterSmallStep} now formalizes the specialized
+two-stack recursive machine. It proves exact-cost equivalence with finite
+evaluation trees, including right-to-left argument evaluation, separate zero
+tests and branches, finite nondeterministic body choice, and a positive
+divisor requirement. Transition locality is also checked. A saved caller
+context survives a child computation, but the child cannot inspect arbitrary
+saved values. The book itself distinguishes the richer structure used to
+implement the stacks from the original structure \cite[p.~78]{book}.
+Machine stacks therefore do not supply list primitives to the source program.
+
+\section{A single program with unbounded prefix selection}
+
+Write $a=r_0,b=r_1,r_2,\ldots$ for the Euclidean sequence. The fixed equations
+\begin{align*}
+\operatorname{prefix}(a,b)&=a,\\
+\operatorname{prefix}(a,b)&=b,\\
+\operatorname{prefix}(a,b)&=\operatorname{prefix}(b,\rem(a,b))
+\end{align*}
+can select $r_i$ with exactly $\max(0,i-1)$ remainder calls, whenever the
+necessary divisors are positive. Thus arbitrary selection depth itself is
+available in one finite program.
+
+Define the four alternatives
+\[
+\operatorname{near}(u,v)=u\;\mid\;v\;\mid\;\rem(u,v)\;\mid\;\rem(v,u)
+\]
+and the single equation
+\[
+\operatorname{shrink}(a,b,m)=\operatorname{near}
+ \bigl(\rem(\operatorname{prefix}(a,b),m),
+       \rem(\operatorname{prefix}(a,b),m)\bigr).
+\]
+Finally let
+\begin{align*}
+\operatorname{generate}(a,b,m)&=m,\\
+\operatorname{generate}(a,b,m)&=
+ \operatorname{generate}(a,b,\operatorname{shrink}(a,b,m)).
+\end{align*}
+Use the earlier verification wrapper: if $b=0$, return $a$; otherwise
+generate a candidate starting with $m=b$ and return it only if it is positive
+and divides both original inputs. Rejection enters a self-loop. All tests
+are implemented using $\eq_0$ and remainder.
+
+There are seven internal functions including the entry function and rejection
+loop, all of arity at most three. There are no numeric constants, list
+operations, or runtime indices in the program. Its syntax is independent of
+every input and of the planner's prefix length.
+
+Every common divisor of $a,b$ divides every generated candidate, by induction
+on evaluations. The wrapper therefore makes every convergent computation
+correct. A successful computation always exists: if $b=\gcd(a,b)$, stop
+immediately; otherwise choose the gcd as both prefix operands. Their residues
+modulo $b$ equal the gcd, so a projection alternative of near returns it.
+For $a\geq b>0$, if Euclid takes $E$ calls to make the gcd available, this
+witness costs at most $2E+4$ calls, including verification. This proves only
+an $O(\log a)$ upper bound.
+
+\paragraph{Executable check.}
+\lean{rebuilding_program.py} compiles these equations to the existing finite
+AST. The independently defined right-to-left interpreter executes the same
+compiled object for every test and planning depth. The planner chooses close
+residues among the first $h+1$ prefix values; it uses unrestricted arithmetic
+offline and provides only the nondeterministic choices to the interpreter.
+Selecting prefix positions $i,j$ costs
+\[
+\max(0,i-1)+\max(0,j-1)+2+e,
+\qquad e\in\{0,1\},
+\]
+where the two calls produce residues and $e$ records a remainder in near.
+Both argument occurrences are evaluated, even when the selected values agree.
+
+The suite checks 270 runs and 270 additional scaled replays with identical
+choices. It includes all pairs below nine, unordered and zero inputs, larger
+random and scaled pairs, and a Fibonacci pair. On one seeded 2,048-bit input:
+\begin{center}
+\begin{tabular}{rrrrr}
+\toprule
+Planning $h$ & Contractions & Regeneration calls & Local calls & Total calls\\
+\midrule
+2 & 538 & 373 & 1,566 & 1,941\\
+5 & 349 & 1,056 & 1,042 & 2,100\\
+45 & 169 & 7,359 & 506 & 7,867\\
+\bottomrule
+\end{tabular}
+\end{center}
+Totals include two final verification calls. Increasing the available prefix
+reduces contractions on this example but increases operand regeneration.
+These are costs of particular selected runs, not minimum costs. They do not
+prove that this program has no sublogarithmic successful computations or
+that a better planner cannot find them.
+
+\section{What the prefix estimate can certify without reuse}
+
+For a target contraction factor $2^p$, the existing prefix lemma uses
+$h=4^p+1$ ordered pairs. Building that prefix from its initial pair takes
+$h-1=4^p$ Euclidean calls. The lemma guarantees at least $p$ bits of decrease.
+Suppose an analysis budgets a fresh prefix for each contraction, discards it
+afterwards, and accounts for progress only by these guaranteed factors.
+It may choose a different positive integer $p_i$ at every stage.
+
+\begin{proposition}[Restricted accounting bound]
+For any such finite list $p_1,\ldots,p_J$,
+\[
+\sum_{i=1}^J4^{p_i}\ \geq\ 4\sum_{i=1}^Jp_i.
+\]
+Consequently, if this accounting justifies a target decrease of $n$ bits
+solely by $n\leq\sum_i p_i$, its charged prefix budget is at least $4n$.
+\end{proposition}
+\begin{proof}
+For integers $p\geq1$, $4p\leq4^p$, by induction. Sum these inequalities
+and use the assumed target inequality.
+\end{proof}
+
+\lean{PrefixPolicies.lean} checks both inequalities. This is a lower bound
+on the budget of this proof policy, not on actual executions. In particular,
+the hypothesis $n\leq\sum_i p_i$ is not necessary for an actual successful
+run: its contractions may be much stronger than their guaranteed factors.
+The prototype also reconstructs only its selected operands, so it need not
+pay the full fresh-prefix charge at every stage. The proposition cannot be
+applied to its measured costs as an algorithmic lower bound.
+
+Two related attempts have the same limitation at the level of this estimate.
+Recomputing all prefix residues at every modulus replaces three calls per
+contraction by a budget growing with the prefix. Consuming disjoint prefix
+blocks while unwinding avoids repeated traversal, but spends a new block for
+each application of the residue-count lemma. For blocks with $h_i=4^{p_i}+1$
+ordered pairs, a consecutive Euclidean prefix containing all these blocks
+takes $\sum_i h_i-1\geq\sum_i4^{p_i}$ calls when $J\geq1$.
+Neither estimate yields a sublinear budget for a fixed positive fraction of
+the input's bit length. This leaves open reuse across overlapping blocks,
+stronger residue information, and schedules that exploit larger contractions.
+
+\section{A structural direction: bounded interfaces between calls}
+
+The following observation concerns computation occurrences, not numerical
+values identified whenever they happen to agree. It suggests a way to state
+the remaining issue more precisely. It is a mathematical argument, not a
+Lean theorem or a result claimed to be new.
+
+For a terminating evaluation, form its data-dependence graph. Give every
+primitive result and every local expression result an occurrence vertex.
+Give each call fresh formal-input ports and a return port, linked by copying
+edges to its actual arguments and its returned expression. Repeated uses of
+one formal input share that port. Keep separate vertices for unrelated
+occurrences even if their numerical values are equal. Consider the underlying
+undirected graph, optionally adding edges that make each primitive's operands
+and result a clique.
+
+\begin{proposition}[Call-tree decomposition]
+For each fixed finite first-order recursive program $P$ without shared mutable
+state, these occurrence graphs have treewidth bounded by a constant depending
+only on $P$, independently of the input and recursion depth.
+\end{proposition}
+\begin{proof}
+Use the tree of dynamic function invocations, adding the head evaluation as
+its root. For each invocation, put in its bag its formal-input ports, the
+results of all subterm occurrences executed in its own body, its return port,
+and the formal-input and return ports of its immediate child invocations.
+The number of such occurrences and child calls is bounded by the finite body
+syntax, and each child has fixed arity. Taking the maximum over the finitely
+many bodies and the head gives a bound $C(P)$ on bag size.
+
+Every primitive edge lies in the bag of the invocation executing it. Edges
+for argument and return copying lie in the caller or callee bag, and each
+interface port lies in both adjacent bags. Other local vertices lie only in
+their own bag. Thus the bags containing any vertex form a connected subtree,
+and every edge is covered. This is a tree decomposition of width at most
+$C(P)-1$.
+\end{proof}
+
+Copy vertices may be removed by contracting copying edges, and unused tests
+and vertices may be deleted. These graph-minor operations preserve the
+existence of a bounded-width decomposition. Thus a small-cost execution gives
+a remainder derivation with a bounded-width occurrence graph as well.
+This argument does not allow the unrestricted identification of equal
+numerical values: that quotient need not preserve treewidth. Existing
+certificate files store numerical values, so measuring the width of their
+value-identified graphs would not by itself test this observation.
+
+This leads to two concrete research questions.
+\begin{enumerate}
+\item Can the short prefix construction be organized into bounded-width
+occurrence graphs, with a decomposition and execution schedule realizable by
+one fixed program? The residue lemma supplies suitable operand pairs for each
+modulus but gives no compatibility between their choices at different moduli.
+Bounded treewidth alone is not asserted sufficient for such a compilation.
+\item For every fixed width $t$, is there a $c_t>0$ and an infinite family of
+inputs on which every remainder derivation of the gcd with occurrence
+treewidth at most $t$ needs at least $c_t\log a$ calls? Such a theorem would
+imply the nondeterministic Main Conjecture using the decomposition above.
+No such lower bound is proved here. It would use a restriction on program
+computations beyond the unrestricted homomorphism method.
+\end{enumerate}
+
+Treewidth restrictions already play a role in circuit complexity; see, for
+example, Jansen and Sarma \cite{js}. Their balancing results do not give a
+remainder-program speedup or the proposed lower bound. The immediate next
+test is to instrument the existing interpreter with occurrence identities,
+construct its invocation bags, and independently check the decomposition.
+That would make the proposed restriction concrete without assuming that
+recursion depth bounds storage or that equal values are interchangeable
+across inaccessible frames.
+
+\section{Reproduction and status}
+From the repository root:
+\begin{verbatim}
+lake build
+lake env lean research/RegisterProgram.lean
+lake env lean research/PrefixPolicies.lean
+python3 research/rebuilding_program.py
+python3 -O research/rebuilding_program.py
+\end{verbatim}
+The machine correspondence is part of the normal library build and axiom
+audit. The restricted budget lemma has its own audit in
+\lean{prefix-policy-axioms.txt}. Prototype results are recorded in
+\lean{rebuilding-validation.json}. The prototype and the call-tree
+decomposition are not formalized in Lean. The established main-paper bounds
+are unchanged; one fixed sublogarithmic program remains open.
+
+\begin{thebibliography}{2}
+\bibitem{book}
+Yiannis N. Moschovakis.
+\emph{Abstract Recursion and Intrinsic Complexity}.
+Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019.
+\url{https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf}.
+\bibitem{js}
+Maurice Jansen and Jayalal Sarma M.N.
+\emph{Balancing Bounded Treewidth Circuits}, 2009.
+\url{https://arxiv.org/abs/0910.1427}.
+\end{thebibliography}
+\end{document}

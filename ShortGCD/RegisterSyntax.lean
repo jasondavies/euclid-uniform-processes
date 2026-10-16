@@ -7,8 +7,8 @@ function symbols, with arities `w`, `w`, `3`, and `1`. There are finitely many
 bodies for each symbol. Terms contain no numeric literals or higher-order data.
 Only remainder and the zero test are primitive operations. `Eval` counts
 remainder calls in finite call-by-value evaluation trees; internal calls and
-zero tests are uncharged. The operational correspondence with the book's
-small-step machine is not a re-formalization of that machine.
+zero tests are uncharged. `RegisterSmallStep` proves exact-cost equivalence
+with a two-stack machine specialized to this language and program family.
 -/
 
 noncomputable section

@@ -1,6 +1,7 @@
 Fixed-program family: model correspondence and literature audit
 Date: 2026-10-16
 Formalization reviewed: commit d94b677, branch nondeterministic-prefix
+Follow-up: specialized small-step machine added after commit 45d7058.
 
 RESULT UNDER REVIEW
 
@@ -12,8 +13,9 @@ every epsilon > 0 there are a fixed program P and a constant B such that
 c_P(a,b) <= epsilon log_2(a) + B for all a >= b >= 1.
 
 Conclusion: no model mismatch found. The theorem can be included in the main
-paper, with the operational correspondence below stated as a mathematical
-proof. No matching uniform small-coefficient result was located in the
+paper. The operational correspondence below is now kernel-checked for the
+specialized two-stack machine in RegisterSmallStep. No matching uniform
+small-coefficient result was located in the
 sources checked. This is a bounded literature search, not a proof of novelty.
 
 MODEL AUDIT
@@ -80,6 +82,18 @@ https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf
    the transition rules directly; the deterministic implementation theorem
    2D.2 alone would not establish nondeterministic cost preservation.
 
+   Follow-up formalization: Syntax.Machine.eval_iff_steps proves the exact-cost
+   equivalence, and Step.context proves transition locality. The machine has
+   an explicit control stack (top at head) and a tagged natural/boolean value
+   stack. compZero pushes a zero-test term and pending branch; compTest
+   expands that term; eq0 makes the external test; branchTrue/branchFalse
+   select the continuation. Thus testing and branching are separate steps.
+   The call transition chooses a body from the same finite set as Eval.
+   Closures represent substitution; their environments are not data values
+   available to program instructions. Only the rem transition has cost one.
+   This is a specialization of the transition table, not a formalization of
+   the book's theory for arbitrary structures, vocabularies, and programs.
+
 6. Nested calls and storage.
    The caller's other actual values remain in its context while one nested
    generator call returns a value. The caller can therefore retain v while
@@ -99,16 +113,20 @@ https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf
 
 8. What the kernel checks and what it does not.
    RegisterProgram -> RegisterMachine -> RegisterPrefix -> RegisterCost ->
-   RegisterRecurrence -> RegisterAsymptotic -> RegisterSyntax checks the
+   RegisterRecurrence -> RegisterAsymptotic -> RegisterSyntax ->
+   RegisterSmallStep checks the
    operational recurrence, asymptotic bound, translation into finite syntax,
    and correctness and existence for syntactic evaluations. In particular,
    Syntax.arbitrarily_small_program fixes p before quantifying over inputs.
    Syntax.run_invokes is an exact-cost forward translation; correctness of
    arbitrary syntactic evaluations is proved independently. No reverse
    translation to the register relation is needed for the upper bound.
-   The book's machine correspondence above and the Python interpreter are
-   not formalized in Lean. The existing axiom audits report only propext,
-   Classical.choice, and Quot.sound.
+   Exact-cost correspondence with the specialized machine is now checked.
+   Syntax.Machine.head_correct, head_exists, eventually_steps_bound, and
+   arbitrarily_small_program transfer the results to transition sequences.
+   The Python interpreter and its setter-inlining equivalence are not
+   formalized in Lean. The axiom audits report only propext, Classical.choice,
+   and Quot.sound.
 
 LITERATURE SEARCH AND LIMITS
 
