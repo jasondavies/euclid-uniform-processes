@@ -175,6 +175,42 @@ Results are in `validation/`. The planner uses unrestricted arithmetic; only the
 remainder facts it returns are counted as instructions. These finite checks supplement
 the Lean proof.
 
+## Research: nondeterministic programs
+
+The separate [research note](research/nondeterministic-prefix.pdf)
+([source](research/nondeterministic-prefix.tex)) develops a family of finite
+nondeterministic recursive gcd programs using only remainder and the zero test.
+For each integer p ≥ 1, a program with 4ᵖ + 5 generator parameters has worst-case
+remainder cost at most (3/p + o(1)) log₂ a. Thus, for every ε > 0, there is a
+fixed program with cost at most ε log₂ a + Bε on all positive inputs a ≥ b.
+
+**This does not give one sublogarithmic program.** The program depends on ε;
+the Main Conjecture allows its lower-bound coefficient to depend on the program.
+The note explains the remaining difficulty with reusing a growing Euclidean
+prefix in one fixed first-order program.
+
+**Formalization status:** [RegisterProgram.lean](research/RegisterProgram.lean)
+checks arithmetic correctness, positive scaling, and existence of successful
+computations for the fixed-width semantics. The program-family cost bound and
+the correspondence with the book's recursive-machine syntax are mathematical
+arguments, **not yet Lean theorems**. They are separate from the main paper's
+formalized results.
+
+The executable compiler produces finite first-order syntax, which a separate
+interpreter executes using supplied nondeterministic choices. Checks cover 138
+cases, 129 additional scaled replays, and eight negative cases; results are in
+[register-validation.json](research/register-validation.json).
+
+```
+lake env lean research/RegisterProgram.lean
+python3 research/check_register_program.py
+python3 -O research/check_register_program.py
+python3 research/register_program.py --width 9
+```
+
+Build the research PDF by running `pdflatex nondeterministic-prefix.tex` twice
+from `research/`.
+
 ## Building the paper
 
 ```

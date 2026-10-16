@@ -1,0 +1,3 @@
+'ShortGCD.RegisterProgram.Accepts.correct' depends on axioms: [propext, Quot.sound]
+'ShortGCD.RegisterProgram.Run.scale' depends on axioms: [propext, Quot.sound]
+'ShortGCD.RegisterProgram.exists_accepts' depends on axioms: [propext, Quot.sound]
