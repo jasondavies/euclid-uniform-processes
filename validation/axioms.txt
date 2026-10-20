@@ -32,9 +32,7 @@
 'ShortGCD.RegisterProgram.maxCost_step' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Fixed.limsup_profile_le' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Fixed.eventually_accepts_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
-'ShortGCD.RegisterProgram.Fixed.arbitrarily_small_coefficient' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
+'ShortGCD.RegisterProgram.Fixed.arbitrarily_small_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Syntax.run_invokes' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Syntax.accepts_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Syntax.eval_head_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -45,9 +43,11 @@
 'ShortGCD.RegisterProgram.Syntax.Machine.eval_iff_steps' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Syntax.Machine.head_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.RegisterProgram.Syntax.Machine.head_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
-'ShortGCD.RegisterProgram.Syntax.Machine.eventually_steps_bound' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
-'ShortGCD.RegisterProgram.Syntax.Machine.arbitrarily_small_program' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.eventually_steps_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.RegisterProgram.Syntax.Machine.arbitrarily_small_program' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.AlmostAll.within_iff_D_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.AlmostAll.le_of_within_regular' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.AlmostAll.card_irr_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.AlmostAll.card_within_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.AlmostAll.card_D_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.AlmostAll.tendsto_card_within_loglog' depends on axioms: [propext, Classical.choice, Quot.sound]

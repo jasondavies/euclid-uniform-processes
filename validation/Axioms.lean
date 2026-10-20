@@ -54,3 +54,10 @@ import ShortGCD
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.head_exists
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.eventually_steps_bound
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.arbitrarily_small_program
+-- The almost-all lower bound.
+#print axioms ShortGCD.AlmostAll.within_iff_D_le
+#print axioms ShortGCD.AlmostAll.le_of_within_regular
+#print axioms ShortGCD.AlmostAll.card_irr_le
+#print axioms ShortGCD.AlmostAll.card_within_le
+#print axioms ShortGCD.AlmostAll.card_D_le
+#print axioms ShortGCD.AlmostAll.tendsto_card_within_loglog

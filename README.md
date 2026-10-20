@@ -121,6 +121,11 @@ Derivations and certificates:
 - `ShortGCD.G_eq_D`: G agrees with D, the list-derivation definition, on coprime inputs.
 - `ShortGCD.gcd_certificate_lower`: every generated gcd certificate has at least G(a, b)
   remainder facts.
+- `ShortGCD.AlmostAll.card_within_le`: at most 40 (2 + ln N) N^(2 − 2^(−d)) pairs
+  2 ≤ b < a ≤ N have a derivation of 1 of length at most d. Hence
+  `ShortGCD.AlmostAll.tendsto_card_within_loglog`: D(a, b) > (1 − ε) log₂ log₂ N for all
+  but o(N²) pairs, so the Ω(log log a) lower bound holds on almost all pairs, not only on
+  the book's difficult pairs.
 
 ### Proof path
 

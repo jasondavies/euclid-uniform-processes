@@ -7,6 +7,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
 \newcommand{\rem}{\operatorname{rem}}
 \newcommand{\calls}{\operatorname{calls}}
 \newcommand{\eq}{\operatorname{eq}}
@@ -20,29 +21,36 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We show that logarithmic remainder-call lower bounds for gcd and coprimeness
-cannot follow from uniformity alone. We give a remainder-only straight-line
-derivation of the greatest common divisor of two positive integers using
-$O(\log a/\log\log a)$ remainder calls, uniformly
-for $a>b\geq1$. Previously generated values may be retained and reused, but
-numerical constants and other arithmetic operations are not available as
-instructions. The construction combines a stored Euclidean prefix with
-three-call contractions and two smaller recursive derivations. A refinement
-gives the coefficient $6+o(1)$ when logarithms have base $2$. It yields the
-same upper bound for the intrinsic remainder-call complexity of the gcd and of
-coprimeness in the Euclidean structure. This refutes the uniform-process form
-of the conjecture of van den Dries and Moschovakis that the Euclidean algorithm
-is optimal among its peers: Conjecture~3.4 of Moschovakis's 2012 notes, and the
-precise version (4F-5) of the Main Conjecture in his book. We also construct,
+Van den Dries and Moschovakis conjectured that the Euclidean algorithm is
+optimal, up to a constant factor, among the algorithms that compute the
+greatest common divisor from the remainder function. Their homomorphism method
+gives lower bounds that hold for every uniform process, deterministic or
+nondeterministic. It proves the binary gcd algorithm optimal, but for the
+Euclidean setting it has so far produced only $\Omega(\log\log a)$. We show
+that here the method cannot reach the conjectured $\Omega(\log a)$. Every pair
+$a>b\geq1$ has a remainder-only straight-line derivation of $\gcd(a,b)$ with
+$O(\log a/\log\log a)$ remainder calls, where earlier values may be reused but
+no constants or other operations are available. The construction combines a
+stored Euclidean prefix with three-call contractions and two smaller recursive
+derivations; a refinement gives the coefficient $6+o(1)$ when logarithms have
+base $2$. Hence the intrinsic remainder-call complexity of the gcd and of
+coprimeness in the Euclidean structure is $O(\log a/\log\log a)$, and every
+lower bound obtained by the homomorphism method is at most this. The Euclidean
+algorithm is therefore not optimal among uniform processes: this refutes
+Conjecture~3.4 of Moschovakis's 2012 notes and the precise version (4F-5) of
+the Main Conjecture in his book. In the other direction, an elementary
+argument gives $\Omega(\log\log a)$ for almost all pairs. We also construct,
 for every $\varepsilon>0$, a fixed finite nondeterministic recursive gcd
 program with remainder cost at most $\varepsilon\log a+B_\varepsilon$ on all
-positive inputs. Cost here is the minimum over successful computations.
+positive inputs, where cost is the minimum over successful computations.
 The program depends on $\varepsilon$; no single sublogarithmic program is
-obtained, and the Main Conjecture for algorithms remains open. The bounds,
-the certificate reductions, both refutations, and the finite program family
-are formalized in Lean~4, including exact-cost correspondence with a
-specialized small-step recursive machine. The final section distinguishes
-the formalized results from the cited general theory.
+obtained. The Main Conjecture for algorithms, deterministic or
+nondeterministic, remains open, and any proof of it must use properties of
+algorithms beyond uniformity. The bounds, the certificate reductions, both
+refutations, the almost-all lower bound and the finite program family are
+formalized in Lean~4, including exact-cost correspondence with a specialized
+small-step recursive machine. The final section distinguishes the formalized
+results from the cited general theory.
 \end{abstract}
 
 \section{Statement and relation to the book}
@@ -86,7 +94,11 @@ in $\mathcal N_\varepsilon$ becomes one in $\mathbf N_0[\div]$ when each $\eq_0$
 or $\eq_1$ fact is replaced by an equality with the constant $0$ or $1$, and its
 depth then exceeds its number of remainder facts by at most a constant. Hence
 $\calls_{\rem}(\mathcal N_\varepsilon,\perp\!\!\!\perp,a,b)=\Omega(\log\log a)$ on
-all difficult pairs. Pratt's nondeterministic algorithm
+all difficult pairs. By contrast, for the binary gcd algorithm the same method
+gives a matching logarithmic lower bound: a recursive program deciding
+coprimeness from $=$, $<$, $+$, truncated subtraction, $2x$, $\mathrm{iq}(x,2)$
+and $\mathrm{rem}(x,2)$ needs more than $\tfrac1{10}\log(a^2-1)$ calls on the
+pair $(a,a^2-1)$, for every $a>2$ \cite[Theorem~B]{vddm2004}. Pratt's nondeterministic algorithm
 \cite[Theorem~2E.2 and Problems x2E.17--x2E.19]{moschovakis2019} matches this
 bound up to a constant factor on successive Fibonacci numbers
 \cite[Corollary~6C.7]{moschovakis2019}. Whether a logarithmic bound holds for
@@ -170,25 +182,44 @@ the possibility
 raised after Corollary~6C.7 \cite[p.~188]{moschovakis2019}: the Main Conjecture
 does not hold for all uniform processes of $\mathcal N_\varepsilon$.
 
-\paragraph{Limit of the homomorphism method.}
-The Homomorphism Test \cite[Lemma~4E.3]{moschovakis2019} proves an intrinsic
-lower bound by showing that every generated diagram below the proposed cost
-admits a homomorphism that fails to preserve the answer. Our certificates
-preclude such an argument at logarithmic cost: every input has a certifying
-diagram with $o(\log a)$ remainder facts. Thus no logarithmic remainder-call
-lower bound for gcd or coprimeness can hold for all uniform processes in these
-structures. A proof of the Main Conjecture must use restrictions on programs
-beyond preservation of generated primitive-operation diagrams. This does not
-exclude arguments that combine homomorphisms with additional restrictions on
-computations.
+\paragraph{The limit of the homomorphism method.}
+The homomorphism method proves lower bounds on intrinsic complexities. These
+bound every uniform process that computes the function: if $\alpha$ computes
+$f$ in $\mathcal A$, then $\mu(\mathcal A,f,\vec x)\leq\mu(\alpha,\vec x)$,
+in particular for every deterministic or nondeterministic recursive program
+\cite[Proposition~4E.1, Corollary~4E.2]{moschovakis2019}. The Homomorphism
+Test \cite[Lemma~4E.3]{moschovakis2019} proves a lower bound on
+$\mu(\mathcal A,f,\vec x)$ itself, by showing that every generated diagram
+below the proposed cost admits a homomorphism that fails to preserve the
+answer. Corollary~\ref{cor:refute} caps every such argument.
 
-The corollary does not settle the Main Conjecture for algorithms, that is,
+\begin{corollary}[Limit of the homomorphism method]\label{cor:method}
+Let $g(a,b)$ be any lower bound for
+$\calls_{\rem}(\mathcal N_\varepsilon,\perp\!\!\!\perp,a,b)$, or for
+$\calls_{\rem}(\mathcal A,\gcd,a,b)$ with $\mathcal A=\mathcal N_0$ or
+$\mathcal N_\varepsilon$, for instance one obtained from the Homomorphism Test.
+Then $g(a,b)=O(\log a/\log\log a)$, uniformly for $a\geq b\geq1$. In
+particular, no lower bound on intrinsic complexity shows that every algorithm
+from $\rem,\eq_0$ computing the gcd makes at least $r\log a$ remainder calls
+on infinitely many pairs. A proof of the Main Conjecture must use properties
+of algorithms that uniform processes need not have, such as being induced by a
+finite program, or determinism.
+\end{corollary}
+\begin{proof}
+Immediate from Corollary~\ref{cor:refute}.
+\end{proof}
+The corollary does not exclude arguments that combine homomorphisms with
+additional restrictions on computations.
+
+Corollaries~\ref{cor:refute} and~\ref{cor:method} do not settle the Main
+Conjecture for algorithms, that is,
 recursive programs, deterministic or nondeterministic
-\cite[p.~2]{moschovakis2019}. Nor does it settle the form for deterministic
+\cite[p.~2]{moschovakis2019}. Nor do they settle the form for deterministic
 uniform processes \cite[Conjecture~3.9]{moschovakis2012},
 \cite[\S4H and p.~188]{moschovakis2019}; see Section~\ref{sec:scope}. With the lower bound above, the intrinsic complexity
 of coprimeness in $\mathcal N_\varepsilon$ now lies between $\Omega(\log\log a)$,
-on infinitely many pairs, and $O(\log a/\log\log a)$, on all pairs. Closing this
+on infinitely many pairs and in fact on almost all pairs
+(Proposition~\ref{prop:loglog}), and $O(\log a/\log\log a)$, on all pairs. Closing this
 gap is an open problem. In particular, it is not known whether the bound of
 Theorem~\ref{thm:main} is optimal for remainder-only derivations, as the
 corresponding bound is in Bshouty's model.
@@ -616,6 +647,55 @@ bound is claimed optimal. Merely inlining several remainder instructions
 into one term would still charge for each external remainder call; the saving
 here uses the prefix lemma and recursive reduction.
 
+\section{An almost-all lower bound}\label{sec:loglog}
+The difficult pairs of \cite[Theorem~6C.5]{moschovakis2019} give
+$\Omega(\log\log a)$ on a sparse set. An elementary Diophantine argument gives
+the same order for almost all pairs, simultaneously for every derivation.
+
+\begin{proposition}\label{prop:loglog}
+For every $d\geq1$ and $N\geq3$, at most $16(2+\ln N)N^{2-2^{-d}}$ pairs
+$2\leq b<a\leq N$ satisfy $D(a,b)\leq d$. Hence
+$D(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$ coprime pairs below $N$.
+\end{proposition}
+
+\begin{proof}
+For $B\geq1$ call $(a,b)$ \emph{$B$-regular} if $|qb-pa|\geq a/(Bq)$ whenever
+$q\geq1$, $p\in\mathbb Z$ and $qb\neq pa$.
+\begin{itemize}
+\item \textbf{Small values have large coefficients.} Every generated value is
+an integer form $v=ua+wb$. If $(a,b)$ is $B$-regular and $v>0$, then
+$v\geq a/(B(|u|+|w|))$: for $w\neq0$ apply regularity with $q=|w|$, and for
+$w=0$ note $v\geq a$.
+\item \textbf{Coefficients grow at most doubly exponentially.} Let $H_t$ bound
+$|u|+|w|$ over the values available after $t$ steps, so $H_0=1$. A step
+$x=qy+r$ has $q\leq a/y\leq BH_t$, hence $H_{t+1}\leq H_t+BH_t^2\leq2BH_t^2$
+and $H_t\leq(2B)^{2^t-1}$.
+\item \textbf{Regular pairs need long derivations.} Producing $1$ within $d$
+steps forces $1\geq a/(BH_d)$, that is $a\leq(2B)^{2^d}/2$.
+\item \textbf{Few pairs are irregular.} Suppose $0<|qb-pa|<a/(Bq)$. Dividing
+$p,q$ by their gcd preserves this, and it forces $q<a/B\leq N/B$ and
+$0\leq p\leq q$. For each $q$ there are at most $2q$ values of $p$ and
+$2N/(Bq)$ values of $r=qb-pa$. Given $p,q,r$ with $\gcd(p,q)=1$, $a$ lies in
+one residue class modulo $q$, which leaves at most $N/q+1$ choices, and $b$ is
+then determined. So at most $(4N^2/B)(2+\ln N)$ pairs below $N$ are irregular.
+\item \textbf{Dyadic ranges.} For $T/2<a\leq T$ take $B=T^{2^{-d}}/2$. If
+$B\geq1$, a regular pair with $D\leq d$ would have $a\leq T/2$, so every pair
+in the range with $D\leq d$ is irregular. That gives at most
+$8(2+\ln T)T^{2-2^{-d}}$ pairs, and the same bound is trivial when $B<1$.
+Summing over $T=N,N/2,\ldots$ gives the first claim.
+\end{itemize}
+For the second claim take $d=\lfloor\log_2\ln N-2\log_2\ln\ln N\rfloor$. Then
+$N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the bound is $o(N^2)$. \qedhere
+\end{proof}
+Lean checks Proposition~\ref{prop:loglog} with the constant $40(2+\ln N)$ in
+place of $16(2+\ln N)$: it takes $B=a^{2^{-d}}/2$ separately for each pair
+instead of dyadic ranges (\lean{ShortGCD.AlmostAll.card_within_le},
+\lean{ShortGCD.AlmostAll.card_D_le}), and it proves the second claim in the
+form $D(a,b)>(1-\varepsilon)\log_2\log_2N$ for all but $o(N^2)$ pairs, for
+every $\varepsilon\in(0,1]$ (\lean{ShortGCD.AlmostAll.tendsto_card_within_loglog}).
+The saving $2^{-d}$ shrinks as $d$ grows, so this argument cannot reach the
+scale $\log N/\log\log N$ of Theorem~\ref{thm:main}, let alone $\log N$.
+
 \section{Scope and verification}\label{sec:scope}
 Selecting a close pair of residues is uncharged existential choice in a
 straight-line derivation. A deterministic remainder-only algorithm cannot
@@ -732,6 +812,14 @@ build and axiom audit. An independent Python compiler and right-to-left interpre
 138 cases across three fixed widths, 129 additional scaled replays, and eight
 negative cases. The interpreter is not formally verified; unrestricted
 arithmetic used to plan successful choices is not part of the programs.
+
+Proposition~\ref{prop:loglog} is checked in the module \lean{ShortGCD.AlmostAll}.
+\lean{ShortGCD.AlmostAll.card_within_le} bounds the number of pairs
+$2\leq b<a\leq N$ with a derivation of $1$ of length at most $d$ by
+$40(2+\ln N)N^{2-2^{-d}}$; \lean{ShortGCD.AlmostAll.within_iff_D_le} identifies
+this with $D(a,b)\leq d$ on coprime pairs; and
+\lean{ShortGCD.AlmostAll.tendsto_card_within_loglog} gives the almost-all bound
+$D>(1-\varepsilon)\log_2\log_2N$.
 
 \subsection{Integer parameters used in Lean}
 To avoid real rounding in the construction itself, the formal proof uses, for
