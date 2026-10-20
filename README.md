@@ -103,8 +103,7 @@ implement reusable access to the growing stored prefix within the claimed cost.
 ## Lean verification
 
 **Status.** The summary at the top says what is machine-checked; the tables below and
-[Soundness and scope](#soundness-and-scope) give the details. A second, independent Lean
-formalization of the original Big-O argument was developed separately.
+[Soundness and scope](#soundness-and-scope) give the details.
 
 The project pins Lean and mathlib to v4.35.0. On a fresh checkout with elan:
 
