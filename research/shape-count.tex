@@ -1,0 +1,451 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\rem}{\operatorname{rem}}
+\newcommand{\eq}{\operatorname{eq}}
+\emergencystretch=2em
+\title{Fixed programs have few shapes:\\a reduction of the Main Conjecture to a counting problem}
+\author{Research note accompanying the uniform-process construction}
+\date{October 20, 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A computation from the remainder function determines a \emph{shape}: the
+straight-line sequence of remainder instructions it performs, each operand
+named by where it came from. We show that a fixed recursive program,
+deterministic or nondeterministic, produces at most $C_P^{\,c+1}$ shapes
+among its computations with at most $c$ remainder calls. Unrestricted derivations have about
+$c^{2c}$ shapes. Under the hypothesis below, this difference accounts for the
+whole gap between $\log a$ and $\log a/\log\log a$. Both open questions left by the companion manuscript
+\cite{companion} reduce to a single counting problem: how many pairs
+$(a,b)\leq N$ can one shape of length $d$ bring to the value $1$? If no shape
+of length at most $c_0\log N$ succeeds on more than $N^{2-\delta}$ pairs, then
+every fixed program makes at least $r_P\log a$ remainder calls on almost all
+coprime pairs. That is the Main Conjecture, in a strong form. The same
+hypothesis also makes the companion bound $O(\log a/\log\log a)$ tight for
+almost all pairs. Without any hypothesis, a single program with $o(\log a)$
+calls would force shapes of length $o(\log N)$ that succeed on $N^{2-o(1)}$
+pairs. The Shape-Count Lemma and both reductions are formalized in Lean; the
+counting hypothesis is open.
+\end{abstract}
+
+\section{Shapes}
+
+A \emph{shape} of length $d$ is a sequence $S=((i_1,j_1),\ldots,(i_d,j_d))$
+with $i_t,j_t\in\{0,1,\ldots,t\}$. On an input $(a,b)$ put $v_0=a$, $v_1=b$
+and $v_{t+1}=\rem(v_{i_t},v_{j_t})$. The shape is \emph{valid} on $(a,b)$ if
+every divisor $v_{j_t}$ is nonzero. It \emph{reaches $1$} if moreover some
+$v_{t+1}=1$. Thus a remainder-only derivation in the sense of
+\cite{companion} is exactly a valid shape. Let
+\[
+P_S(N)=\#\{(a,b):2\leq b<a\leq N,\ S\text{ is valid on }(a,b)\text{ and reaches }1\}.
+\]
+There are $\prod_{t=1}^{d}(t+1)^2=((d+1)!)^2$ shapes of length $d$. This is
+the count that underlies $\log a/\log\log a$.
+
+\section{The shape count of a fixed program}
+
+\subsection{Programs and computations}\label{sec:model}
+We make the operational model explicit. It is the standard call-by-value
+reading of the recursive programs of \cite[\S2A, \S2E]{book}, and we take it
+as the definition of a computation and of its cost.
+
+\paragraph{Structure.} The structure is $(\mathbb N,\rem,\eq_0)$ or
+$(\mathbb N,\rem,\eq_0,\eq_1)$. There are two sorts, $\iota$ (natural numbers)
+and $\mathbf b$ (truth values $\mathrm{tt},\mathrm{ff}$). $\rem(x,y)$ is
+defined only for $y>0$, and $\eq_0(x)$, $\eq_1(x)$ test $x=0$ and $x=1$. The
+structure has no constants of sort $\iota$, so a program has none either.
+This matters: a constant $1$ would make every shape question trivial.
+
+\paragraph{Programs.} A program $P$ has finitely many function symbols
+$p$, each with an arity $k_p$, argument sorts and a result sort. It has
+finitely many equations $p(x_1,\ldots,x_{k_p})=e$, possibly several for the
+same $p$ (nondeterminism), and a main term $e_0$ in the input variables
+$x_1,x_2$. Terms are built from variables, the constants
+$\mathrm{tt},\mathrm{ff}$, the primitives $\rem(s,t)$, $\eq_0(s)$, $\eq_1(s)$,
+conditionals $\mathrm{if}\ s\ \mathrm{then}\ t\ \mathrm{else}\ u$ with $s$ of
+sort $\mathbf b$, and calls $p(s_1,\ldots,s_{k_p})$, all well sorted. The
+variables of a body are among its equation's parameters. Let $\mathcal E$ be
+the finite set of subterms of bodies and of $e_0$. Let $K\geq2$ bound the
+arities, and let $A$ bound the number of immediate subterms of a term in
+$\mathcal E$. A call has its arguments as immediate subterms, plus one more
+child, the body.
+
+\paragraph{Computations.} An \emph{environment} assigns values to the
+variables of an equation (or of $e_0$). A \emph{computation tree} is a finite
+tree whose nodes are triples (environment $\rho$, term $e\in\mathcal E$, value
+$v$), built by these rules.
+\begin{itemize}
+\item \textbf{Variables and constants:} a leaf with $v=\rho(x)$, or $v$ the constant.
+\item \textbf{Primitives:} for $\rem(s,t)$, $\eq_0(s)$, $\eq_1(s)$ the children
+are computations of $s$ (and $t$) in $\rho$ with values $x$ (and $y$). For
+$\rem$ we need $y>0$, and then $v=\rem(x,y)$. For the tests, $v$ is the truth
+value of $x=0$ or $x=1$.
+\item \textbf{Conditionals:} the children are a computation of $s$ in $\rho$
+with value $\beta$, and a computation of $t$ (if $\beta=\mathrm{tt}$) or of $u$
+(if $\beta=\mathrm{ff}$) in $\rho$ whose value is $v$.
+\item \textbf{Calls:} for $p(s_1,\ldots,s_k)$ the children are computations of
+each $s_i$ in $\rho$ with values $w_i$, then a computation of the body $e$ of
+\emph{some} equation for $p$, in the environment $x_i\mapsto w_i$, whose value
+is $v$.
+\end{itemize}
+A \emph{convergent computation} of $P$ on $(a,b)$ is a computation tree for
+$e_0$ in $x_1\mapsto a$, $x_2\mapsto b$. Its value is the value at the root,
+and its \emph{cost} is its number of $\rem$ nodes.
+\begin{itemize}
+\item \textbf{Correctness:} following the book's convention for nondeterministic
+  programs, $P$ \emph{computes} $f$ if every convergent computation has the
+  correct value and one exists on every input.
+\item \textbf{Complexity:} $c_P(a,b)$ is the least cost of a convergent computation on
+  $(a,b)$.
+\end{itemize}
+
+Divergence never enters: a convergent computation is a finite tree, so any
+amount of free, cost-zero recursion in it is finite. Executing the tree in
+post-order is what the recursive machine does.
+
+\subsection{Provenance and shapes}
+Fix a convergent computation $\mathcal T$ on $(a,b)$. List its $\rem$ nodes
+in post-order as $n_1,\ldots,n_c$. Every $\iota$-valued node $z$ gets a
+\emph{provenance} $\pi(z)\in\{0,\ldots,c+1\}$, and every environment entry of
+sort $\iota$ gets one too, by induction along the tree:
+\begin{itemize}
+\item the root environment gives $x_1$ provenance $0$ and $x_2$ provenance $1$;
+\item a variable leaf has the provenance of its environment entry;
+\item the node $n_t$ has provenance $t+1$;
+\item a conditional has the provenance of its chosen branch;
+\item a call has the provenance of its body child;
+\item the body's environment entry $x_i$ has the provenance of the $i$-th
+argument child.
+\end{itemize}
+The \emph{shape} of $\mathcal T$ is
+$S(\mathcal T)=((\pi(\ell_1),\pi(r_1)),\ldots,(\pi(\ell_c),\pi(r_c)))$, where
+$\ell_t,r_t$ are the two children of $n_t$. Since children precede their
+parent in post-order, $\pi(\ell_t),\pi(r_t)\leq t$, so this is a shape.
+
+\begin{lemma}[Soundness]\label{lem:sound}
+Run $S(\mathcal T)$ on $(a,b)$ with values $v_0,\ldots,v_{c+1}$. Every
+$\iota$-valued node $z$ has value $v_{\pi(z)}$, and the same holds for every
+$\iota$-valued environment entry. In particular $S(\mathcal T)$ is valid on
+$(a,b)$, and every $\iota$-value occurring in $\mathcal T$ is one of the
+$v_i$.
+\end{lemma}
+
+\begin{proof}
+Induction in post-order. Each rule for $\pi$ copies a value together with its
+provenance. At $n_t$ the children have values $v_{\pi(\ell_t)}$ and
+$v_{\pi(r_t)}$, and the latter is positive because the $\rem$ rule requires
+it. So the node's value is $\rem(v_{\pi(\ell_t)},v_{\pi(r_t)})=v_{t+1}$.
+\end{proof}
+
+\begin{lemma}[Light subtrees select]\label{lem:light}
+Call a node \emph{light} if its subtree contains no $\rem$ node. A light
+$\iota$-valued node $z$ evaluated in environment $\rho$ has
+$\pi(z)=\pi(\rho(x))$ for some variable $x$ of $\rho$.
+\end{lemma}
+
+\begin{proof}
+Induction on the subtree. A variable leaf is immediate. A light node cannot
+be a $\rem$ node, and no constant has sort $\iota$. A conditional inherits
+from its chosen branch, which is evaluated in $\rho$. A call inherits from its
+body, which is evaluated in an environment whose entries are the arguments.
+The arguments are light $\iota$-valued nodes in $\rho$, so by induction each
+has the provenance of a variable of $\rho$.
+\end{proof}
+
+\subsection{The Shape-Count Lemma}
+
+\begin{lemma}[Shape-Count Lemma]\label{lem:count}
+There is a constant $\Sigma_P$, depending only on $P$, such that the shapes of
+convergent computations of $P$ with cost $c$, on all inputs together, number
+at most $(2\Sigma_P)^{4c+2}$. Hence those of cost at most $c$ number at most
+$C_P^{\,c+1}$, with $C_P=(2\Sigma_P)^5$.
+\end{lemma}
+
+\begin{proof}
+Let $\mathcal T$ have cost $c$. Call a node \emph{heavy} if it is not light.
+Every ancestor of a heavy node is heavy, so for $c\geq1$ the heavy nodes form
+a subtree $H$ containing the root. Its leaves are $\rem$ nodes. Fewer than
+$c$ of its nodes have two or more heavy children (``branching'' nodes),
+because a tree has fewer branching nodes than leaves. Call every other
+non-$\rem$ node of $H$ a \emph{chain node}: it has exactly one heavy child.
+
+\emph{The data at a node.} For a node $z$ of $H$ evaluated in environment
+$\rho_z$ with variables $x_1,\ldots,x_k$ ($k\leq K$), let the \emph{label} of
+$z$ record:
+\begin{itemize}
+\item the term $e_z\in\mathcal E$;
+\item for a call, which equation was used;
+\item for each child of $z$ (at most $A+1$ of them), whether it is heavy, and
+if it is light and $\iota$-valued, an index $i\leq k$ with
+$\pi(\text{child})=\pi(\rho_z(x_i))$ (Lemma~\ref{lem:light}). For the body
+child of a call, which lives in the new environment, record instead which
+argument position supplies its provenance.
+\end{itemize}
+Given the provenances of $\rho_z$ and of the results of the heavy children of
+$z$, the label determines the provenances of the following, by the rules
+defining $\pi$:
+\begin{itemize}
+\item the environments of all children of $z$;
+\item the result of $z$;
+\item for a $\rem$ node, its operand pair.
+\end{itemize}
+There are at most $\Lambda_P=|\mathcal E|\cdot(\#\text{equations})\cdot
+(2(K+1))^{A+1}$ labels.
+
+\emph{Contracting chains.} Take a maximal path $z_0\to z_1\to\cdots\to z_m$ in
+$H$ whose interior nodes $z_1,\ldots,z_{m-1}$ are chain nodes. All siblings
+along it are light, so by induction along the path two things hold:
+\begin{itemize}
+\item every $\iota$-entry of $\rho_{z_m}$ has the provenance of an entry of
+$\rho_{z_1}$, which gives a map $\phi\colon\{1..K\}\to\{1..K\}$;
+\item the result of $z_1$ has the provenance either of the result of $z_m$ or
+of an entry $\rho_{z_1}(x_i)$, or it is a truth value. That is a datum
+$\psi\in\{1..K\}\cup\{\mathrm{bottom},\mathrm{bool}\}$.
+\end{itemize}
+Contract the path to an edge labelled $(\phi,\psi)$. There are at most
+$K^K(K+2)$ edge labels. The contracted tree $H'$ has the following nodes: the
+$c$ $\rem$ nodes, fewer than $c$ branching nodes, and the root of $H$ if it
+is a chain node. So it has at most $2c$ nodes and at most $2c$ edges.
+
+\emph{Encoding.} Write $H'$ in preorder, each node followed by its label and
+the label of the edge to each child, with the children in their order in
+$\mathcal T$. This gives a word of length at most $4c+2$ over an alphabet of
+size $\Sigma_P=\Lambda_P+K^K(K+2)$.
+
+The word determines $S(\mathcal T)$. Process $H'$ from the root down,
+starting with provenances $0,1$ for $x_1,x_2$. Node labels determine the
+provenances of each child's environment and, bottom-up, of each result, and
+edge labels transport them along contracted chains. So every $\rem$ node's
+operand pair is determined. The post-order of the $\rem$ nodes is also
+determined, since light subtrees contain none. For $c=0$ the shape is empty.
+Finally, there are at most $\sum_{\ell\leq4c+2}\Sigma_P^\ell\leq(2\Sigma_P)^{4c+2}$
+words of length at most $4c+2$.
+\end{proof}
+
+The proof uses only finiteness of $\mathcal E$, bounded arity, and the
+absence of $\iota$-constants. Unbounded cost-zero recursion, truth values,
+conditionals and nondeterministic choice are all absorbed into the labels.
+
+\begin{remark}[Register programs]\label{rem:width}
+The constant is crude, but its order can be pinned down for register
+programs. Consider runs of width $W$ whose steps overwrite a register by a
+remainder of two registers, route registers (any map of registers to
+registers), or run a subcomputation on a copy of the registers and overwrite
+one register by its result; the program of \cite{fixedwidth} is of this
+kind. Such runs have at most $(4W^3)^{3c}$ shapes with $c$ remainder calls.
+
+To see this, name each live value of a frame, rather than each register, by
+a label in $\{1,\ldots,W\}$; there are at most $W$ live values. Encode a
+remainder step by the labels of its two operands and the label given to the
+result, which takes over the label of a value never used again in this frame
+(or a free label). Routes need no encoding, since labels follow values.
+Dropping a value needs no encoding either, since only operands are decoded.
+A subcomputation inherits the labels and is encoded by an opening marker, its
+own steps, and a closing marker carrying the label it returns and the label
+the result takes in the caller. Subcomputations without remainder calls only
+copy a value, and are absorbed as routes. So there are at most $c$
+subcomputations, hence at most $3c$ steps and markers, and each costs at
+most $W^3$ choices of labels and one of four symbol types. The labels determine every operand's
+provenance. Hence $\log C_P=O(\log W)$ for such programs.
+\end{remark}
+
+\section{Reductions}
+
+\begin{theorem}[Reduction]\label{thm:reduction}
+Let $P$ compute $\gcd(a,b)$ over $(\mathbb N,\rem,\eq_0)$, or decide coprimeness
+over $(\mathbb N,\rem,\eq_0,\eq_1)$, for $a>b\geq2$, and let $c_P(a,b)$ be its
+remainder complexity. Then for all $N$ and $c$,
+\[
+\#\{(a,b):2\leq b<a\leq N,\ \gcd(a,b)=1,\ c_P(a,b)\leq c\}
+\;\leq\;C_P^{\,c+1}\cdot\max_{|S|\leq c}P_S(N).
+\]
+\end{theorem}
+
+\begin{proof}
+Take a convergent computation with $c_P(a,b)$ remainder calls, and let $S$ be
+its shape. $S$ is valid on $(a,b)$, and it reaches $1$. For the gcd, the
+output $1$ is a value of the computation and not an input, since
+$a>b\geq2$. For coprimeness, suppose no value of the computation equals $1$.
+Doubling every value preserves every remainder equation
+($\rem(2x,2y)=2\rem(x,y)$), every $\eq_0$ answer, and every $\eq_1$ answer
+(all false), and conditionals take the same branches. So the doubled tree is
+a convergent computation at $(2a,2b)$ answering ``coprime''. That is wrong,
+since $\gcd(2a,2b)\geq2$, and $P$ is correct on every convergent computation.
+Hence some value is $1$. By Lemma~\ref{lem:sound} it is some $v_i$, and since
+$a,b\geq2$ it is a produced value $v_{t+1}$.
+
+Sum over the at most $C_P^{\,c+1}$ shapes of Lemma~\ref{lem:count}.
+\end{proof}
+
+Since about $3N^2/\pi^2$ pairs in the range are coprime, we get the following.
+
+\begin{corollary}[A single sublogarithmic program needs very lucky shapes]\label{cor:lucky}
+If one program $P$ has $c_P(a,b)\leq f(a)$ for all coprime $a>b\geq2$, with
+$f$ nondecreasing and $f(N)=o(\log N)$, then for every $\varepsilon>0$ and all large $N$ some shape
+of length at most $f(N)$ reaches $1$ on at least $N^{2-\varepsilon}$ pairs
+$(a,b)\leq N$.
+\end{corollary}
+
+\begin{conjecture}[Per-shape bound, $\mathrm{PSB}(c_0,\delta)$]\label{conj:psb}
+There are $c_0,\delta>0$ such that $P_S(N)\leq N^{2-\delta}$ for every large
+$N$ and every shape $S$ of length at most $c_0\log N$.
+\end{conjecture}
+
+Some restriction on the length is necessary. Euclid's shape of length $d$
+first reaches $1$ on about $N(\ln N)^{d}/d!$ pairs. That is $N^{1+c\ln(e/c)+o(1)}$
+for $d=c\ln N$, and a positive fraction of all pairs once $c$ is near
+$12\ln2/\pi^2$, the typical Euclidean length.
+
+\begin{corollary}[PSB implies the Main Conjecture for programs]\label{cor:main}
+Assume $\mathrm{PSB}(c_0,\delta)$. For every program $P$ as in
+Theorem~\ref{thm:reduction}, put $r_P=\min\{c_0,\ \delta/(2\log C_P)\}$. Then
+$c_P(a,b)\geq r_P\log a$ for all but $o(N^2)$ coprime pairs
+$2\leq b<a\leq N$. In particular, $P$ makes at least $r_P\log a$ remainder
+calls on infinitely many pairs, deterministic or not.
+\end{corollary}
+
+\begin{proof}
+Take $c=\lfloor r_P\log N\rfloor\leq c_0\log N$. Then
+$C_P^{\,c+1}\leq C_P\,N^{r_P\log C_P}\leq C_P\,N^{\delta/2}$, so
+Theorem~\ref{thm:reduction} and PSB give at most
+$C_P\cdot N^{\delta/2}\cdot N^{2-\delta}=O(N^{2-\delta/2})$ exceptions below
+$N$. Finally $\log a\leq\log N$.
+\end{proof}
+
+\begin{corollary}[PSB implies tightness]\label{cor:tight}
+Assume $\mathrm{PSB}(c_0,\delta)$ and let $0<\kappa<\delta/2$. Then the
+companion's $D(a,b)$ satisfies $D(a,b)>\kappa\log N/\log\log N$ for all but
+$o(N^2)$ coprime pairs $2\leq b<a\leq N$. So $D=\Theta(\log a/\log\log a)$
+on almost all pairs.
+\end{corollary}
+
+\begin{proof}
+Put $d=\lfloor\kappa\log N/\log\log N\rfloor$; for large $N$,
+$d\leq c_0\log N$. Shapes of length at most $d$ number at most
+$(d+1)((d+1)!)^2\leq(d+2)^{2d+1}=N^{2\kappa+o(1)}$. A coprime pair with
+$D(a,b)\leq d$ is one on which some such shape reaches $1$, so by PSB there
+are at most $N^{2-\delta+2\kappa+o(1)}=o(N^2)$ of them.
+\end{proof}
+
+\section{Consistency with what is known}
+
+\begin{itemize}
+\item \textbf{Upper bounds.} The companion construction uses about $c^{2c}$
+shapes, and every fixed-width program of \cite{fixedwidth} has a coefficient
+$3/p$ with width $W=4^p+5$, that is $\Theta(1/\log W)$. By
+Remark~\ref{rem:width},
+Corollary~\ref{cor:main} would give a matching $\Omega(1/\log W)$ for register
+programs of width $W$. So, granted PSB, the family of \cite{fixedwidth} is
+optimal up to a constant factor, and the quantifier exchange
+$\forall\varepsilon\,\exists P\to\exists P\,\forall\varepsilon$ fails.
+\item \textbf{Pratt's algorithm.} Its typical number of calls appears to be
+about $\ln a$: exact counts of Pratt chains up to $N=2^{20}$ follow the
+Poisson-type law $N(\ln N)^d/d!$. This is an empirical observation, consistent
+with Corollary~\ref{cor:main}.
+\item \textbf{The homomorphism method.} Corollary~\ref{cor:main} is not a
+bound for all uniform processes, since uniform processes are not limited to
+$C^c$ shapes. So it does not conflict with the companion's limit on the
+homomorphism method.
+\item \textbf{The stack.} Recursion can keep older values alive, which
+suggested that one program might emulate the growing store of the companion
+construction. Lemma~\ref{lem:count} shows this cannot multiply the number of
+shapes beyond $C_P^{\,c+1}$: a call returns one value, and everything else in
+its frame is lost.
+\end{itemize}
+
+\section{Status}
+Lemma~\ref{lem:count}, Theorem~\ref{thm:reduction} and
+Corollary~\ref{cor:lucky} are unconditional. Corollaries~\ref{cor:main}
+and~\ref{cor:tight} depend on Conjecture~\ref{conj:psb}, which is open.
+The lemma is proved for the explicit operational model of
+Section~\ref{sec:model}: two sorts, no $\iota$-constants, call-by-value calls,
+lazy conditionals, nondeterministic choice of equations, convergent
+computations as finite trees, and cost equal to the number of $\rem$ nodes.
+That general form is also formalized in Lean
+(\texttt{ShortGCD/GeneralPrograms.lean}), and all modules named below are part
+of the repository's normal \texttt{lake build} and axiom audit.
+\begin{itemize}
+\item \texttt{compile}: every evaluation of a program with arities at most
+$K\geq2$ compiles into a register run of width $2K+2$ with the same number of
+remainder calls. Each subterm is evaluated in a subcomputation on a copy of
+the registers, so the register-program argument below applies.
+\item \texttt{eval\_shape} and \texttt{card\_shapeSet\_le\_pow}: every
+evaluation returning $1$ with at most $c$ calls has a shape of length at most
+$c$ reaching $1$, drawn from a fixed set of at most $(7A^5)^{c+1}$ shapes.
+This is the Shape-Count Lemma with $C_P=7A^5$, where $A$ depends only on $K$.
+\item \texttt{eval\_shape\_val}: the provenance of the output.
+\item \texttt{card\_eval\_le} and \texttt{eventually\_card\_eval\_le}: the
+counting consequences.
+\item \texttt{double\_or\_one}, \texttt{decide\_run} and
+\texttt{card\_decide\_le}: the doubling argument and the counting for programs
+that decide coprimeness.
+\end{itemize}
+The formal model is the one of Section~\ref{sec:model}, except that values are
+tagged and bodies form an arbitrary set rather than a finite one. So ill-sorted
+terms simply have no evaluation, and the constant depends only on the maximal
+arity. The formal constant is of order $(2K+2)^{10K}$ rather than the paper's
+finite-alphabet constant of Lemma~\ref{lem:count}. That is harmless for the Main Conjecture, but too weak
+for the optimality remark about register programs.
+
+The register-program case is formalized in Lean, in
+\texttt{ShortGCD/ShapeCount.lean}, for the width-$W$ run semantics
+\texttt{RegisterProgram.Run} of \cite{fixedwidth}.
+\begin{itemize}
+\item \texttt{card\_run\_le} is the finite counting statement. Suppose every
+shape of length at most $c$ reaches $1$ on at most $B$ pairs
+$2\le b<a\le N$. Then at most $(5c+2)\,A_W^{\,5c+1}B$ such pairs admit a run
+returning $1$ with at most $c$ remainder calls. Here $A_W=W^W+W^3+W^2+W+1$ is
+the size of a fixed instruction alphabet.
+\item \texttt{card\_accepts\_le} gives the same bound for the full verified
+program.
+\item \texttt{eventually\_card\_run\_le} is the asymptotic form.
+$\mathrm{PSB}(c_0,\delta)$, stated with natural logarithms, gives for each
+width an $r>0$ with at most $N^{2-\delta/2}$ such pairs for all large $N$ when
+the budget is $r\ln N$ calls.
+\end{itemize}
+The proof compiles a run into a linear code of at most $5c+1$ instructions.
+Routes are merged and zero-cost subcomputations are absorbed. The shape is then
+read off by symbolic execution of the code. The axiom audit lists only
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+
+The formalized constant gives $\log C=O(W\log W)$, since the alphabet includes
+all $W^W$ routes. The sharper $O(\log W)$ of Remark~\ref{rem:width} is not
+formalized.
+
+Corollary~\ref{cor:tight} is formalized in
+\texttt{ShortGCD/TightnessReduction.lean}. \texttt{card\_within\_le\_shapes}
+bounds the number of pairs with a derivation of $1$ of length at most $d$ by
+$(d+1)(d+2)^{2d}\max_{|S|\leq d}P_S(N)$, and
+\texttt{eventually\_card\_within\_le} states the conclusion with natural
+logarithms: if every shape of length at most $\kappa\ln N/\ln\ln N$ reaches
+$1$ on at most $N^{2-2\kappa-\delta}$ pairs, then eventually at most
+$N^{2-\delta/2}$ pairs have $D\leq\kappa\ln N/\ln\ln N$.
+\texttt{AlmostAll.within\_iff\_D\_le} identifies derivations of $1$ with
+$D$ on coprime pairs.
+
+\begin{thebibliography}{3}
+\bibitem{book}
+Yiannis N. Moschovakis.
+\emph{Abstract Recursion and Intrinsic Complexity}.
+Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019.
+\href{https://doi.org/10.1017/9781108234238}{doi:10.1017/9781108234238}.
+\bibitem{companion}
+Jason Davies.
+\emph{The Euclidean algorithm is not optimal among uniform processes}.
+Companion repository manuscript, October 2026.
+\bibitem{fixedwidth}
+Jason Davies.
+\emph{Fixed-arity nondeterministic remainder programs: an intermediate result}.
+Research note in the companion repository, \texttt{research/nondeterministic-prefix.tex}.
+\end{thebibliography}
+\end{document}

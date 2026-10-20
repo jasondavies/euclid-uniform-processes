@@ -288,6 +288,31 @@ The note also proposes studying computation graphs with a fixed bound on
 treewidth as a way to capture the restriction imposed by a finite program.
 That direction is exploratory and is not part of the main paper's theorems.
 
+## Shape-count reduction
+
+The [shape-count note](research/shape-count.pdf) ([source](research/shape-count.tex))
+reduces both open questions to one counting hypothesis. A *shape* is a remainder-only
+derivation with operands named by position. A fixed recursive program, deterministic or
+nondeterministic, produces at most C_P^(c+1) shapes with at most c remainder calls, against
+((c+1)!)² for unrestricted derivations. If no shape of length at most c₀ log N reaches 1 on
+more than N^(2−δ) pairs below N, then every fixed program needs r_P log a remainder calls on
+almost all coprime pairs (an almost-all Main Conjecture for programs), and the
+O(log a / log log a) bound is tight on almost all pairs. **The hypothesis is open.**
+
+The unconditional parts are checked in Lean and included in `lake build` and the axiom
+audit:
+
+- `ShortGCD.GeneralPrograms.compile`, `eval_shape` and `card_shapeSet_le_pow`: the
+  Shape-Count Lemma for general recursive programs of bounded arity.
+- `ShortGCD.GeneralPrograms.card_eval_le`, `card_decide_le` and
+  `eventually_card_eval_le`: the counting reduction for gcd and coprimeness.
+- `ShortGCD.ShapeCount.card_run_le` and `eventually_card_run_le`: the same for the
+  register programs of the program family.
+- `ShortGCD.TightnessReduction.eventually_card_within_le`: the conditional tightness
+  statement for D.
+
+Build the note with two runs of `pdflatex shape-count.tex` from `research/`.
+
 ## Building the paper
 
 ```

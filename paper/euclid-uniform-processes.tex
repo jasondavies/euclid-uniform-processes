@@ -224,6 +224,21 @@ gap is an open problem. In particular, it is not known whether the bound of
 Theorem~\ref{thm:main} is optimal for remainder-only derivations, as the
 corresponding bound is in Bshouty's model.
 
+\paragraph{A counting hypothesis.}
+Both open questions reduce to one counting problem, treated in the
+accompanying note \lean{research/shape-count.tex}. Name each operand of a
+remainder-only derivation by its position rather than its value; call the
+result a \emph{shape}. A fixed recursive program, deterministic or
+nondeterministic, produces at most $C_P^{\,c+1}$ shapes among its computations
+with at most $c$ remainder calls, whereas derivations of length $c$ have
+$((c+1)!)^2$. Hence, if every shape of length at most $c_0\log N$ reaches $1$
+on at most $N^{2-\delta}$ pairs $2\leq b<a\leq N$, then every fixed program
+computing the gcd or deciding coprimeness makes at least $r_P\log a$ remainder
+calls on almost all coprime pairs, and Theorem~\ref{thm:main} is tight on
+almost all pairs. The shape-count bound and both reductions are formalized in
+Lean (\lean{ShortGCD.GeneralPrograms}, \lean{ShortGCD.ShapeCount},
+\lean{ShortGCD.TightnessReduction}); the counting hypothesis itself is open.
+
 There is also an algorithmic consequence with a different quantifier order.
 Section~\ref{sec:programs} constructs fixed finite nondeterministic recursive
 programs with arbitrarily small logarithmic remainder-call coefficients,
