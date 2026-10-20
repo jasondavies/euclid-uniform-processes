@@ -475,14 +475,15 @@ theorem double_or_one {P : Program} {K : ℕ} (hK : ∀ f, P.sig.arity f ≤ K) 
         exact Or.inr ⟨c', by omega, hrun⟩
 
 /-- **A correct coprimeness decision produces `1`.** Suppose every convergent
-computation of `P` on `(a, b)` answers whether `gcd a b = 1` (the
-nondeterministic convention). If `P` answers "coprime" on `a, b ≥ 2` with `n`
-remainder calls, then some register run of width `2K+2` on the inputs returns `1`
-with at most `n` remainder calls. -/
+computation of `P` on `(a, b)` with `a > b ≥ 2` answers whether `gcd a b = 1`
+(the nondeterministic convention). On these inputs this agrees with the book's
+relation, which requires positive inputs. If `P` answers "coprime" on such an
+input with `n` remainder calls, then some register run of width `2K+2` on the
+inputs returns `1` with at most `n` remainder calls. -/
 theorem decide_run {P : Program} {K : ℕ} (hK : ∀ f, P.sig.arity f ≤ K) (h2 : 2 ≤ K)
-    (hdec : ∀ a b c v, Eval P ![Val.nat a, Val.nat b] P.main c v →
+    (hdec : ∀ a b c v, 2 ≤ b → b < a → Eval P ![Val.nat a, Val.nat b] P.main c v →
       v = .bool (decide (Nat.gcd a b = 1)))
-    {a b n : ℕ} (ha : 2 ≤ a) (hb : 2 ≤ b)
+    {a b n : ℕ} (hb : 2 ≤ b) (hba : b < a)
     (h : Eval P ![Val.nat a, Val.nat b] P.main n (.bool true)) :
     ∃ n' ≤ n, Run (inputs (2 * K + 2) a b) n' 1 := by
   have h1 : ∀ i, (![Val.nat a, Val.nat b] : Fin 2 → Val) i ≠ .nat 1 := by
@@ -492,7 +493,7 @@ theorem decide_run {P : Program} {K : ℕ} (hK : ∀ f, P.sig.arity f ≤ K) (h2
     have he : (dbl ∘ ![Val.nat a, Val.nat b] : Fin 2 → Val) = ![Val.nat (2 * a), Val.nat (2 * b)] := by
       funext i; fin_cases i <;> rfl
     rw [he] at hd
-    have := hdec _ _ _ _ hd
+    have := hdec _ _ _ _ (by omega) (by omega) hd
     simp only [dbl, Val.bool.injEq] at this
     have hc : Nat.gcd (2 * a) (2 * b) = 1 := of_decide_eq_true this.symm
     rw [Nat.gcd_mul_left] at hc
@@ -505,7 +506,7 @@ if every shape of length at most `c` reaches `1` on at most `B` pairs of `box N`
 then at most `(5c+2)·A^(5c+1)·B` pairs admit a computation answering "coprime"
 with at most `c` remainder calls. -/
 theorem card_decide_le (P : Program) {K : ℕ} (hK : ∀ f, P.sig.arity f ≤ K) (h2 : 2 ≤ K)
-    (hdec : ∀ a b c v, Eval P ![Val.nat a, Val.nat b] P.main c v →
+    (hdec : ∀ a b c v, 2 ≤ b → b < a → Eval P ![Val.nat a, Val.nat b] P.main c v →
       v = .bool (decide (Nat.gcd a b = 1)))
     (c N B : ℕ) (hB : ∀ S : Shape, S.length ≤ c → cnt N S ≤ B) :
     ((box N).filter (fun p => ∃ n ≤ c,
@@ -516,7 +517,35 @@ theorem card_decide_le (P : Program) {K : ℕ} (hK : ∀ f, P.sig.arity f ≤ K)
   simp only [Finset.mem_filter] at hp ⊢
   obtain ⟨hbox, n, hn, he⟩ := hp
   have hb : 2 ≤ p.2 ∧ p.2 < p.1 := by simp [box] at hbox; omega
-  obtain ⟨n', hn', hrun⟩ := decide_run hK h2 hdec (by omega) hb.1 he
+  obtain ⟨n', hn', hrun⟩ := decide_run hK h2 hdec hb.1 hb.2 he
   exact ⟨hbox, n', by omega, hrun⟩
+
+open Classical in
+/-- **PSB implies a logarithmic lower bound for every coprimeness decider of
+bounded arity.** Under the hypotheses of `decide_run` and the per-shape bound of
+`eventually_card_eval_le`, there is `r > 0` such that, eventually, at most
+`N^(2-δ/2)` pairs of `box N` admit a computation answering "coprime" with at most
+`r ln N` remainder calls. -/
+theorem eventually_card_decide_le (P : Program) {K : ℕ} (hK : ∀ f, P.sig.arity f ≤ K)
+    (h2 : 2 ≤ K)
+    (hdec : ∀ a b c v, 2 ≤ b → b < a → Eval P ![Val.nat a, Val.nat b] P.main c v →
+      v = .bool (decide (Nat.gcd a b = 1)))
+    {c₀ δ : ℝ} (hc₀ : 0 < c₀) (hδ : 0 < δ)
+    (hPSB : ∀ᶠ N : ℕ in Filter.atTop, ∀ S : Shape,
+      (S.length : ℝ) ≤ c₀ * Real.log N → (cnt N S : ℝ) ≤ (N : ℝ) ^ (2 - δ)) :
+    ∃ r : ℝ, 0 < r ∧ ∀ᶠ N : ℕ in Filter.atTop,
+      (((box N).filter (fun p => ∃ n : ℕ, (n : ℝ) ≤ r * Real.log N ∧
+          Eval P ![Val.nat p.1, Val.nat p.2] P.main n (.bool true))).card : ℝ) ≤
+        (N : ℝ) ^ (2 - δ / 2) := by
+  obtain ⟨r, hr, hev⟩ := eventually_card_run_le (2 * K + 2) hc₀ hδ hPSB
+  refine ⟨r, hr, ?_⟩
+  filter_upwards [hev] with N hN
+  refine le_trans ?_ hN
+  exact_mod_cast Finset.card_le_card (fun p hp => by
+    simp only [Finset.mem_filter] at hp ⊢
+    obtain ⟨hbox, n, hn, he⟩ := hp
+    have hb : 2 ≤ p.2 ∧ p.2 < p.1 := by simp [box] at hbox; omega
+    obtain ⟨n', hn', hrun⟩ := decide_run hK h2 hdec hb.1 hb.2 he
+    exact ⟨hbox, n', le_trans (by exact_mod_cast hn') hn, hrun⟩)
 
 end ShortGCD.GeneralPrograms

@@ -71,3 +71,4 @@
 'ShortGCD.GeneralPrograms.double_or_one' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.GeneralPrograms.decide_run' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.GeneralPrograms.card_decide_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.GeneralPrograms.eventually_card_decide_le' depends on axioms: [propext, Classical.choice, Quot.sound]

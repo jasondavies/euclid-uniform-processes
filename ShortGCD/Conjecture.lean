@@ -249,7 +249,7 @@ theorem not_conjecture_3_4_literal :
 /-- **(4F-5), read literally**, in `Nε`: there are no set `D ⊆ ℕ²` and `K > 0` such that
 `2 log₂ max(x, y) ≤ K · calls(rem)(Nε, gcd, x, y)` on `D` while the complexity is unbounded on
 `D` (condition (4F-4)). The book's first inequality, `calls(rem)(ε, x, y) ≤ L(x, y)`, is
-dropped, which only strengthens the statement refuted. -/
+dropped, which only weakens the statement refuted and so strengthens the refutation. -/
 theorem not_main_conjecture_4F5_literal :
     ¬ ∃ (D : Set (ℕ × ℕ)) (K : ℝ), 0 < K ∧
       (∀ p ∈ D, 2 * Real.logb 2 (max p.1 p.2 : ℕ) ≤ K * callsRemGcd p.1 p.2) ∧

@@ -26,19 +26,23 @@ deterministic or nondeterministic, produces at most $C_P^{\,c+1}$ shapes
 among its computations with at most $c$ remainder calls. Unrestricted derivations have about
 $c^{2c}$ shapes. Under the hypothesis below, this difference accounts for the
 whole gap between $\log a$ and $\log a/\log\log a$. Both open questions left by the companion manuscript
-\cite{companion} reduce to a single counting problem: how many pairs
+\cite{companion} would be settled by a single counting hypothesis: how many pairs
 $(a,b)\leq N$ can one shape of length $d$ bring to the value $1$? If no shape
 of length at most $c_0\log N$ succeeds on more than $N^{2-\delta}$ pairs, then
 every fixed program makes at least $r_P\log a$ remainder calls on almost all
 coprime pairs. That is the Main Conjecture, in a strong form. The same
 hypothesis also makes the companion bound $O(\log a/\log\log a)$ tight for
-almost all pairs. Without any hypothesis, a single program with $o(\log a)$
+almost all coprime pairs. Without any hypothesis, a single program with $o(\log a)$
 calls would force shapes of length $o(\log N)$ that succeed on $N^{2-o(1)}$
 pairs. The Shape-Count Lemma and both reductions are formalized in Lean; the
 counting hypothesis is open.
 \end{abstract}
 
 \section{Shapes}
+
+In this note $\log$ is the natural logarithm, as in the Lean statements. The
+companion manuscript uses base $2$; this rescales only the constants $c_0$ and
+$r_P$ below, and $\log N/\log\log N$ is asymptotically independent of the base.
 
 A \emph{shape} of length $d$ is a sequence $S=((i_1,j_1),\ldots,(i_d,j_d))$
 with $i_t,j_t\in\{0,1,\ldots,t\}$. On an input $(a,b)$ put $v_0=a$, $v_1=b$
@@ -129,8 +133,12 @@ argument child.
 \end{itemize}
 The \emph{shape} of $\mathcal T$ is
 $S(\mathcal T)=((\pi(\ell_1),\pi(r_1)),\ldots,(\pi(\ell_c),\pi(r_c)))$, where
-$\ell_t,r_t$ are the two children of $n_t$. Since children precede their
-parent in post-order, $\pi(\ell_t),\pi(r_t)\leq t$, so this is a shape.
+$\ell_t,r_t$ are the two children of $n_t$. By induction along the tree,
+every provenance carried by a node or an environment entry is $0$, $1$, or
+$s+1$ for a $\rem$ node $n_s$ that is completed before that node or entry is
+used: a body's environment entries come from argument children, which precede
+the body in post-order. The operands $\ell_t,r_t$ are completed before $n_t$,
+so $\pi(\ell_t),\pi(r_t)\leq t$, and this is a shape.
 
 \begin{lemma}[Soundness]\label{lem:sound}
 Run $S(\mathcal T)$ on $(a,b)$ with values $v_0,\ldots,v_{c+1}$. Every
@@ -217,15 +225,19 @@ $K^K(K+2)$ edge labels. The contracted tree $H'$ has the following nodes: the
 $c$ $\rem$ nodes, fewer than $c$ branching nodes, and the root of $H$ if it
 is a chain node. So it has at most $2c$ nodes and at most $2c$ edges.
 
-\emph{Encoding.} Write $H'$ in preorder, each node followed by its label and
-the label of the edge to each child, with the children in their order in
-$\mathcal T$. This gives a word of length at most $4c+2$ over an alphabet of
-size $\Sigma_P=\Lambda_P+K^K(K+2)$.
+\emph{Encoding.} Write $H'$ in preorder, each node written as its label and
+followed by the labels of the edges to its children, with the children in
+their order in $\mathcal T$. This gives a word of length at most
+$2c+2c\leq4c+2$ over an alphabet of size $\Sigma_P=\Lambda_P+K^K(K+2)$.
 
-The word determines $S(\mathcal T)$. Process $H'$ from the root down,
-starting with provenances $0,1$ for $x_1,x_2$. Node labels determine the
-provenances of each child's environment and, bottom-up, of each result, and
-edge labels transport them along contracted chains. So every $\rem$ node's
+The word determines $S(\mathcal T)$. Decode recursively in evaluation order,
+starting at the root with provenances $0,1$ for $x_1,x_2$: given the
+provenances of $\rho_z$, treat the children of $z$ in order. The label of $z$
+gives the environment provenances of each child from those of $\rho_z$ and,
+for a body, from the results of the argument children already decoded. An
+edge label transports environment provenances down a contracted chain and the
+result provenance back up. Decoding a heavy child returns its result
+provenance, and the label then gives that of $z$. So every $\rem$ node's
 operand pair is determined. The post-order of the $\rem$ nodes is also
 determined, since light subtrees contain none. For $c=0$ the shape is empty.
 Finally, there are at most $\sum_{\ell\leq4c+2}\Sigma_P^\ell\leq(2\Sigma_P)^{4c+2}$
@@ -233,7 +245,8 @@ words of length at most $4c+2$.
 \end{proof}
 
 The proof uses only finiteness of $\mathcal E$, bounded arity, and the
-absence of $\iota$-constants. Unbounded cost-zero recursion, truth values,
+absence of $\iota$-constants; the Lean version below shows that bounded arity
+alone suffices, with a weaker constant. Unbounded cost-zero recursion, truth values,
 conditionals and nondeterministic choice are all absorbed into the labels.
 
 \begin{remark}[Register programs]\label{rem:width}
@@ -242,7 +255,8 @@ programs. Consider runs of width $W$ whose steps overwrite a register by a
 remainder of two registers, route registers (any map of registers to
 registers), or run a subcomputation on a copy of the registers and overwrite
 one register by its result; the program of \cite{fixedwidth} is of this
-kind. Such runs have at most $(4W^3)^{3c}$ shapes with $c$ remainder calls.
+kind. We sketch why such runs have at most $(8W^3)^{5c+1}$ shapes with $c$
+remainder calls; this sketch is not formalized.
 
 To see this, name each live value of a frame, rather than each register, by
 a label in $\{1,\ldots,W\}$; there are at most $W$ live values. Encode a
@@ -252,11 +266,19 @@ result, which takes over the label of a value never used again in this frame
 Dropping a value needs no encoding either, since only operands are decoded.
 A subcomputation inherits the labels and is encoded by an opening marker, its
 own steps, and a closing marker carrying the label it returns and the label
-the result takes in the caller. Subcomputations without remainder calls only
-copy a value, and are absorbed as routes. So there are at most $c$
-subcomputations, hence at most $3c$ steps and markers, and each costs at
-most $W^3$ choices of labels and one of four symbol types. The labels determine every operand's
-provenance. Hence $\log C_P=O(\log W)$ for such programs.
+the result takes in the caller (or a mark that the result is discarded).
+Subcomputations without remainder calls only copy a value, and are absorbed
+as routes. A subcomputation consisting only of routes and one inner
+subcomputation is replaced by that inner one: its returned value is either
+the inner result, whose label it takes, or a copied caller value, in which
+case the inner result is discarded. After these reductions, in the tree of
+subcomputations every leaf performs a remainder step of its own, and every
+node without one has at least two children. So there are at most $c$ of the
+former and fewer than $c$ of the latter, at most $2c$ subcomputations, and at
+most $5c$ steps and markers in all. With an end marker, each symbol has one
+of four types and at most $W^3$ choices of labels, and words of length at
+most $5c+1$ number at most $(8W^3)^{5c+1}$. The labels determine every
+operand's provenance. Hence $\log C_P=O(\log W)$ for such programs.
 \end{remark}
 
 \section{Reductions}
@@ -301,10 +323,15 @@ There are $c_0,\delta>0$ such that $P_S(N)\leq N^{2-\delta}$ for every large
 $N$ and every shape $S$ of length at most $c_0\log N$.
 \end{conjecture}
 
-Some restriction on the length is necessary. Euclid's shape of length $d$
-first reaches $1$ on about $N(\ln N)^{d}/d!$ pairs. That is $N^{1+c\ln(e/c)+o(1)}$
-for $d=c\ln N$, and a positive fraction of all pairs once $c$ is near
-$12\ln2/\pi^2$, the typical Euclidean length.
+Some restriction on the length is necessary. For fixed $d$, Euclid's shape of
+length $d$ first reaches $1$ on about $N(\ln N)^{d}/d!$ pairs. At lengths
+proportional to $\ln N$ it does far better. By Dixon's theorem
+\cite{dixon1970}, for all but $o(N^2)$ pairs with $N/2<a\leq N$ the number of
+Euclidean steps is $(12\ln2/\pi^2)\ln N+O((\ln N)^{1/2+\varepsilon})$. By
+pigeonhole, there is a single $d=(12\ln2/\pi^2+o(1))\ln N$ such that on
+$N^{2-o(1)}$ coprime pairs the Euclidean remainders first reach $1$ after
+exactly $d$ steps, and Euclid's shape of length $d$ reaches $1$ on all of them. So $\mathrm{PSB}(c_0,\delta)$ fails for
+every $c_0>12\ln2/\pi^2$.
 
 \begin{corollary}[PSB implies the Main Conjecture for programs]\label{cor:main}
 Assume $\mathrm{PSB}(c_0,\delta)$. For every program $P$ as in
@@ -325,8 +352,10 @@ $N$. Finally $\log a\leq\log N$.
 \begin{corollary}[PSB implies tightness]\label{cor:tight}
 Assume $\mathrm{PSB}(c_0,\delta)$ and let $0<\kappa<\delta/2$. Then the
 companion's $D(a,b)$ satisfies $D(a,b)>\kappa\log N/\log\log N$ for all but
-$o(N^2)$ coprime pairs $2\leq b<a\leq N$. So $D=\Theta(\log a/\log\log a)$
-on almost all pairs.
+$o(N^2)$ coprime pairs $2\leq b<a\leq N$. Since all but $o(N^2)$ of these pairs
+have $a>N/\log N$, so that $\log a\sim\log N$, together with the companion's
+upper bound this gives $D=\Theta(\log a/\log\log a)$ on almost all coprime
+pairs.
 \end{corollary}
 
 \begin{proof}
@@ -348,10 +377,10 @@ Corollary~\ref{cor:main} would give a matching $\Omega(1/\log W)$ for register
 programs of width $W$. So, granted PSB, the family of \cite{fixedwidth} is
 optimal up to a constant factor, and the quantifier exchange
 $\forall\varepsilon\,\exists P\to\exists P\,\forall\varepsilon$ fails.
-\item \textbf{Pratt's algorithm.} Its typical number of calls appears to be
-about $\ln a$: exact counts of Pratt chains up to $N=2^{20}$ follow the
-Poisson-type law $N(\ln N)^d/d!$. This is an empirical observation, consistent
-with Corollary~\ref{cor:main}.
+\item \textbf{Pratt's algorithm.} It uses only $O(\log\log a)$ remainder
+calls on successive Fibonacci numbers \cite[Corollary~6C.7]{book}. That set
+is sparse, so this is consistent with the almost-all bound of
+Corollary~\ref{cor:main}.
 \item \textbf{The homomorphism method.} Corollary~\ref{cor:main} is not a
 bound for all uniform processes, since uniform processes are not limited to
 $C^c$ shapes. So it does not conflict with the companion's limit on the
@@ -380,21 +409,26 @@ $K\geq2$ compiles into a register run of width $2K+2$ with the same number of
 remainder calls. Each subterm is evaluated in a subcomputation on a copy of
 the registers, so the register-program argument below applies.
 \item \texttt{eval\_shape} and \texttt{card\_shapeSet\_le\_pow}: every
-evaluation returning $1$ with at most $c$ calls has a shape of length at most
-$c$ reaching $1$, drawn from a fixed set of at most $(7A^5)^{c+1}$ shapes.
-This is the Shape-Count Lemma with $C_P=7A^5$, where $A$ depends only on $K$.
+evaluation on inputs $a,b\geq2$ returning $1$ with at most $c$ calls has a
+shape of length at most $c$ reaching $1$, drawn from a fixed set of at most
+$(7A_{2K+2}^5)^{c+1}$ shapes, with $A_W$ as below. This is the Shape-Count
+Lemma with $C_P=7A_{2K+2}^5$, which depends only on $K$.
 \item \texttt{eval\_shape\_val}: the provenance of the output.
 \item \texttt{card\_eval\_le} and \texttt{eventually\_card\_eval\_le}: the
 counting consequences.
-\item \texttt{double\_or\_one}, \texttt{decide\_run} and
-\texttt{card\_decide\_le}: the doubling argument and the counting for programs
-that decide coprimeness.
+\item \texttt{double\_or\_one}, \texttt{decide\_run},
+\texttt{card\_decide\_le} and \texttt{eventually\_card\_decide\_le}: the
+doubling argument and the finite and asymptotic counting for programs that
+decide coprimeness. Correctness is assumed only on inputs $a>b\geq2$, as in
+Theorem~\ref{thm:reduction}; there the book's relation agrees with
+$\gcd(a,b)=1$.
 \end{itemize}
 The formal model is the one of Section~\ref{sec:model}, except that values are
-tagged and bodies form an arbitrary set rather than a finite one. So ill-sorted
-terms simply have no evaluation, and the constant depends only on the maximal
-arity. The formal constant is of order $(2K+2)^{10K}$ rather than the paper's
-finite-alphabet constant of Lemma~\ref{lem:count}. That is harmless for the Main Conjecture, but too weak
+tagged, and both the set of function symbols and the set of bodies may be
+arbitrary rather than finite. So ill-sorted terms simply have no evaluation,
+and the constant depends only on the maximal arity. The formal constant is of
+order $(2K+2)^{10K+10}$ rather than the finite-alphabet constant of
+Lemma~\ref{lem:count}. That is harmless for the Main Conjecture, but too weak
 for the optimality remark about register programs.
 
 The register-program case is formalized in Lean, in
@@ -429,11 +463,12 @@ $(d+1)(d+2)^{2d}\max_{|S|\leq d}P_S(N)$, and
 \texttt{eventually\_card\_within\_le} states the conclusion with natural
 logarithms: if every shape of length at most $\kappa\ln N/\ln\ln N$ reaches
 $1$ on at most $N^{2-2\kappa-\delta}$ pairs, then eventually at most
-$N^{2-\delta/2}$ pairs have $D\leq\kappa\ln N/\ln\ln N$.
+$N^{2-\delta/2}$ pairs have a derivation of $1$ of length at most
+$\kappa\ln N/\ln\ln N$.
 \texttt{AlmostAll.within\_iff\_D\_le} identifies derivations of $1$ with
 $D$ on coprime pairs.
 
-\begin{thebibliography}{3}
+\begin{thebibliography}{4}
 \bibitem{book}
 Yiannis N. Moschovakis.
 \emph{Abstract Recursion and Intrinsic Complexity}.
@@ -443,6 +478,10 @@ Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019.
 Jason Davies.
 \emph{The Euclidean algorithm is not optimal among uniform processes}.
 Companion repository manuscript, October 2026.
+\bibitem{dixon1970}
+John D. Dixon.
+The number of steps in the Euclidean algorithm.
+\emph{Journal of Number Theory} 2(4):414--422, 1970.
 \bibitem{fixedwidth}
 Jason Davies.
 \emph{Fixed-arity nondeterministic remainder programs: an intermediate result}.

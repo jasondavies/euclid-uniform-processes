@@ -84,3 +84,4 @@ import ShortGCD
 #print axioms ShortGCD.GeneralPrograms.double_or_one
 #print axioms ShortGCD.GeneralPrograms.decide_run
 #print axioms ShortGCD.GeneralPrograms.card_decide_le
+#print axioms ShortGCD.GeneralPrograms.eventually_card_decide_le

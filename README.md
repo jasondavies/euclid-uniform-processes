@@ -58,7 +58,9 @@ doi:10.1017/9781108234238).
 
 **Status.** The upper bounds, including the leading coefficient 6, the finite
 nondeterministic program-family bound, and the refutations of Conjecture 3.4 and
-(4F-5) are machine-checked in Lean, as listed below. The consequence
+(4F-5) are machine-checked in Lean, as listed below, as are the almost-all
+Ω(log log a) lower bound and the unconditional parts of the shape-count reduction. The
+consequence
 for the question on p. 188 also uses the cited Theorem 4F.1. A second, independent Lean
 formalisation of the original Big-O argument was developed separately. The result has
 not yet been reviewed by an expert in the area.
@@ -124,8 +126,8 @@ Derivations and certificates:
 - `ShortGCD.AlmostAll.card_within_le`: at most 40 (2 + ln N) N^(2 − 2^(−d)) pairs
   2 ≤ b < a ≤ N have a derivation of 1 of length at most d. Hence
   `ShortGCD.AlmostAll.tendsto_card_within_loglog`: D(a, b) > (1 − ε) log₂ log₂ N for all
-  but o(N²) pairs, so the Ω(log log a) lower bound holds on almost all pairs, not only on
-  the book's difficult pairs.
+  but o(N²) coprime pairs, so the Ω(log log a) lower bound holds on almost all coprime
+  pairs, not only on the book's difficult pairs.
 
 ### Proof path
 
@@ -137,6 +139,8 @@ Derivations and certificates:
   Asymptotic → SharpBound.
 - **Both strands meet** in Certificates → Conjecture; SharpCertificates combines the
   refined bound with the certificate reductions.
+- **Lower bounds and the shape-count reduction:** GcdCertificate and ShapeCount feed
+  AlmostAll → TightnessReduction; RegisterProgram → ShapeCount → GeneralPrograms.
 
 - **The finite recurrence.** The core is `sizeCost_step`. Its hypotheses concern
   natural-number size parameters, not an assumed complexity bound.
@@ -291,25 +295,26 @@ That direction is exploratory and is not part of the main paper's theorems.
 ## Shape-count reduction
 
 The [shape-count note](research/shape-count.pdf) ([source](research/shape-count.tex))
-reduces both open questions to one counting hypothesis. A *shape* is a remainder-only
+shows that both open questions would be settled by one counting hypothesis. A *shape* is a remainder-only
 derivation with operands named by position. A fixed recursive program, deterministic or
 nondeterministic, produces at most C_P^(c+1) shapes with at most c remainder calls, against
 ((c+1)!)² for unrestricted derivations. If no shape of length at most c₀ log N reaches 1 on
 more than N^(2−δ) pairs below N, then every fixed program needs r_P log a remainder calls on
 almost all coprime pairs (an almost-all Main Conjecture for programs), and the
-O(log a / log log a) bound is tight on almost all pairs. **The hypothesis is open.**
+O(log a / log log a) bound is tight on almost all coprime pairs. **The hypothesis is open.**
 
 The unconditional parts are checked in Lean and included in `lake build` and the axiom
 audit:
 
 - `ShortGCD.GeneralPrograms.compile`, `eval_shape` and `card_shapeSet_le_pow`: the
   Shape-Count Lemma for general recursive programs of bounded arity.
-- `ShortGCD.GeneralPrograms.card_eval_le`, `card_decide_le` and
-  `eventually_card_eval_le`: the counting reduction for gcd and coprimeness.
+- `ShortGCD.GeneralPrograms.card_eval_le` and `eventually_card_eval_le` (gcd), and
+  `card_decide_le` and `eventually_card_decide_le` (coprimeness, assuming correctness
+  on inputs a > b ≥ 2): the counting reduction.
 - `ShortGCD.ShapeCount.card_run_le` and `eventually_card_run_le`: the same for the
   register programs of the program family.
 - `ShortGCD.TightnessReduction.eventually_card_within_le`: the conditional tightness
-  statement for D.
+  statement for D on coprime pairs.
 
 Build the note with two runs of `pdflatex shape-count.tex` from `research/`.
 

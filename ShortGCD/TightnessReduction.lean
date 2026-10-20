@@ -8,8 +8,9 @@ below `k + 2` (`exists_shape`). There are at most `(k+2)^(2k)` such shapes, so
     #{(a, b) ∈ box N : Within a b d} ≤ (d+1)(d+2)^(2d) · max_{|S| ≤ d} cnt N S
 
 (`card_within_le_shapes`). If every shape of length at most `κ ln N / ln ln N` reaches `1`
-on at most `N^(2−2κ−δ)` pairs, then eventually at most `N^(2−δ/2)` pairs have
-`D ≤ κ ln N / ln ln N` (`eventually_card_within_le`): the bound `O(log a / log log a)` is
+on at most `N^(2−2κ−δ)` pairs, then eventually at most `N^(2−δ/2)` pairs have a
+derivation of `1` of length at most `κ ln N / ln ln N` (`eventually_card_within_le`);
+on coprime pairs this is `D ≤ κ ln N / ln ln N` (`AlmostAll.within_iff_D_le`): the bound `O(log a / log log a)` is
 then tight on almost all coprime pairs.
 -/
 
