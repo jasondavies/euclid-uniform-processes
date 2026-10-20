@@ -1,5 +1,5 @@
 import ShortGCD.GcdCertificate
-import ShortGCD.ShapeCount
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 
 /-! # An almost-all lower bound for remainder derivations
 
@@ -20,8 +20,12 @@ The argument:
 
 namespace ShortGCD.AlmostAll
 
-open Finset ShortGCD.ShapeCount
+open Finset
 open scoped Classical
+
+/-- The pairs `2 ≤ b < a ≤ N`, written `(a, b)`. -/
+def box (N : ℕ) : Finset (ℕ × ℕ) :=
+  ((Finset.Icc 2 N) ×ˢ (Finset.Icc 2 N)).filter (fun p => p.2 < p.1)
 
 /-- Some derivation from `a, b` of length at most `d` contains `1`. -/
 def Within (a b d : ℕ) : Prop :=
@@ -248,8 +252,8 @@ theorem le_of_within_regular {B : ℝ} {a b d : ℕ} (hB : 1 ≤ B) (hreg : Regu
 /-! ## Counting irregular pairs -/
 
 theorem mem_box {N : ℕ} {ab : ℕ × ℕ} :
-    ab ∈ ShapeCount.box N ↔ (2 ≤ ab.1 ∧ ab.1 ≤ N) ∧ (2 ≤ ab.2 ∧ ab.2 ≤ N) ∧ ab.2 < ab.1 := by
-  simp only [ShapeCount.box, Finset.mem_filter, Finset.mem_product, Finset.mem_Icc]
+    ab ∈ box N ↔ (2 ≤ ab.1 ∧ ab.1 ≤ N) ∧ (2 ≤ ab.2 ∧ ab.2 ≤ N) ∧ ab.2 < ab.1 := by
+  simp only [box, Finset.mem_filter, Finset.mem_product, Finset.mem_Icc]
   tauto
 
 /-- A primitive witness of irregularity at scale `X`. -/
@@ -304,7 +308,7 @@ theorem irr_of_not_regular {B X : ℝ} {a b : ℕ} (hB : 1 ≤ B) (hX : (a : ℝ
 
 /-- Pairs with a fixed primitive witness `(q, p, r)` share one residue class of `a`. -/
 theorem card_fiber_le (N q : ℕ) (hq : 0 < q) (p r : ℤ) (hcop : Int.gcd p q = 1) :
-    ((ShapeCount.box N).filter (fun ab : ℕ × ℕ => (q : ℤ) * ab.2 - p * ab.1 = r)).card ≤ N / q + 1 := by
+    ((box N).filter (fun ab : ℕ × ℕ => (q : ℤ) * ab.2 - p * ab.1 = r)).card ≤ N / q + 1 := by
   rw [← Finset.card_range (N / q + 1)]
   apply Finset.card_le_card_of_injOn (fun ab : ℕ × ℕ => ab.1 / q)
   · intro ab hab
@@ -349,15 +353,15 @@ theorem sum_inv_le_log (Q : ℕ) (X : ℝ) (hQX : (Q : ℝ) ≤ X) (hX : 1 ≤ X
     linarith
 
 theorem card_irr_le (N : ℕ) (X : ℝ) (hX1 : 1 ≤ X) (hXN : X ≤ 2 * N) :
-    (((ShapeCount.box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ) ≤
+    (((box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ) ≤
       18 * X * N * (1 + Real.log X) := by
   set Q := ⌊X⌋₊ with hQ
   let M : ℕ → ℕ := fun q => ⌊X / q⌋₊
   let T : ℕ → ℤ → ℤ → Finset (ℕ × ℕ) := fun q p r =>
-    (ShapeCount.box N).filter (fun ab : ℕ × ℕ => (q : ℤ) * ab.2 - p * ab.1 = r)
+    (box N).filter (fun ab : ℕ × ℕ => (q : ℤ) * ab.2 - p * ab.1 = r)
   let Ps : ℕ → Finset ℤ := fun q => (Finset.Icc (0 : ℤ) q).filter (fun p => Int.gcd p q = 1)
   let Rs : ℕ → Finset ℤ := fun q => Finset.Icc (-(M q : ℤ)) (M q)
-  have hsub : (ShapeCount.box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2) ⊆
+  have hsub : (box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2) ⊆
       (Finset.Icc 1 Q).biUnion (fun q => (Ps q).biUnion (fun p => (Rs q).biUnion
         (fun r => T q p r))) := by
     intro ab hab
@@ -463,7 +467,7 @@ theorem card_irr_le (N : ℕ) (X : ℝ) (hX1 : 1 ≤ X) (hXN : X ≤ 2 * N) :
     calc ((q : ℝ) + 1) * ((2 * (M q : ℝ) + 1) * (((N / q : ℕ) : ℝ) + 1))
         ≤ (2 * q) * ((3 * (X / q)) * (3 * (N / q))) := by gcongr
       _ = 18 * X * N * (1 / q) := by field_simp; ring
-  calc (((ShapeCount.box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ)
+  calc (((box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ)
       ≤ ((∑ q ∈ Finset.Icc 1 Q, (q + 1) * ((2 * M q + 1) * (N / q + 1)) : ℕ) : ℝ) := by
         exact_mod_cast hcard.trans hsum
     _ = ∑ q ∈ Finset.Icc 1 Q, (((q + 1) * ((2 * M q + 1) * (N / q + 1)) : ℕ) : ℝ) := by
@@ -479,7 +483,7 @@ theorem card_irr_le (N : ℕ) (X : ℝ) (hX1 : 1 ≤ X) (hXN : X ≤ 2 * N) :
 /-- **Almost-all bound.** At most `40 (2 + ln N) N^(2 − 2^(−d))` pairs `2 ≤ b < a ≤ N` have a
 remainder derivation of `1` with at most `d` steps. -/
 theorem card_within_le (N d : ℕ) (hN : 1 ≤ N) :
-    (((ShapeCount.box N).filter (fun ab : ℕ × ℕ => Within ab.1 ab.2 d)).card : ℝ) ≤
+    (((box N).filter (fun ab : ℕ × ℕ => Within ab.1 ab.2 d)).card : ℝ) ≤
       40 * (2 + Real.log N) * (N : ℝ) ^ (2 - (1 / 2 : ℝ) ^ d) := by
   set α : ℝ := (1 / 2 : ℝ) ^ d with hα
   have hα0 : 0 < α := by positivity
@@ -494,9 +498,9 @@ theorem card_within_le (N d : ℕ) (hN : 1 ≤ N) :
       Real.rpow_le_rpow_of_exponent_le hNR (by linarith)
     rwa [Real.rpow_one] at this
   have hXN : X ≤ 2 * N := by linarith
-  set Small := (ShapeCount.box N).filter (fun ab : ℕ × ℕ => (ab.1 : ℝ) ^ α < 2)
-  have hsplit : (ShapeCount.box N).filter (fun ab : ℕ × ℕ => Within ab.1 ab.2 d) ⊆
-      Small ∪ (ShapeCount.box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2) := by
+  set Small := (box N).filter (fun ab : ℕ × ℕ => (ab.1 : ℝ) ^ α < 2)
+  have hsplit : (box N).filter (fun ab : ℕ × ℕ => Within ab.1 ab.2 d) ⊆
+      Small ∪ (box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2) := by
     intro ab hab
     rw [Finset.mem_filter] at hab
     obtain ⟨hbox, hw⟩ := hab
@@ -572,11 +576,11 @@ theorem card_within_le (N d : ℕ) (hN : 1 ≤ N) :
     rw [hX, show (2 : ℝ) - α = (1 - α) + 1 by ring, Real.rpow_add hN0, Real.rpow_one]; ring
   have hlogN : 0 ≤ Real.log N := Real.log_nonneg hNR
   have hpow0 : 0 ≤ (N : ℝ) ^ (2 - α) := by positivity
-  calc (((ShapeCount.box N).filter (fun ab : ℕ × ℕ => Within ab.1 ab.2 d)).card : ℝ)
-      ≤ ((Small ∪ (ShapeCount.box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ) := by
+  calc (((box N).filter (fun ab : ℕ × ℕ => Within ab.1 ab.2 d)).card : ℝ)
+      ≤ ((Small ∪ (box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ) := by
         exact_mod_cast Finset.card_le_card hsplit
     _ ≤ (Small.card : ℝ) +
-        (((ShapeCount.box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ) := by
+        (((box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ) := by
         exact_mod_cast Finset.card_union_le _ _
     _ ≤ 4 * (N : ℝ) ^ (2 - α) + 18 * X * N * (1 + Real.log X) := by linarith
     _ ≤ 4 * (N : ℝ) ^ (2 - α) + 36 * (N : ℝ) ^ (2 - α) * (2 + Real.log N) := by
@@ -588,7 +592,7 @@ theorem card_within_le (N d : ℕ) (hN : 1 ≤ N) :
 
 /-- The almost-all bound for `D`, on coprime pairs. -/
 theorem card_D_le (N d : ℕ) (hN : 1 ≤ N) :
-    (((ShapeCount.box N).filter
+    (((box N).filter
         (fun ab : ℕ × ℕ => Nat.Coprime ab.1 ab.2 ∧ D ab.1 ab.2 ≤ d)).card : ℝ) ≤
       40 * (2 + Real.log N) * (N : ℝ) ^ (2 - (1 / 2 : ℝ) ^ d) := by
   refine le_trans ?_ (card_within_le N d hN)
@@ -617,7 +621,7 @@ theorem tendsto_decay {ε : ℝ} (hε : 0 < ε) :
 open Filter Topology in
 /-- **Almost all pairs need `(1 − ε) log₂ log₂ N` steps.** -/
 theorem tendsto_card_within_loglog {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1) :
-    Tendsto (fun N : ℕ => (((ShapeCount.box N).filter (fun ab : ℕ × ℕ =>
+    Tendsto (fun N : ℕ => (((box N).filter (fun ab : ℕ × ℕ =>
       Within ab.1 ab.2 ⌊(1 - ε) * Real.logb 2 (Real.logb 2 N)⌋₊)).card : ℝ) / (N : ℝ) ^ 2)
       atTop (𝓝 0) := by
   have hy : Tendsto (fun N : ℕ => Real.logb 2 (N : ℝ)) atTop atTop :=

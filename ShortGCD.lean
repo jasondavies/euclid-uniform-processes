@@ -3,7 +3,4 @@ import ShortGCD.Certificates
 import ShortGCD.Conjecture
 import ShortGCD.SharpCertificates
 import ShortGCD.RegisterSmallStep
-import ShortGCD.ShapeCount
 import ShortGCD.AlmostAll
-import ShortGCD.TightnessReduction
-import ShortGCD.GeneralPrograms

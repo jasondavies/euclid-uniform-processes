@@ -54,14 +54,6 @@ import ShortGCD
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.head_exists
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.eventually_steps_bound
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.arbitrarily_small_program
--- Fixed-width register programs have few shapes.
-#print axioms ShortGCD.ShapeCount.sim
-#print axioms ShortGCD.ShapeCount.Run.toCode
-#print axioms ShortGCD.ShapeCount.run_shape
-#print axioms ShortGCD.ShapeCount.card_codes_le
-#print axioms ShortGCD.ShapeCount.card_run_le
-#print axioms ShortGCD.ShapeCount.card_accepts_le
-#print axioms ShortGCD.ShapeCount.eventually_card_run_le
 -- The almost-all lower bound.
 #print axioms ShortGCD.AlmostAll.within_iff_D_le
 #print axioms ShortGCD.AlmostAll.le_of_within_regular
@@ -69,19 +61,3 @@ import ShortGCD
 #print axioms ShortGCD.AlmostAll.card_within_le
 #print axioms ShortGCD.AlmostAll.card_D_le
 #print axioms ShortGCD.AlmostAll.tendsto_card_within_loglog
--- The tightness reduction (conditional on the per-shape bound).
-#print axioms ShortGCD.TightnessReduction.exists_shape
-#print axioms ShortGCD.TightnessReduction.card_within_le_shapes
-#print axioms ShortGCD.TightnessReduction.eventually_card_within_le
--- The Shape-Count Lemma for general recursive programs.
-#print axioms ShortGCD.GeneralPrograms.compile
-#print axioms ShortGCD.GeneralPrograms.eval_run
-#print axioms ShortGCD.GeneralPrograms.eval_shape_val
-#print axioms ShortGCD.GeneralPrograms.card_shapeSet_le_pow
-#print axioms ShortGCD.GeneralPrograms.eval_shape
-#print axioms ShortGCD.GeneralPrograms.card_eval_le
-#print axioms ShortGCD.GeneralPrograms.eventually_card_eval_le
-#print axioms ShortGCD.GeneralPrograms.double_or_one
-#print axioms ShortGCD.GeneralPrograms.decide_run
-#print axioms ShortGCD.GeneralPrograms.card_decide_le
-#print axioms ShortGCD.GeneralPrograms.eventually_card_decide_le

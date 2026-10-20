@@ -1,12 +1,12 @@
+⚠ [9047/9075] Replayed ShortGCD.Derivation
+warning: ShortGCD/Derivation.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+⚠ [9048/9075] Replayed ShortGCD.Prefix
 warning: ShortGCD/Prefix.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [9055/9078] Replayed ShortGCD.Arithmetic
+⚠ [9049/9075] Replayed ShortGCD.Arithmetic
 warning: ShortGCD/Arithmetic.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [9058/9078] Replayed ShortGCD.CoprimeCertificate
+⚠ [9050/9075] Replayed ShortGCD.CoprimeCertificate
 warning: ShortGCD/CoprimeCertificate.lean: imports `Mathlib` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-⚠ [9071/9078] Replayed ShortGCD.ShapeCount
-warning: ShortGCD/ShapeCount.lean: imports `Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
-✔ [9074/9078] Built ShortGCD.Conjecture (2.3s)
-✔ [9075/9078] Built ShortGCD.TightnessReduction (2.4s)
-✔ [9076/9078] Built ShortGCD.SharpCertificates (2.0s)
-✔ [9077/9078] Built ShortGCD (1.9s)
-Build completed successfully (9078 jobs).
+⚠ [9073/9075] Built ShortGCD.AlmostAll (4.7s)
+warning: ShortGCD/AlmostAll.lean: imports `Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+✔ [9074/9075] Built ShortGCD (1.9s)
+Build completed successfully (9075 jobs).
