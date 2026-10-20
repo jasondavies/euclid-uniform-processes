@@ -1,11 +1,16 @@
 # The Euclidean algorithm is not optimal among uniform processes
 
+Van den Dries and Moschovakis conjectured that Euclid's algorithm is optimal, up to a
+constant factor, in the number of remainder operations, among all algorithms and even all
+*uniform processes* (Moschovakis's abstract model of computation). The terms below are
+defined under [Notation](#notation).
+
 **Proved.** gcd(a, b) has a remainder-only derivation with
 (6 + o(1)) log₂ a / log₂ log₂ a remainder calls, uniformly in 0 ≤ b ≤ a (Euclid needs
 about 1.44 log₂ a in the worst case). Hence the intrinsic calls(rem)-complexity of gcd
-and coprimeness is o(log a). Also: an Ω(log log a) lower bound on almost all coprime
-pairs, and, for each ε > 0, a fixed nondeterministic gcd program with cost at most
-ε log₂ a + Bε.
+and coprimeness is o(log a). Also: the known Ω(log log a) lower bound, previously proved
+for specific hard pairs, holds for almost all coprime pairs; and, for each ε > 0, there
+is a fixed nondeterministic gcd program with cost at most ε log₂ a + Bε.
 
 **Refuted.** Conjecture 3.4 of Moschovakis's 2012 notes and the precise version (4F-5) of
 the Main Conjecture in his 2019 book; with the cited Theorem 4F.1, also the possibility
@@ -27,11 +32,20 @@ already available, starting from a and b; earlier values are kept and no numeric
 constants are introduced. Euclid needs about 1.44 log₂ a calls in the worst case
 (successive Fibonacci numbers).
 
-**Notation.** G(a, b) is the least number of remainder calls in such a derivation of
-gcd(a, b), and D(a, b) is G(a, b) on coprime inputs, the length of a shortest remainder
-derivation of 1. Nε = (N, rem, eq0, eq1) is the Euclidean structure, ⊥⊥ is the
-coprimeness relation (x, y ≥ 1 and gcd(x, y) = 1), and calls(rem) counts remainder
-calls. A remainder fact in a certificate corresponds to a remainder call.
+### Notation
+
+- G(a, b) is the least number of remainder calls in such a derivation of gcd(a, b), and
+  D(a, b) is G(a, b) on coprime inputs, the length of a shortest remainder derivation
+  of 1.
+- Nε = (N, rem, eq0, eq1) is the Euclidean structure, ⊥⊥ is the coprimeness relation
+  (x, y ≥ 1 and gcd(x, y) = 1), and calls(rem) counts remainder calls. A remainder fact
+  in a certificate corresponds to a remainder call.
+- The ε in Nε and in calls(rem)(ε, x, y) is the book's name for the Euclidean structure
+  and algorithm, not the small ε > 0 in the bounds.
+- Bε is a constant depending only on ε.
+- log means log₂; the base is irrelevant inside O and o.
+
+### Upper bound and refutations
 
 The refined upper bound is **(6 + o(1)) log₂ a / log₂ log₂ a**, uniformly in b.
 Precisely, for every ε > 0, the coefficient 6 + ε works for all sufficiently large a
@@ -46,8 +60,10 @@ optimal among its peers:
 - **Conjecture 3.4** of Moschovakis's 2012 notes, *Absolute lower bounds for uniform
   processes*: there is no r > 0 with calls(rem)(Nε, ⊥⊥, a, b) ≥ r log a for infinitely
   many a ≥ b ≥ 1. The exact wording (rational r, infinitely many a) is refuted too.
-- **The "precise version" (4F-5) of the Main Conjecture** in *Abstract Recursion and
-  Intrinsic Complexity* (2019, p. 151): there is no K > 0 with
+- **The "precise version" (4F-5) of the Main Conjecture** in Y. N. Moschovakis,
+  *Abstract Recursion and Intrinsic Complexity*, Lecture Notes in Logic 48, Cambridge
+  University Press / ASL, 2019, doi:10.1017/9781108234238 (p. 151; all page citations
+  refer to this published edition): there is no K > 0 with
   2 log max(x, y) ≤ K · calls(rem)(gcd, x, y) on infinitely many pairs. This holds both
   for gcd certificates without eq1 facts and for certificates in Nε. The book's form,
   with a set D on which the complexity is unbounded (condition (4F-4)), is refuted as
@@ -58,46 +74,33 @@ optimal among its peers:
   best-uniform-process theorem (4F.1), which turns a small intrinsic complexity into a
   uniform process with that complexity. Theorem 4F.1 is cited, not formalized.
 
-On the lower-bound side, D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs,
-so the Ω(log log a) lower bound holds on almost all coprime pairs, not only on the
-book's difficult pairs.
+### Further results
 
-**A further algorithmic result:** for every ε > 0, there is a fixed finite
-nondeterministic recursive gcd program using only rem and eq0 with cost at most
-ε log₂ a + Bε on all positive inputs a ≥ b. Cost is the minimum number of remainder
-calls over successful computations; every terminating computation is correct.
-The program depends on ε, so this family does not give one sublogarithmic program.
-See [Nondeterministic program family](#nondeterministic-program-family).
-
-What remains open:
-
-- **The Main Conjecture for algorithms.** The result shows that a proof of it must use
-  properties beyond uniformity.
-- **Operand choice is not charged.** The construction gives no remainder-only algorithm,
-  deterministic or nondeterministic, with this cost: choosing which two stored residues
-  to combine is free. The book's best-uniform-process theorem (4F.1) supplies a uniform
-  process attaining the bound.
+- **Almost-all lower bound.** For every ε > 0, among coprime pairs b < a ≤ N, all but
+  o(N²) have D(a, b) > (1 − ε) log₂ log₂ N. So the known Ω(log log a) lower bound,
+  previously proved for specific hard pairs, holds for almost all coprime pairs.
+- **Program family.** For every ε > 0 there is a fixed finite nondeterministic recursive
+  gcd program, using only rem and eq0, with cost at most ε log₂ a + Bε on all positive
+  inputs a ≥ b; see [Nondeterministic program family](#nondeterministic-program-family).
 - **The homomorphism-test barrier.** The Homomorphism Test applied to all generated
   primitive operation diagrams cannot prove a logarithmic lower bound: every input has a
   certificate with o(log a) remainder facts. This leaves open arguments combining
   homomorphisms with additional restrictions on computations.
-- **The stored prefix.** A nondeterministic program would still need to implement
-  reusable access to the growing stored prefix within the claimed cost.
 
-Page citations refer to the published edition of Moschovakis, *Abstract Recursion and
-Intrinsic Complexity* (Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019,
-doi:10.1017/9781108234238). The paper
-[euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf) is built from
-[euclid-uniform-processes.tex](paper/euclid-uniform-processes.tex).
+### What remains open
+
+**The Main Conjecture for algorithms.** The result shows that a proof of it must use
+properties beyond uniformity. It stays open because the construction gives no
+remainder-only algorithm, deterministic or nondeterministic, with this cost: choosing
+which two stored residues to combine is not charged, and a program would still need to
+implement reusable access to the growing stored prefix within the claimed cost.
 
 ## Lean verification
 
-**Status.** The upper bounds, including the leading coefficient 6, the finite
-nondeterministic program-family bound, and the refutations of Conjecture 3.4 and
-(4F-5) are machine-checked in Lean, as listed below, as is the almost-all
-Ω(log log a) lower bound. The consequence for the question on p. 188 also uses the
-cited Theorem 4F.1. A second, independent Lean formalization of the original Big-O
-argument was developed separately.
+**Status.** Everything except the p. 188 consequence (which uses the cited Theorem 4F.1)
+is machine-checked; see the tables below and [Soundness and scope](#soundness-and-scope).
+A second, independent Lean formalization of the original Big-O argument was developed
+separately. The result has not yet been reviewed by an expert in the area.
 
 The project pins Lean and mathlib to v4.35.0. On a fresh checkout with elan:
 
@@ -107,11 +110,12 @@ lake build
 lake env lean validation/Axioms.lean
 ```
 
-**Definitions.** The intrinsic complexities `callsCoprimeness`, `callsGcd` and
+**Definitions.** All Lean names in this README are in the namespace `ShortGCD` and are
+written relative to it. The intrinsic complexities `callsCoprimeness`, `callsGcd` and
 `callsRemGcd` are defined directly from certificates. A certificate is a finite partial
 substructure generated by the input, such that every map preserving its facts respects
 the relation or function. Coprimeness is the book's relation `BookCoprime`: x, y ≥ 1 and
-gcd(x, y) = 1. All names below are in the `ShortGCD` namespace.
+gcd(x, y) = 1. `sizeCost M` is the maximum of G(a, b) over all a, b ≤ M.
 
 ### Refutations
 
@@ -120,56 +124,61 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 
 | Statement | Lean name |
 | --- | --- |
-| Conjecture 3.4 is false | `ShortGCD.not_conjecture_3_4` |
-| Conjecture 3.4, exact wording (rational r, infinitely many a) | `ShortGCD.not_conjecture_3_4_literal` |
-| (4F-5) is false, gcd certificates without eq1 facts | `ShortGCD.not_main_conjecture_4F5` |
-| (4F-5) is false, certificates in Nε | `ShortGCD.not_main_conjecture_4F5_Neps` |
-| (4F-5) in the book's form, with an unbounded set D (condition (4F-4)) | `ShortGCD.not_main_conjecture_4F5_literal` |
+| Conjecture 3.4 is false | `not_conjecture_3_4` |
+| Conjecture 3.4, exact wording (rational r, infinitely many a), is false | `not_conjecture_3_4_literal` |
+| (4F-5) is false for gcd certificates without eq1 facts | `not_main_conjecture_4F5` |
+| (4F-5) is false for certificates in Nε | `not_main_conjecture_4F5_Neps` |
+| (4F-5) in the book's form, with an unbounded set D (condition (4F-4)), is false | `not_main_conjecture_4F5_literal` |
 
 ### Upper bounds
 
 | Statement | Lean name |
 | --- | --- |
-| For every ε > 0, eventually in a, 6 + ε bounds G(a, b) / (log₂ a / log₂ log₂ a) for every b ≤ a | `ShortGCD.uniform_real_bound_six` |
-| The same for `callsCoprimeness`, `callsGcd` and `callsRemGcd`, for every positive b ≤ a | `ShortGCD.uniform_intrinsic_bound_six` |
-| The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 6 | `ShortGCD.Sharp.limsup_profile_le_six` |
-| The same, absorbing any fixed additive instruction overhead | `eventually_sizeCost_add_le_six` |
-| One real constant C bounds G(a, b) by C · logb 2 a / logb 2 (logb 2 a), for every a ≥ 4 and b ≤ a | `ShortGCD.uniform_real_bound` |
-| Worst-case Big-O and little-o statements, taking the maximum over all smaller inputs | `ShortGCD.sizeCost_isBigO`, `ShortGCD.sizeCost_isLittleO_log` |
-| For every ε > 0, eventually in M, `callsCoprimeness` and `callsGcd` are at most ε log₂ M on all pairs with 0 < a, b ≤ M | `ShortGCD.eventually_calls_le` |
+| For every ε > 0: G(a, b) ≤ (6 + ε) log₂ a / log₂ log₂ a for all b ≤ a, once a is large enough | `uniform_real_bound_six` |
+| For every ε > 0: `callsCoprimeness`, `callsGcd` and `callsRemGcd` are at most (6 + ε) log₂ a / log₂ log₂ a for all 1 ≤ b ≤ a, once a is large enough | `uniform_intrinsic_bound_six` |
+| The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 6 | `Sharp.limsup_profile_le_six` |
+| For every fixed K and every C > 6: sizeCost(a) + K ≤ C · log₂ a / log₂ log₂ a once a is large enough | `eventually_sizeCost_add_le_six` |
+| For one real constant C: G(a, b) ≤ C · log₂ a / log₂ log₂ a for every a ≥ 4 and b ≤ a | `uniform_real_bound` |
+| sizeCost(a) is O(log a / log log a) | `sizeCost_isBigO` |
+| sizeCost(a) is o(log a) | `sizeCost_isLittleO_log` |
+| For every ε > 0, eventually in M, `callsCoprimeness` and `callsGcd` are at most ε log₂ M on all pairs with 0 < a, b ≤ M | `eventually_calls_le` |
 
 ### Certificates and reductions
 
 | Statement | Lean name |
 | --- | --- |
-| On coprime pairs, the least number of remainder facts in a certificate for `Nat.Coprime` equals D(a, b); the doubling map u ↦ 2u shows every certificate must reach 1 | `ShortGCD.callsRem_eq_D` |
-| Adding eq0(a) = ff and eq0(b) = ff turns a `Nat.Coprime` certificate into one for the book's relation, with the same remainder facts | `ShortGCD.certifiesCoprimeness_of_certifiesCoprime` |
-| So for positive coprime inputs the two complexities agree | `ShortGCD.callsCoprimeness_eq_callsRem` |
-| Allowing eq1 facts can only lower the gcd complexity | `ShortGCD.callsRemGcd_le_callsGcd` |
-| Generated gcd certificates with at most the same bound plus two remainder facts, and no eq1 facts | `ShortGCD.uniform_gcd_certificates` |
-| For a, b ≥ 1, the book's coprimeness relation has a certificate with at most G(a, b) + 2 remainder facts, for either truth value | `ShortGCD.callsCoprimeness_le` |
-| True instances of `Nat.Coprime`: at most G(a, b) | `coprime_certificate_bound` |
-| False instances, a > 0: at most G(a, b) + 2 | `noncoprime_certificate_bound` |
-| G agrees with D, the list-derivation definition, on coprime inputs | `ShortGCD.G_eq_D` |
+| On coprime pairs, the least number of remainder facts in a certificate for `Nat.Coprime` equals D(a, b) (the doubling map u ↦ 2u shows every certificate must reach 1) | `callsRem_eq_D` |
+| Adding eq0(a) = ff and eq0(b) = ff turns a `Nat.Coprime` certificate into one for the book's relation, with the same remainder facts | `certifiesCoprimeness_of_certifiesCoprime` |
+| For positive coprime inputs, `callsCoprimeness` (the book's relation) equals `callsRem` (`Nat.Coprime`) | `callsCoprimeness_eq_callsRem` |
+| `callsRemGcd` (eq1 facts allowed) is at most `callsGcd` (no eq1 facts) | `callsRemGcd_le_callsGcd` |
+| For one real constant C: every a ≥ 4 and b ≤ a have a gcd certificate with no eq1 facts and at most C · log₂ a / log₂ log₂ a + 2 remainder facts | `uniform_gcd_certificates` |
+| For a, b ≥ 1, the book's coprimeness relation has a certificate with at most G(a, b) + 2 remainder facts, for either truth value | `callsCoprimeness_le` |
+| Every true instance of `Nat.Coprime` has a certificate with at most G(a, b) remainder facts | `coprime_certificate_bound` |
+| Every false instance of `Nat.Coprime` with a > 0 has a certificate with at most G(a, b) + 2 remainder facts | `noncoprime_certificate_bound` |
+| G agrees with D, the list-derivation definition, on coprime inputs | `G_eq_D` |
 
 ### Lower bounds
 
 | Statement | Lean name |
 | --- | --- |
-| Every generated gcd certificate has at least G(a, b) remainder facts | `ShortGCD.gcd_certificate_lower` |
-| At most 40 (2 + ln N) N^(2 − 2^(−d)) pairs 2 ≤ b < a ≤ N have a derivation of 1 of length at most d | `ShortGCD.AlmostAll.card_within_le` |
-| D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs | `ShortGCD.AlmostAll.tendsto_card_within_loglog` |
+| Every generated gcd certificate has at least G(a, b) remainder facts | `gcd_certificate_lower` |
+| At most 40 (2 + ln N) N^(2 − 2^(−d)) pairs 2 ≤ b < a ≤ N have a derivation of 1 of length at most d | `AlmostAll.card_within_le` |
+| For every ε > 0, D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs b < a ≤ N | `AlmostAll.tendsto_card_within_loglog` |
 
 ### Module structure
 
-Arrows point from a module to the modules that import it (all in [ShortGCD/](ShortGCD/)).
+All modules are in [ShortGCD/](ShortGCD/). `A → B` means B imports A, and a chain
+`A → B → C` means B imports A and C imports B; `A, B → C` means C imports both A and B.
 Derivation, Prefix, Arithmetic and CoprimeCertificate import only Mathlib. The root
 [ShortGCD.lean](ShortGCD.lean) imports Asymptotic, Certificates, Conjecture,
 SharpCertificates, RegisterSmallStep and AlmostAll.
 
 ```
 Certificates and the reduction
-  CoprimeCertificate → RemainderList → GcdCertificate → Certificates, AlmostAll
+  CoprimeCertificate → RemainderList → GcdCertificate
+
+The almost-all lower bound
+  GcdCertificate → AlmostAll
 
 The upper bound
   Derivation → Composition → Normalization
@@ -237,18 +246,20 @@ python3 scripts/check_prefix_lemma.py
   reports the first counterexample. As a control it also counts collisions when the
   threshold is dropped.
 
-Results are in [validation/](validation/). The planner uses unrestricted arithmetic; only
-the remainder facts it returns are counted as instructions. These finite checks
-supplement the Lean proof.
+Results are in [validation/](validation/). The scripts search for derivations with
+ordinary arithmetic; only the remainder facts of the derivation they return are counted.
+These finite checks supplement the Lean proof.
 
 ## Nondeterministic program family
 
 For each integer p ≥ 1, a finite nondeterministic recursive gcd program using only
-remainder and the zero test, with 4ᵖ + 5 generator parameters, has worst-case remainder
-cost at most (3/p + o(1)) log₂ a. Thus, for every ε > 0, there is a fixed program with
-cost at most ε log₂ a + Bε on all positive inputs a ≥ b. The paper proves this in the
-section "Fixed programs with arbitrarily small coefficients"; the expanded research note
-[nondeterministic-prefix.pdf](research/nondeterministic-prefix.pdf)
+remainder and the zero test, with 4ᵖ + 5 generator parameters (the arguments
+x₀, …, x_{W−1} of its generator function, W = 4ᵖ + 5), has worst-case remainder cost at
+most (3/p + o(1)) log₂ a. Cost is the minimum number of remainder calls over successful
+computations; every terminating computation is correct. Thus, for every ε > 0, there is
+a fixed program with cost at most ε log₂ a + Bε on all positive inputs a ≥ b. The paper
+proves this in the section "Fixed programs with arbitrarily small coefficients"; the
+expanded research note [nondeterministic-prefix.pdf](research/nondeterministic-prefix.pdf)
 ([source](research/nondeterministic-prefix.tex)) gives implementation details and
 executable checks. **This does not give one sublogarithmic program**: the program
 depends on ε, and the Main Conjecture allows its lower-bound coefficient to depend on the
@@ -256,36 +267,34 @@ program. The note explains the remaining difficulty with reusing a growing Eucli
 prefix in one fixed first-order program.
 
 The bound is checked in Lean, including finite first-order syntax and call-by-value
-evaluation. The names below are in the `ShortGCD` namespace; the modules run from
-RegisterProgram to [RegisterAsymptotic](ShortGCD/RegisterAsymptotic.lean),
-[RegisterSyntax](ShortGCD/RegisterSyntax.lean) and
-[RegisterSmallStep](ShortGCD/RegisterSmallStep.lean), all included in `lake build`.
+evaluation. Lean also checks an exact-cost correspondence with an explicit
+specialization of the book's two-stack machine (right-to-left argument order, separate
+zero-test and branch transitions, nonzero cost only on remainder transitions); this
+covers the language and program family used here. The book's theory for arbitrary
+structures and the Python interpreter are not formalized.
 
 | Statement | Lean name |
 | --- | --- |
 | Operational recurrence with a fixed tuple of h + 4 parameters and explicit recursive subcomputations | `RegisterProgram.maxCost_step` |
-| The coefficient 3/p | `RegisterProgram.Fixed.limsup_profile_le` |
-| Register runs translate into evaluations of the finite program, preserving remainder counts exactly | `RegisterProgram.Syntax.run_invokes`, `accepts_eval` |
+| For each p ≥ 1, the worst-case remainder cost with 4ᵖ + 5 parameters is at most (3/p + o(1)) log₂ a | `RegisterProgram.Fixed.limsup_profile_le` |
+| Register runs translate into evaluations of the finite program, preserving remainder counts exactly | `RegisterProgram.Syntax.run_invokes` |
+| Accepted register runs on (a, b) give evaluations of the program on (a, b) with the same value and remainder count | `RegisterProgram.Syntax.accepts_eval` |
 | Every terminating evaluation returns the gcd | `RegisterProgram.Syntax.eval_head_correct` |
-| A successful evaluation exists on every input | `eval_head_exists` |
-| Uniform asymptotic bound, including verification | `RegisterProgram.Syntax.eventually_eval_bound` |
-| The ε log₂ a + Bε bound with the program chosen before the inputs | `arbitrarily_small_program` |
+| A successful evaluation exists on every input | `RegisterProgram.Syntax.eval_head_exists` |
+| For each p ≥ 1 and C > 3/p: once a is large enough, every b ≤ a has an evaluation returning gcd(a, b) with at most C log₂ a remainder calls | `RegisterProgram.Syntax.eventually_eval_bound` |
+| The ε log₂ a + Bε bound for evaluations, with the program chosen before the inputs | `RegisterProgram.Syntax.arbitrarily_small_program` |
 | Exact-cost equivalence between evaluation trees and a specialized two-stack small-step machine | `RegisterProgram.Syntax.Machine.eval_iff_steps` |
-| Transition locality | `Step.context` |
-| Correctness of every terminating execution; existence on every input | `head_correct`, `head_exists` |
-| The bounds stated directly for machine executions | `RegisterProgram.Syntax.Machine.eventually_steps_bound`, `arbitrarily_small_program` |
+| A machine transition stays a transition, with the same cost, when stacks are appended below it | `RegisterProgram.Syntax.Machine.Step.context` |
+| Every terminating machine execution returns the gcd | `RegisterProgram.Syntax.Machine.head_correct` |
+| A successful machine execution exists on every input | `RegisterProgram.Syntax.Machine.head_exists` |
+| For each p ≥ 1 and C > 3/p: once a is large enough, every b ≤ a has a machine execution returning gcd(a, b) at remainder cost at most C log₂ a | `RegisterProgram.Syntax.Machine.eventually_steps_bound` |
+| The ε log₂ a + Bε bound for machine executions, with the program chosen before the inputs | `RegisterProgram.Syntax.Machine.arbitrarily_small_program` |
 
-The [research entry point](research/RegisterProgram.lean) records a separate
+<details>
+<summary>Axiom audit and executable checks</summary>
+
+[RegisterProgram.lean](research/RegisterProgram.lean) records a separate
 [axiom audit](research/register-axioms.txt), using only the standard Lean axioms.
-
-The syntax proof inlines the setter functions. Lean also checks correspondence with an
-explicit specialization of the book's two-stack machine (right-to-left argument order,
-separate zero-test and branch transitions, nonzero cost only on remainder transitions);
-this covers the language and program family used here. The book's theory for arbitrary
-structures and the Python interpreter are not formalized. The
-[model-novelty-audit.txt](research/model-novelty-audit.txt) records the source checks and
-their limits: no matching uniform coefficient result was located in the sources checked,
-which is not an exhaustive novelty determination.
 
 The executable compiler produces finite first-order syntax, which a separate interpreter
 executes using supplied nondeterministic choices. Checks cover 138 cases, 129 additional
@@ -298,6 +307,8 @@ python3 research/check_register_program.py
 python3 -O research/check_register_program.py
 python3 research/register_program.py --width 9
 ```
+
+</details>
 
 ## Research notes (exploratory)
 
@@ -320,7 +331,9 @@ These notes are not part of the main paper's theorems.
   computation graphs with a fixed bound on treewidth as a way to capture the restriction
   imposed by a finite program. No single sublogarithmic program has been obtained.
 - **[model-novelty-audit.txt](research/model-novelty-audit.txt)** records the model
-  correspondence checks and the bounded literature search for the program family.
+  correspondence checks and the bounded literature search for the program family, with
+  their limits: no matching uniform coefficient result was located in the sources
+  checked, which is not an exhaustive novelty determination.
 
 ```sh
 lake env lean research/PrefixPolicies.lean

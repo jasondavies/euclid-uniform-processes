@@ -64,7 +64,7 @@ lemma prefix_exec {w a b t} (hw : t+2 ≤ w)
     exact (ih (by omega) (fun i hi => hp i (by omega))).trans
       (stored_next (by omega) (hp t (by omega)))
 
-/-- A three-call contraction in fixed registers. Only two temporary parameters
+/-- A three-call contraction in fixed registers. Only two scratch residues
 are needed; the final remainder may overwrite one of them. -/
 lemma three_registers {w} (r : Registers w) (x y m u v : Fin w)
     (hxv : x ≠ v) (hmv : m ≠ v) (huv : u ≠ v)
@@ -92,7 +92,7 @@ lemma three_registers {w} (r : Registers w) (x y m u v : Fin w)
   simpa [hrem] using (h₁.trans h₂).then_compute h₃
 
 /-- Register layout at width `h + 4`: prefix slots `0, …, h`, the modulus at `h + 1`, and two
-scratch registers at `h + 2` and `h + 3`. -/
+scratch residues at `h + 2` and `h + 3`. -/
 def prefixIndex (h : ℕ) (i : Fin (h+1)) : Fin (h+4) := ⟨i.val, by omega⟩
 def modulusIndex (h : ℕ) : Fin (h+4) := ⟨h+1, by omega⟩
 def tempU (h : ℕ) : Fin (h+4) := ⟨h+2, by omega⟩

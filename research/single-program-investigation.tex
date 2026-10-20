@@ -38,11 +38,10 @@ Every convergent computation must be correct, and at least one must exist
 on every input. These are the conventions of \cite[\S2E]{book}.
 The fixed-programs theorem of the companion paper \cite{companion}
 (expanded in the note \emph{Fixed-arity nondeterministic remainder programs}
-\cite{nondet}) chooses a different fixed program for each desired
-coefficient; its generator arity is $4^p+5$ and its coefficient is at most
-$3/p$.
+\cite{nondet}) chooses, for each integer $p\geq1$, a different fixed program,
+with generator arity $4^p+5$ and coefficient at most $3/p$.
 
-The Lean module \texttt{ShortGCD.RegisterSmallStep} formalizes the specialized
+The Lean module \texttt{ShortGCD/RegisterSmallStep.lean} formalizes the specialized
 two-stack recursive machine. It proves exact-cost equivalence with finite
 evaluation trees, including right-to-left argument evaluation, separate zero
 tests and branches, finite nondeterministic body choice, and a positive
@@ -149,9 +148,10 @@ These are costs of particular selected runs, not minimum costs.
 \section{What the prefix estimate can certify without reuse}
 
 For a target contraction factor $2^p$, the Euclidean-prefix lemma of the
-companion paper \cite{companion} uses
-$h=4^p+1$ ordered pairs. Building that prefix from its initial pair takes
-$h-1=4^p$ Euclidean calls. The lemma guarantees at least $p$ bits of decrease.
+companion paper \cite{companion}, combined with its three-call contraction
+(section ``Three-call contractions''), uses $h=4^p+1$ ordered pairs. Building
+that prefix from its initial pair takes $h-1=4^p$ Euclidean calls. Together
+they guarantee at least $p$ bits of decrease.
 Suppose an analysis budgets a fresh prefix for each contraction, discards it
 afterwards, and accounts for progress only by these guaranteed factors.
 It may choose a different positive integer $p_i$ at every stage.
@@ -245,9 +245,10 @@ Bounded treewidth alone is not asserted sufficient for such a compilation.
 \item For every fixed width $t$, is there a $c_t>0$ and an infinite family of
 inputs on which every remainder derivation of the gcd with occurrence
 treewidth at most $t$ needs at least $c_t\log a$ calls? Such a theorem would
-imply the nondeterministic Main Conjecture using the decomposition above.
-No such lower bound is proved here. It would use a restriction on program
-computations beyond the unrestricted homomorphism method.
+imply the nondeterministic Main Conjecture \cite{companion} using the
+decomposition above. No such lower bound is proved here. It would use a
+restriction on program computations beyond the homomorphism method of van den
+Dries and Moschovakis (see \cite{companion}).
 \end{enumerate}
 
 Treewidth restrictions already play a role in circuit complexity; see, for
@@ -281,7 +282,7 @@ program remains open.
 Yiannis N. Moschovakis.
 \emph{Abstract Recursion and Intrinsic Complexity}.
 Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019.
-\url{https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf}.
+\href{https://doi.org/10.1017/9781108234238}{doi:10.1017/9781108234238}.
 \bibitem{companion}
 Jason Davies.
 \emph{The Euclidean algorithm is not optimal among uniform processes}.

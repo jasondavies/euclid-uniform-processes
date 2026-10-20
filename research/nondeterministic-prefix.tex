@@ -28,7 +28,7 @@ coefficients. Each program uses only remainder and the zero test, and its
 arity is fixed independently of the inputs. This does not give a single
 sublogarithmic program. We give the program schema, correctness and cost
 arguments, and an executable compilation into first-order syntax.
-Lean checks the fixed-parameter recurrence and the asymptotic program bound.
+Lean checks the fixed-width recurrence and the asymptotic program bound.
 It also checks translations preserving remainder counts into finite
 first-order syntax and into a specialized two-stack recursive machine,
 correctness of every terminating syntactic evaluation, and existence of a
@@ -45,7 +45,8 @@ All logarithms below have base $2$.
 
 \begin{theorem}\label{thm:family}
 For each integer $p\geq1$, there is one finite nondeterministic recursive
-program $P_p$ over $(\mathbb N,\rem,\eqzero)$ computing the gcd such that
+program $P_p=P_W$, $W=4^p+5$ (defined in Section~\ref{sec:width}), over
+$(\mathbb N,\rem,\eqzero)$ computing the gcd such that
 \[
 \limsup_{a\to\infty}\;
 \max_{1\leq b\leq a}\frac{c_{P_p}(a,b)}{\log a}\leq\frac3p.
@@ -56,6 +57,7 @@ Its generator has $W=4^p+5$ individual parameters. In particular,
 \qquad c_P(a,b)\leq\varepsilon\log a+B.
 \]
 \end{theorem}
+Lean: \lean{Syntax.arbitrarily_small_program} (see Section~\ref{sec:lean}).
 
 The program may depend on $\varepsilon$, but not on $a,b$.
 This is compatible with the Main Conjecture, whose lower-bound coefficient
@@ -69,12 +71,11 @@ this note retains the expanded operational discussion and the executable
 checks. The accompanying \texttt{model-novelty-audit.txt} records the model
 comparison and the scope of the primary-literature search.
 
-\section{A finite program for each fixed width}
+\section{A finite program for each fixed width}\label{sec:width}
 
 Fix $W\geq2$ and write $\vec x=(x_0,\ldots,x_{W-1})$.
-(The definitions and the correctness argument below need only $W\geq2$, which
-is also the hypothesis $2\leq w$ in Lean; the companion paper states $W\geq3$,
-and the cost bound uses $W=4^p+5\geq9$ in any case.)
+(Only $W\geq2$ is needed below, matching Lean's $2\leq w$; the cost bound uses
+$W=4^p+5$.)
 Define the following finite family of equations:
 \begin{align*}
 \Pick(\vec x)&=x_i &&(0\leq i<W),\\
@@ -140,12 +141,11 @@ $\Gen(\vec x)=\Gen(x_0,\ldots,x_{i-1},
 \rem(\Pick(\vec x),\Pick(\vec x)),x_{i+1},\ldots,x_{W-1})$,
 and the subcomputation alternative is inlined in the same way.
 The resulting program has a fixed signature of four internal symbols,
-$\Pick$, $\Gen$, $\AcceptCandidate$, and $\Loop$; Lean's \lean{Syntax.Fn}
-names them \lean{pick}, \lean{gen}, \lean{accept}, and \lean{loop}, so
-Lean's \lean{pick} is the selector called $\Pick$ here.
+$\Pick$, $\Gen$, $\AcceptCandidate$, and $\Loop$, named \lean{pick},
+\lean{gen}, \lean{accept}, \lean{loop} in Lean's \lean{Syntax.Fn}.
 The executable Python presentation retains the setters.
 
-\section{Correctness and the operational interpretation}
+\section{Correctness and the operational interpretation}\label{sec:correctness}
 
 \begin{proposition}
 For every $W\geq2$, every convergent computation of $P_W(a,b)$ returns
@@ -173,6 +173,8 @@ is introduced into the generator.
 Finally $\rem(gx,gy)=g\rem(x,y)$ for $g>0$, and nonzero divisors remain
 nonzero under scaling. Induction preserves the same computation and its cost.
 \end{proof}
+Correctness of every terminating evaluation and existence of a successful one
+are checked as \lean{Syntax.eval_head_correct} and \lean{Syntax.eval_head_exists}.
 
 The program is pure first-order syntax: variables, remainder, zero-test
 conditionals, and calls to a fixed finite signature, each symbol having a
@@ -189,36 +191,23 @@ into its completed argument computations and selected body or branch, and
 induct on its length. Each selector occurrence makes its own choice, with no
 shared mutable state. The setters in this note merely pass their evaluated
 arguments to the generator, so inlining them also preserves results and
-remainder counts.
+remainder counts. Lean checks this correspondence; see Section~\ref{sec:lean}.
 
 \section{The fixed-prefix cost bound}
 
 \begin{proof}[Proof of Theorem~\ref{thm:family}]
-Fix $p\geq1$ and take $P_p=P_W$ with $W=4^p+5$.
+Write $r_0=a$, $r_1=b$, $r_{i+1}=r_{i-1}\bmod r_i$ for the Euclidean
+remainders of a coprime pair.
+Fix $p\geq1$; thus $W=4^p+5$.
 We use the Euclidean-prefix and three-call contraction lemmas from the
 companion paper \cite{companion}. Put
 \[
 k=2^p,\qquad h=k^2+1=4^p+1,\qquad W=h+4.
 \]
 The entire prefix $r_0,\ldots,r_h$ fits in $h+1$ generator parameters.
-Three further parameters suffice for the current modulus and two temporary
+Three further parameters suffice for the current modulus and two scratch
 residues. Each contraction uses at most three remainder calls and can
-overwrite these temporary parameters, leaving the prefix available.
-
-After reaching a small modulus $m$, form $u=a\bmod m$ and $v=b\bmod m$
-in the two temporary positions. Use a recursive generator subcomputation
-to produce $d=\gcd(m,u)$, first routing its parameters to copies of $m,u$.
-Its caller retains $v$. On return, replace the modulus parameter by $d$,
-then route to copies of $d,v$ for the second gcd computation.
-The identity
-\[
-\gcd(\gcd(m,a\bmod m),b\bmod m)=\gcd(m,\gcd(a,b))
-\]
-recovers the original gcd, since every generated modulus is divisible by it.
-Only one result crosses each subcomputation boundary.
-In the early-small-remainder case, route directly to the next Euclidean pair.
-Thus the two recursive branches of the certificate proof are realizable in
-one fixed generator of width $W$, with the same remainder counts.
+overwrite the scratch residues, leaving the prefix available.
 
 For precision, let $T_W(n)$ be the maximum, over $a,b\leq2^n$, of the minimum
 generator remainder count needed to produce $\gcd(a,b)$ from the initial
@@ -233,6 +222,23 @@ $2a/r_h<2N^{1-\alpha}<N^\beta$ for sufficiently large $n$.
 The prefix therefore occupies at least $k+1$ residue classes modulo every
 modulus used before stopping. A contraction decreases the modulus by a factor
 greater than $k$, and $J=\lceil n/p\rceil$ contractions suffice.
+
+After reaching a small modulus $m$, store $u=a\bmod m$ and $v=b\bmod m$
+as the two scratch residues. Use a recursive generator subcomputation
+to produce $d=\gcd(m,u)$, first routing its parameters to copies of $m,u$.
+Its caller retains $v$. On return, replace the modulus parameter by $d$,
+then route to copies of $d,v$ for the second gcd computation.
+The identity
+\[
+\gcd(\gcd(m,a\bmod m),b\bmod m)=\gcd(m,\gcd(a,b))
+\]
+recovers the original gcd, since every generated modulus is divisible by it.
+Only one result crosses each subcomputation boundary.
+In the early-small-remainder case, route directly to the next Euclidean pair.
+Thus the early branch and the two recursive gcd computations of the
+companion paper's construction are realizable in one fixed generator of width
+$W$, with the same remainder counts.
+
 It follows that
 \[
 T_W(n)\leq
@@ -257,14 +263,15 @@ the first assertion of Theorem~\ref{thm:family}. For the second, choose
 $p>3/\varepsilon$ and absorb the finitely many smaller inputs in $B$.
 \end{proof}
 
-This argument uses a fixed $h$, unlike the sublogarithmic certificate
+This argument uses a fixed $h$, unlike the companion paper's sublogarithmic
 construction. The price for a smaller logarithmic coefficient is a larger
 finite program. Neither the stated coefficient nor the parameter count is
 claimed optimal.
 
 \section{What still prevents the direct sublogarithmic compilation}
 
-The original construction uses a prefix length growing with input size.
+The companion paper's sublogarithmic construction uses a prefix length
+$h=\lceil\sqrt n\rceil$ that grows with the input.
 Replacing $W$ by a function of the input in the compiler would produce
 different programs on different inputs.
 
@@ -279,8 +286,9 @@ there to a stored prefix as though those values were freely available.
 
 Regenerating the whole prefix for every contraction is too expensive for
 this construction: a positive prefix $r_0,\ldots,r_h$ requires $h-1$
-remainder calls, so $J$ rebuilds cost $(h-1)J$ calls before the contractions.
-For $h$ of order $\sqrt n$ and $J$ of order $n/\log n$, this is of order
+remainder calls, so $J'$ rebuilds cost $(h-1)J'$ calls before the
+contractions. For $h$ of order $\sqrt n$ and $J'$, the number of contractions
+in that construction, of order $n/\log n$, this is of order
 $n^{3/2}/\log n$.
 
 This diagnoses the direct implementations, not every possible recursive
@@ -298,7 +306,7 @@ program} \cite{investigation} tests a fixed program that regenerates selected
 prefix operands, analyzes its accounting limitation, and identifies a
 possible structural direction.
 
-\section{Formal verification}
+\section{Formal verification}\label{sec:lean}
 
 Lean declarations named below are in the namespace
 \lean{ShortGCD.RegisterProgram}, and we omit that prefix. They are part of
@@ -313,10 +321,8 @@ calls choose its operands; for a routing step, the $W$ selector calls choose
 its argument tuple. Internal selector calls make no remainder calls.
 
 \paragraph{First-order syntax.}
-The syntax contains variables, remainder, zero-test conditionals, and calls
-to the fixed finite signature \lean{Syntax.Fn}; each symbol has a finite set
-of bodies. \lean{Syntax.Eval} uses call-by-value evaluation trees, evaluating
-all arguments before the chosen body and summing their remainder counts.
+\lean{Syntax.Fn} is the signature and \lean{Syntax.Eval} the evaluation-tree
+semantics of Section~\ref{sec:correctness}.
 The theorem \lean{Syntax.run_invokes} translates every generator run into an
 evaluation of the inlined first-order generator, preserving its remainder
 count exactly. \lean{Syntax.accepts_eval} includes the verification wrapper.
@@ -339,7 +345,7 @@ remains a mathematical argument.
 
 \paragraph{Main declarations.}
 \begin{itemize}
-\item \lean{maxCost_step}: the fixed-parameter finite recurrence;
+\item \lean{maxCost_step}: the fixed-width finite recurrence;
 \item \lean{Fixed.limsup_profile_le}: the leading coefficient $3/p$;
 \item \lean{Fixed.eventually_accepts_bound}: the bound for accepted runs,
 including the final verification;
@@ -348,8 +354,6 @@ program evaluations;
 \item \lean{Syntax.arbitrarily_small_program}: the quantified
 $\varepsilon\log a+B_\varepsilon$ statement with the program fixed before
 the inputs are chosen;
-\item \lean{Syntax.Machine.eval_iff_steps}: exact-cost equivalence between
-evaluation trees and terminating small-step executions;
 \item \lean{Syntax.Machine.arbitrarily_small_program}: the same quantified
 bound directly for finite machine transition sequences.
 \end{itemize}

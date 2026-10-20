@@ -2,9 +2,10 @@ import ShortGCD.RegisterAsymptotic
 
 /-! # Finite first-order syntax for the fixed-width program
 
-The setters are inlined in this presentation. Each program has four internal
-function symbols, with arities `w`, `w`, `3`, and `1`. There are finitely many
-bodies for each symbol. Terms contain no numeric literals or higher-order data.
+The research note's setter functions `set_i` (which replace one parameter and
+call `gen`) are inlined here. Each program has four internal function symbols,
+with arities `w`, `w`, `3`, and `1`. There are finitely many bodies for each
+symbol. Terms contain no numeric literals or higher-order data.
 Only remainder and the zero test are primitive operations. `Eval` counts
 remainder calls in finite call-by-value evaluation trees; internal calls and
 zero tests are uncharged. `RegisterSmallStep` proves exact-cost equivalence
