@@ -98,7 +98,9 @@ certificates and intrinsic complexities are in
 \cite[\S\S1D, 4C--4E]{moschovakis2019} and are used in
 Section~\ref{sec:certificates}. Write $\calls_{\rem}(\mathcal A,f,\vec x)$
 for the least number of remainder facts in a certificate for $f$ at $\vec x$
-in $\mathcal A$.
+in $\mathcal A$. Uniform processes are the book's abstract model of
+algorithms from given primitives; every deterministic or nondeterministic
+recursive program induces one \cite{moschovakis2019}.
 
 \paragraph{Background.}
 The best known lower bound, $\Omega(\log\log a)$, is a logarithm below the
@@ -158,7 +160,9 @@ and a $K>0$ such that
 \]
 where $L(x,y)=2\log\max(x,y)$, $\mathcal A$ is the structure ($\mathcal N_0$
 or $\mathcal N_\varepsilon$), and $\varepsilon$ denotes, as in the book, the
-Euclidean algorithm.
+Euclidean algorithm, and $\calls_{\rem}(\varepsilon,x,y)$ is the number of
+remainder calls it makes on $(x,y)$. Elsewhere, apart from the subscript of
+$\mathcal N_\varepsilon$, $\varepsilon$ denotes a small positive real.
 The book adds that $\mathcal D$ then satisfies its conditions (4F-3) and
 (4F-4). Condition (4F-4) makes the intrinsic complexity unbounded on
 $\mathcal D$, so the intended $\mathcal D$ is infinite; for finite $\mathcal D$
@@ -182,12 +186,14 @@ $K>0$ only finitely many pairs $(x,y)\in\mathbb N^2$ satisfy
 $L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$.
 \end{corollary}
 The corollary follows from Theorem~\ref{thm:main} and
-Proposition~\ref{prop:certificates}. For (4F-5) it covers all pairs in
+Proposition~\ref{prop:certificates}; for noncoprime pairs, the bound on the
+coprimeness complexity comes from Remark~\ref{rem:noncoprime}. For (4F-5) it covers all pairs in
 $\mathbb N^2$: the gcd is symmetric, and a pair with a zero entry is certified by
 the single fact $\eq_0(0)=\mathrm{tt}$, with no remainder facts. The
-corollary and its literal readings are formalized: a rational $r$ and
-infinitely many $a$ for Conjecture~3.4, and a set $\mathcal D$ on which the
-complexity is unbounded for (4F-5).
+corollary is formalized, and so are refutations of the literal statements:
+Conjecture~3.4 with $r$ rational and with infinitely many values of $a$ (not
+merely of pairs), and (4F-5) for $\mathcal N_\varepsilon$ with a set
+$\mathcal D$ on which the intrinsic complexity is unbounded.
 
 Theorem~4F.1 \cite[pp.~149--150]{moschovakis2019} supplies a single uniform
 process that attains these pointwise intrinsic bounds. Hence some uniform
@@ -201,8 +207,8 @@ does not hold for all uniform processes of $\mathcal N_\varepsilon$.
 The homomorphism method proves lower bounds on intrinsic complexities. These
 bound every uniform process that computes the function: for any of the book's
 complexity measures $\mu$, such as $\calls_{\rem}$, if $\alpha$ computes
-$f$ in $\mathcal A$, then $\mu(\mathcal A,f,\vec x)\leq\mu(\alpha,\vec x)$,
-in particular for every deterministic or nondeterministic recursive program
+$f$ in $\mathcal A$ with cost $\mu(\alpha,\vec x)$ on $\vec x$, then
+$\mu(\mathcal A,f,\vec x)\leq\mu(\alpha,\vec x)$, in particular for every deterministic or nondeterministic recursive program
 \cite[Proposition~4E.1, Corollary~4E.2]{moschovakis2019}. The Homomorphism
 Test \cite[Lemma~4E.3]{moschovakis2019} proves a lower bound on
 $\mu(\mathcal A,f,\vec x)$ itself, by showing that every generated diagram
@@ -235,7 +241,20 @@ recursive calls. Pratt's algorithm is known to attain $O(\log\log a)$ on
 successive Fibonacci numbers; here the logarithmic coefficient holds on all
 inputs and is made small by enlarging the program.
 
-\paragraph{Organization.}
+\par\paragraph{Idea of the proof.}
+Let $a>b$ be coprime with $a\leq N=2^n$, and store the Euclidean remainders
+$r_0=a,r_1=b,\ldots,r_h$, where $h=\lceil\sqrt n\rceil$. If one of them is
+at most the early threshold $N^{3/4}$, recurse on that consecutive pair.
+Otherwise the consecutive pairs of the prefix stay distinct modulo every
+$m>N^{1/3}$ (Lemma~\ref{lem:prefix}), so the residues $r_i\bmod m$ take at
+least $\sqrt h$ values, and three remainder calls produce a new positive
+modulus below $m/(\sqrt h-1)$ (Lemma~\ref{lem:gap}). Repeating this from
+$m=r_h$ reaches the target modulus $N^{1/3}$ within $O(n/\log n)$ calls, and
+two recursive gcd computations on inputs at most $N^{1/3}$ finish. The
+resulting recurrence \eqref{eq:recurrence} has solution
+$O(n/\log n)=O(\log a/\log\log a)$.
+
+agraph{Organization.}
 Section~\ref{sec:normalization} reduces to coprime inputs.
 Section~\ref{sec:contractions} proves the two arithmetic lemmas, and
 Section~\ref{sec:construction} combines them into a recurrence that proves
@@ -263,7 +282,8 @@ Define
 \[
 T(n)=\max_{0\leq b\leq a\leq 2^n,\ a>0}G(a,b).
 \]
-Euclid's algorithm makes this a finite maximum. By \eqref{eq:normalize} it
+Each $G(a,b)$ is defined, since the Euclidean remainders form a derivation
+that contains $\gcd(a,b)$, so $T(n)$ is a finite maximum. By \eqref{eq:normalize} it
 suffices to bound $D$; the cases $a=b$, $b=0$ and $b=1$ need no instructions.
 
 \section{Three-call contractions}\label{sec:contractions}
@@ -306,7 +326,7 @@ $\bigl(\begin{smallmatrix}q&1\\1&0\end{smallmatrix}\bigr)$ sends
 $(A,B,C,E)$ to $(qA+B,\,A,\,qC+E,\,C)$, starting from $(q,1,1,0)$ for a single
 factor. By induction, all entries are nonnegative, $A\geq B\geq E$,
 $A\geq C\geq1$, $B\geq1$, and $\det M=(-1)^{j-i}$.
-Also $Ar_j\leq r_i\leq a$, whence $A\leq a/r_h$.
+Also $Ar_j\leq r_i\leq a$ and $r_j>r_h$ (as $j<h$), whence $A<a/r_h$.
 Write
 \[
 \Delta=\det(M-I)=1+\det M-A-E.
@@ -330,6 +350,8 @@ instructions that generate
 \begin{equation}\label{eq:contract}
 0<w<\frac{m}{\sqrt h-1}.
 \end{equation}
+We call these three instructions a \emph{contraction} of $m$, and $w$ the new
+modulus.
 The universal quantifier over $m$ is essential: the modulus generated by a
 contraction is not predetermined. In Lemma~\ref{lem:prefix} the prefix length
 $h$ is generic; Section~\ref{sec:construction} chooses
@@ -386,9 +408,9 @@ The small $m$ need not be coprime to either input. Generate
 $u=\rem(a,m)$ and $v=\rem(b,m)$, then concatenate derivations of
 $d=\gcd(m,u)$ and $e=\gcd(d,v)$; no gcd-oracle instruction is used. Since
 $m\leq2^{\lceil n/3\rceil}$ and $G$ is symmetric, each has a remainder-only
-derivation of length at most $T(\lceil n/3\rceil)$. Because values are
-retained, the second can use $d$ and $v$ even if the first uses neither
-original input. The gcd identities give
+derivation of length at most $T(\lceil n/3\rceil)$. Each sub-derivation
+starts from values already in the list ($m,u$, and then $d,v$), so it can be
+appended unchanged. The gcd identities give
 \[
 e=\gcd(\gcd(m,a\bmod m),b\bmod m)
  =\gcd(m,\gcd(a,b))=1.
@@ -447,9 +469,9 @@ p=\lfloor c\log n\rfloor,\qquad k=2^p,\qquad h=k^2+1,
 \qquad J=\lceil n/p\rceil.
 \]
 Use $N^\alpha$ as the early threshold and $N^\beta$ as the target modulus,
-where $N=2^n$. Since $\alpha+\beta>1$,
-the prefix lemma applies to every modulus above $N^\beta$ for sufficiently
-large $n$. Since $k^2<h$, the prefix occupies at least $k+1$ residue classes,
+where $N=2^n$. In the late case $r_h>N^\alpha$, so
+$2a/r_h<2N^{1-\alpha}=2N^{\beta/2}<N^\beta$ for sufficiently large $n$, and
+the prefix lemma applies to every modulus above $N^\beta$. Since $k^2<h$, the prefix occupies at least $k+1$ residue classes,
 so each contraction reduces the modulus by a factor greater than $k$.
 Moreover $k^J\geq N$, so $J$ contractions suffice.
 Writing $f(n)=n/\log n$, we have
@@ -505,7 +527,7 @@ divisor of the images of the inputs divides every transported generated
 value, hence divides $1$. Conversely, without a positive $\eq_1$ fact the
 map $x\mapsto2x$ preserves every recorded remainder and zero-test fact, as
 well as every negative one-test fact. It cannot preserve coprimeness. A
-certificate therefore reaches $1$. Enumerating a finite generated diagram
+certificate therefore contains a positive $\eq_1$ fact, hence the value $1$. Enumerating a finite generated diagram
 in generation order gives a derivation using no more calls than the number
 of remainder facts. Consequently, on coprime inputs,
 writing $\calls(\cdot)$ for the number of all primitive facts of a
@@ -539,10 +561,10 @@ The lower-bound argument applies to every gcd certificate, $\eq_1$ facts
 included, and allowing $\eq_1$ facts can only lower the count, so the upper
 bound transfers to $\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$.
 \end{proof}
-\begin{remark}
+\begin{remark}\label{rem:noncoprime}
 At $(0,0)$ the output is an input and the empty certificate suffices.
-Positivity facts may be appended if the function is restricted to positive
-inputs. For a noncoprime input, adding $\eq_1(g)=\mathrm{ff}$ to the gcd
+If the gcd is taken as a function on positive inputs only, the facts
+$\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$ may be appended. For a noncoprime input, adding $\eq_1(g)=\mathrm{ff}$ to the gcd
 certificate certifies noncoprimeness, so the sublogarithmic remainder-call
 bound holds for both truth values of coprimeness as well as for the gcd. The
 overhead is a fixed additive constant and does not change the leading
@@ -593,7 +615,7 @@ $N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the bound is $o(N^2)$. \qedhere
 \end{proof}
 Proposition~\ref{prop:loglog} is formalized, with a slightly larger constant;
 see Appendix~\ref{app:lean}.
-The saving $2^{-d}$ shrinks as $d$ grows, so this argument cannot reach the
+The saving $2^{-d}$ in the exponent of $N^{2-2^{-d}}$ shrinks as $d$ grows, so this argument cannot reach the
 scale $\log N/\log\log N$ of Theorem~\ref{thm:main}, let alone $\log N$.
 
 \section{Fixed programs with arbitrarily small coefficients}\label{sec:programs}
@@ -671,17 +693,19 @@ prefix, contract, then recurse twice through nested generator calls.
 Take $P_p=P_W$ with $W=4^p+5$; that is, set $k=2^p$, $h=k^2+1$ (the prefix
 length, as in Corollary~\ref{cor:six} but now with $p$ fixed), and $W=h+4$.
 Store $r_0,\ldots,r_h$ in $h+1$
-parameters, reserving three parameters for the modulus and two temporary
+parameters, reserving three parameters for the modulus and two scratch
 residues. Lemmas~\ref{lem:gap} and~\ref{lem:prefix} give a contraction by a
 factor greater than $k$ in at most three remainder calls, preserving the
 prefix. The program can choose precisely the operands of each contraction.
 
-Let $T_W(n)$ be the maximum, over $a,b\leq2^n$, of the minimum generator
-cost to return $\gcd(a,b)$ from $(a,b,a,\ldots,a)$. Euclid gives
-$T_W(n)=O(n)$. Copying parameters gives symmetry, and positive scaling
-preserves generator runs and their remainder counts; for general inputs the
-scaled computation returns the original gcd. It therefore suffices to analyze
-coprime inputs.
+The \emph{generator cost} of $(a,b)$ is the minimum number of remainder
+calls in an evaluation of $\operatorname{gen}$ that returns $\gcd(a,b)$ from
+$(a,b,a,\ldots,a)$. Let $T_W(n)$ be its maximum over $a,b\leq2^n$. Euclid
+gives $T_W(n)=O(n)$. To \emph{route} to $x,y$ means to apply (G4) to pass to
+the tuple $(x,y,x,\ldots,x)$, at no remainder cost. Copying parameters gives
+symmetry. Multiplying every value by $g=\gcd(a,b)$ turns a run on
+$(a/g,b/g)$ that returns $1$ into a run on $(a,b)$ that returns $g$, with the
+same remainder count. It therefore suffices to analyze coprime inputs.
 
 Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$. Use the early threshold
 $N^\alpha$ and the target modulus $N^\beta$, where $N=2^n$. If no prefix
@@ -692,7 +716,7 @@ before stopping, since $h>k^2$. At most $\lceil n/p\rceil$ contractions
 produce a positive $m\leq N^\beta$.
 
 In the early case, route directly to the smaller consecutive Euclidean pair.
-Otherwise form $u=a\bmod m$ and $v=b\bmod m$ in the temporary positions. A nested
+Otherwise form $u=a\bmod m$ and $v=b\bmod m$ in the scratch positions. A nested
 generator call, with its parameters routed to copies of $m,u$, returns
 $d=\gcd(m,u)$ while its caller retains $v$. Replace the modulus parameter
 by $d$ and route to copies of $d,v$ for the second gcd computation. The
@@ -738,11 +762,12 @@ of the Main Conjecture for deterministic uniform processes
 Selecting a close pair of residues is uncharged existential choice in a
 straight-line derivation. A deterministic remainder-only algorithm cannot
 assume that choice is available at constant cost. Computing all prefix
-residues would take about $h$ calls per contraction. Nondeterministic operand
-selection and the fixed-prefix programs of Section~\ref{sec:programs} leave a
-further question: can one fixed first-order recursive
-program retain and repeatedly access the growing prefix within the same
-remainder-call bound? Proposition~2E.1 converts each certificate into a
+residues would take about $h$ calls per contraction. The programs of
+Section~\ref{sec:programs} make the selection nondeterministically, but only
+with a prefix of fixed length. This leaves a further question: can one fixed
+first-order recursive program store and repeatedly access a prefix whose
+length grows with the input, and so attain $O(\log a/\log\log a)$ remainder
+calls? Proposition~2E.1 converts each certificate into a
 computation of some program; it does not supply one program for all
 certificates \cite[\S2E]{moschovakis2019}. The book also distinguishes the
 best uniform process from a nondeterministic program \cite[p.~150]{moschovakis2019}.
@@ -788,7 +813,8 @@ consecutive moduli above the threshold $2a/r_h$, restricted to $m<4a$
 (254,722,179 instances, no failures).
 
 For the programs of Section~\ref{sec:programs}, an independent Python compiler
-and right-to-left interpreter check 138 cases across three fixed widths, 129
+and interpreter, which evaluates arguments right to left as the book's machine
+does, check 138 cases across three values of $W$, 129
 additional scaled replays, and eight negative cases. The interpreter is not
 formally verified; unrestricted arithmetic used to plan successful choices is
 not part of the programs.
@@ -796,10 +822,8 @@ not part of the programs.
 \appendix
 \section{Formal verification}\label{app:lean}
 The Lean development uses Lean 4.35.0 with mathlib at its v4.35.0 tag.
-Table~\ref{tab:lean} maps the numbered results of the paper to Lean names. All
-declaration names are in the namespace \texttt{ShortGCD}; module names are
-given in full. Corollary~\ref{cor:method} is not stated separately, since it is
-immediate from the formal statements for Corollary~\ref{cor:refute}, and
+Table~\ref{tab:lean} maps the numbered results of the paper to Lean names. Module
+names are given in full.
 Proposition~\ref{prop:loglog} is formalized with the constant $40$ in place of
 $16$. The development contains no proof placeholders or added axioms. An axiom
 audit of the main results reports only the standard Lean foundations
@@ -892,8 +916,8 @@ $b\leq a$ with $C=6+\varepsilon$, and
 \lean{uniform_intrinsic_bound_six} gives the corresponding statement
 for the three intrinsic complexities on positive inputs.
 The proof starts from a finite-store instruction semantics in which the only
-instruction is remainder with a positive, available divisor. Costs are indices
-of derivations, rather than an assumed recurrence. A formal conversion to
+instruction is remainder with a positive, available divisor. Costs are lengths
+of explicit derivations, not values of an assumed recurrence. A formal conversion to
 finite generated diagrams proves the gcd certificate bound with two extra
 remainder facts and the bound for positive and negative coprimeness instances.
 The reduction itself is also checked: on coprime inputs, the least number of
@@ -987,7 +1011,8 @@ $2X\leq ZY$, and $X\leq Zk^J$,
 \[
 \widehat T(X)\leq\max\{h+1+\widehat T(Y),\ h+3J+2+2\widehat T(Z)\}.
 \]
-Taking $X=2^n$, $Y=2^{\ell_1}$, $Z=2^{\ell_2}$ gives the required hypotheses.
+Taking $X=2^n$, $Y=2^{\ell_1}$, $Z=2^{\ell_2}$ (so $Y$ is the early
+threshold and $Z$ the target modulus) gives the required hypotheses.
 Lean checks
 \[
 (h+1)j\leq64n,\quad (h+3J+2)j\leq64n,\quad

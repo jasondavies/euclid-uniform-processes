@@ -147,7 +147,7 @@ theorem callsRemGcd_le_callsGcd (a b : ℕ) : callsRemGcd a b ≤ callsGcd a b :
   exact Nat.sInf_le ⟨V, hV, rfl⟩
 
 /-- **Both intrinsic complexities are `o(log)`, uniformly.** For every `ε > 0`, eventually in
-`M`, every pair with `0 < a, b ≤ M` has both complexities at most `ε log₂ M`. -/
+`M`, every pair with `0 < a ≤ M` and `0 < b ≤ M` has both complexities at most `ε log₂ M`. -/
 theorem eventually_calls_le {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ M : ℕ in atTop, ∀ a b, 0 < a → 0 < b → a ≤ M → b ≤ M →
       (callsCoprimeness a b : ℝ) ≤ ε * Real.logb 2 M ∧

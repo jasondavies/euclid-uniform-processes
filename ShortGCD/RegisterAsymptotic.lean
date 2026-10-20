@@ -6,8 +6,9 @@ import ShortGCD.SharpBound
 For each `p > 0`, one generator of width `W = 4^p + 5` is fixed. Iterating `maxCost_step`
 gives `limsup T_W(n)/n ≤ 3/p` (`Fixed.limsup_profile_le`), hence accepting runs with at most
 `C log₂ a` remainder calls for every `C > 3/p` and large `a`. Taking `p > 3/ε` gives the
-fixed-programs theorem (`Fixed.arbitrarily_small_coefficient`); `RegisterSyntax` restates it
-for first-order syntax.
+theorem of the paper's section "Fixed programs with arbitrarily small coefficients"
+(`Fixed.arbitrarily_small_coefficient`); `RegisterSyntax` restates it for first-order
+syntax.
 -/
 
 open Filter Topology

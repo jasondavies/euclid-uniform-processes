@@ -26,6 +26,8 @@ lemma four_mul_le_pow {p : ℕ} (hp : 0 < p) : 4*p ≤ 4^p := by
     rw [pow_succ]
     nlinarith
 
+/-- For every list `ps` of positive integers, `4 * ∑ p ≤ ∑ 4^p`: the rebuilding charge is at
+least four times the guaranteed progress. -/
 theorem rebuild_charge_ge_four_progress (ps : List ℕ) (hp : ∀ p ∈ ps, 0 < p) :
     4*guaranteedProgress ps ≤ rebuildCharge ps := by
   induction ps with

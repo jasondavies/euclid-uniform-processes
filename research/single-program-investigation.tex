@@ -16,8 +16,9 @@
 \maketitle
 
 \begin{abstract}
-The fixed-program family does not yet give one sublogarithmic remainder
-program. We investigate recomputation, destructive traversal, and recursive
+The family of programs in the companion paper's section ``Fixed programs
+with arbitrarily small coefficients'' does not yet give one sublogarithmic
+remainder program. We investigate recomputation, destructive traversal, and recursive
 reuse of a growing prefix. A concrete finite program of maximum arity three
 can select arbitrarily deep prefix operands, but the tested computations pay
 for repeated regeneration. We formalize a limitation of the corresponding
@@ -36,8 +37,8 @@ recursive program over $(\mathbb N,\rem,\eq_0)$ computing the gcd with
 where $c_P$ is the minimum remainder count of a convergent computation.
 Every convergent computation must be correct, and at least one must exist
 on every input. These are the conventions of \cite[\S2E]{book}.
-The fixed-programs theorem of the companion paper \cite{companion}
-(expanded in the note \emph{Fixed-arity nondeterministic remainder programs}
+The theorem of the companion paper's section ``Fixed programs with
+arbitrarily small coefficients'' \cite{companion} (expanded in the note \emph{Fixed-arity nondeterministic remainder programs}
 \cite{nondet}) chooses, for each integer $p\geq1$, a different fixed program,
 with generator arity $4^p+5$ and coefficient at most $3/p$.
 
@@ -45,13 +46,17 @@ The Lean module \texttt{ShortGCD/RegisterSmallStep.lean} formalizes the speciali
 two-stack recursive machine. It proves exact-cost equivalence with finite
 evaluation trees, including right-to-left argument evaluation, separate zero
 tests and branches, finite nondeterministic body choice, and a positive
-divisor requirement. Transition locality is also checked. A saved caller
+divisor requirement. Transition locality is also checked. The machine is
+for the four-symbol signature ($\operatorname{pick}$, $\operatorname{gen}$,
+$\operatorname{accept}$, $\operatorname{loop}$) of the fixed-width programs
+\cite{nondet}; the program of Section~\ref{sec:single} has a different
+signature and is not covered. A saved caller
 context survives a child computation, but the child cannot inspect arbitrary
 saved values. The book itself distinguishes the richer structure used to
 implement the stacks from the original structure \cite[p.~78]{book}.
 Machine stacks therefore do not supply list primitives to the source program.
 
-\section{A single program with unbounded prefix selection}
+\section{A single program with unbounded prefix selection}\label{sec:single}
 
 Write $a=r_0,b=r_1,r_2,\ldots$ for the Euclidean sequence. The fixed equations
 \begin{align*}
@@ -84,10 +89,10 @@ Finally let
 \end{align*}
 The symbol $\operatorname{generate}$, also named as in the Python file,
 iterates $\operatorname{shrink}$ and returns a candidate.
-Use the verification wrapper $\operatorname{accept}$ of the fixed-program
-construction \cite{nondet}: if $b=0$, return $a$; otherwise
-generate a candidate starting with $m=b$ and return it only if it is positive
-and divides both original inputs. Rejection enters a self-loop. All tests
+Use the head and verification wrapper of the fixed-width programs
+\cite{nondet}: if $b=0$, the head returns $a$; otherwise it generates a
+candidate starting with $m=b$, and $\operatorname{accept}$ returns it only if
+it is positive and divides both original inputs. Rejection enters a self-loop. All tests
 are implemented using $\eq_0$ and remainder.
 
 There are seven internal functions including the entry function and rejection
@@ -98,9 +103,9 @@ every input and of the planner's prefix length.
 \begin{proposition}[Correctness and witness cost; proof in this note]
 \label{prop:rebuilding}
 Every convergent computation of this program returns $\gcd(a,b)$, and a
-successful computation exists on every input. For $a\geq b>0$, if Euclid
-takes $E$ calls to make the gcd available, some successful computation costs
-at most $2E+4$ calls, including verification.
+successful computation exists on every input. For $a\geq b>0$, if
+$\gcd(a,b)=r_{E+1}$ (so Euclid produces it with $E$ calls), some successful
+computation costs at most $2E+4$ calls, including verification.
 \end{proposition}
 \begin{proof}
 Every common divisor of $a,b$ divides every generated candidate, by induction
@@ -126,6 +131,9 @@ Selecting prefix positions $i,j$ costs
 \]
 where the two calls produce residues and $e$ records a remainder in near.
 Both argument occurrences are evaluated, even when the selected values agree.
+In the table below, ``Regeneration calls'' sums
+$\max(0,i-1)+\max(0,j-1)$ over all contractions, and ``Local calls'' sums
+the remaining $2+e$.
 
 The suite checks 270 runs and 270 additional scaled replays with identical
 choices. It includes all pairs below nine, unordered and zero inputs, larger
@@ -156,8 +164,7 @@ Suppose an analysis budgets a fresh prefix for each contraction, discards it
 afterwards, and accounts for progress only by these guaranteed factors.
 It may choose a different positive integer $p_i$ at every stage.
 
-\begin{proposition}[Restricted accounting bound; checked in Lean:
-\texttt{PrefixPolicies.lean}]
+\begin{proposition}[Restricted accounting bound; checked in Lean]
 For any such finite list $p_1,\ldots,p_J$,
 \[
 \sum_{i=1}^J4^{p_i}\ \geq\ 4\sum_{i=1}^Jp_i.
@@ -170,7 +177,7 @@ For integers $p\geq1$, $4p\leq4^p$, by induction. Sum these inequalities
 and use the assumed target inequality.
 \end{proof}
 
-The Lean declarations are
+The Lean declarations, in \texttt{research/PrefixPolicies.lean}, are
 \lean{ShortGCD.PrefixPolicies.rebuild_charge_ge_four_progress} and
 \lean{ShortGCD.PrefixPolicies.target_charge}. This is a lower bound on the
 budget of this proof policy, not on actual executions: an actual successful
@@ -185,8 +192,8 @@ blocks while unwinding avoids repeated traversal, but spends a new block for
 each application of the residue-count lemma. For blocks with $h_i=4^{p_i}+1$
 ordered pairs, a consecutive Euclidean prefix containing all these blocks
 takes $\sum_i h_i-1\geq\sum_i4^{p_i}$ calls when $J\geq1$.
-Neither estimate yields a sublinear budget for a fixed positive fraction of
-the input's bit length. This leaves open reuse across overlapping blocks,
+Under either accounting, certifying a decrease of $cn$ bits, for fixed
+$c>0$, costs at least linearly many calls in $n$. This leaves open reuse across overlapping blocks,
 stronger residue information, and schedules that exploit larger contractions.
 
 \section{A structural direction: bounded interfaces between calls}
@@ -244,9 +251,10 @@ modulus but gives no compatibility between their choices at different moduli.
 Bounded treewidth alone is not asserted sufficient for such a compilation.
 \item For every fixed width $t$, is there a $c_t>0$ and an infinite family of
 inputs on which every remainder derivation of the gcd with occurrence
-treewidth at most $t$ needs at least $c_t\log a$ calls? Such a theorem would
-imply the nondeterministic Main Conjecture \cite{companion} using the
-decomposition above. No such lower bound is proved here. It would use a
+treewidth at most $t$ needs at least $c_t\log a$ calls? Using the decomposition
+above, such a theorem would imply the Main Conjecture for nondeterministic
+recursive programs \cite{book}, and hence for deterministic ones, which are a
+special case; the companion paper \cite{companion} leaves both open. No such lower bound is proved here. It would use a
 restriction on program computations beyond the homomorphism method of van den
 Dries and Moschovakis (see \cite{companion}).
 \end{enumerate}
@@ -269,15 +277,16 @@ lake env lean research/PrefixPolicies.lean
 python3 research/rebuilding_program.py
 python3 -O research/rebuilding_program.py
 \end{verbatim}
-The machine correspondence is part of the normal library build and axiom
-audit. The restricted budget lemma has its own audit in
-\texttt{prefix-policy-axioms.txt}. Prototype results are recorded in
+The machine correspondence is part of the normal library build, and its
+axiom dependencies are recorded in \texttt{validation/axioms.txt} and
+\texttt{research/register-axioms.txt}. The restricted budget lemma has its own
+audit in \texttt{research/prefix-policy-axioms.txt}. Prototype results are recorded in
 \texttt{rebuilding-validation.json}. The prototype and the call-tree
 decomposition are not formalized in Lean. The bounds established in the
 companion paper \cite{companion} are unchanged; one fixed sublogarithmic
 program remains open.
 
-\begin{thebibliography}{4}
+\begin{thebibliography}{4}\raggedright
 \bibitem{book}
 Yiannis N. Moschovakis.
 \emph{Abstract Recursion and Intrinsic Complexity}.
@@ -291,7 +300,7 @@ Companion repository manuscript, October 2026.
 \emph{Fixed-arity nondeterministic remainder programs: expanded proof and
 executable checks}.
 Research note accompanying the uniform-process construction,
-\texttt{research/nondeterministic-prefix.pdf}, October 2026.
+\nolinkurl{research/nondeterministic-prefix.pdf}, October 2026.
 \bibitem{js}
 Maurice Jansen and Jayalal Sarma M.N.
 \emph{Balancing Bounded Treewidth Circuits}, 2009.

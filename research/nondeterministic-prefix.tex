@@ -57,11 +57,16 @@ Its generator has $W=4^p+5$ individual parameters. In particular,
 \qquad c_P(a,b)\leq\varepsilon\log a+B.
 \]
 \end{theorem}
-Lean: \lean{Syntax.arbitrarily_small_program} (see Section~\ref{sec:lean}).
+Lean: \lean{Syntax.eventually_eval_bound} (first assertion) and
+\lean{Syntax.arbitrarily_small_program} (second assertion); see
+Section~\ref{sec:lean}.
 
 The program may depend on $\varepsilon$, but not on $a,b$.
-This is compatible with the Main Conjecture, whose lower-bound coefficient
-may depend on the program \cite[p.~2]{book}.
+This is compatible with the Main Conjecture for algorithms, that is,
+recursive programs, deterministic or nondeterministic \cite[p.~2]{book}:
+its lower-bound coefficient may depend on the program. The companion paper
+leaves that conjecture open; it refutes only the uniform-process version
+(4F-5).
 The bound concerns remainder calls, not internal recursive-machine steps
 or the time needed to find a successful branch.
 
@@ -90,7 +95,8 @@ Define the following finite family of equations:
 There are exactly $W$ occurrences of $\Pick$ in the last equation.
 The setters $\Set_i$ have arity $W+1$, the largest auxiliary arity in this
 presentation; inlining them, as in the companion paper and in Lean, gives
-maximal arity $W$.
+maximal arity $\max(W,3)$, the $3$ coming from $\AcceptCandidate$ below.
+The companion paper takes $W\geq3$, so that this is $W$.
 The repeated definitions express finite nondeterministic choice.
 Each index $i$ is a syntactic index: after fixing $W$, all the displayed
 families are expanded into finitely many ordinary equations.
@@ -199,8 +205,9 @@ remainder counts. Lean checks this correspondence; see Section~\ref{sec:lean}.
 Write $r_0=a$, $r_1=b$, $r_{i+1}=r_{i-1}\bmod r_i$ for the Euclidean
 remainders of a coprime pair.
 Fix $p\geq1$; thus $W=4^p+5$.
-We use the Euclidean-prefix and three-call contraction lemmas from the
-companion paper \cite{companion}. Put
+We use the Euclidean-prefix lemma and the three-call contraction lemma of
+the companion paper's section ``Three-call contractions'' \cite{companion}.
+Put
 \[
 k=2^p,\qquad h=k^2+1=4^p+1,\qquad W=h+4.
 \]
@@ -217,8 +224,10 @@ computations to general inputs without extra calls.
 
 Fix $0<\beta<1/2$ and set $\alpha=1-\beta/2$.
 Use the early threshold $N^\alpha$ and the target modulus $N^\beta$, with
-$N=2^n$. If the prefix is large, then
-$2a/r_h<2N^{1-\alpha}<N^\beta$ for sufficiently large $n$.
+$N=2^n$. In the \emph{early case}, some positive $r_i$ with $1\leq i\leq h$
+is at most $N^\alpha$; it is treated below. Otherwise $r_h>N^\alpha$, so
+$2a/r_h<2N^{1-\alpha}<N^\beta$ for sufficiently large $n$, since
+$1-\alpha=\beta/2<\beta$.
 The prefix therefore occupies at least $k+1$ residue classes modulo every
 modulus used before stopping. A contraction decreases the modulus by a factor
 greater than $k$, and $J=\lceil n/p\rceil$ contractions suffice.
@@ -234,7 +243,9 @@ The identity
 \]
 recovers the original gcd, since every generated modulus is divisible by it.
 Only one result crosses each subcomputation boundary.
-In the early-small-remainder case, route directly to the next Euclidean pair.
+In the early case, route directly to the consecutive Euclidean pair formed by
+the first such $r_i$ and its successor, at a cost of at most $h$ remainder
+calls.
 Thus the early branch and the two recursive gcd computations of the
 companion paper's construction are realizable in one fixed generator of width
 $W$, with the same remainder counts.
@@ -256,7 +267,8 @@ gives
 \[
 L_W\leq\max\{\alpha L_W,\ 2\beta L_W+3/p\}.
 \]
-Since $\alpha<1$, we obtain $(1-2\beta)L_W\leq3/p$.
+If the first term is the larger, $L_W\leq\alpha L_W$ forces $L_W=0$, since
+$\alpha<1$; otherwise $(1-2\beta)L_W\leq3/p$.
 Letting $\beta\downarrow0$ yields $L_W\leq3/p$.
 Taking $n=\lceil\log a\rceil$ and adding the two verification calls proves
 the first assertion of Theorem~\ref{thm:family}. For the second, choose
@@ -286,10 +298,10 @@ there to a stored prefix as though those values were freely available.
 
 Regenerating the whole prefix for every contraction is too expensive for
 this construction: a positive prefix $r_0,\ldots,r_h$ requires $h-1$
-remainder calls, so $J'$ rebuilds cost $(h-1)J'$ calls before the
-contractions. For $h$ of order $\sqrt n$ and $J'$, the number of contractions
-in that construction, of order $n/\log n$, this is of order
-$n^{3/2}/\log n$.
+remainder calls, so rebuilding it for each of $J'$ contractions costs
+$(h-1)J'$ calls in addition to the contractions. In that construction $h$ is
+of order $\sqrt n$ and the number $J'$ of contractions is of order
+$n/\log n$, so this is of order $n^{3/2}/\log n$.
 
 This diagnoses the direct implementations, not every possible recursive
 program. A different organization of the computations might avoid the need
@@ -402,7 +414,11 @@ $p$ & $W$ & Remainder calls & Internal calls\\
 \bottomrule
 \end{tabular}
 \end{center}
-The remainder counts include final verification. These are successful
+The remainder counts include final verification. ``Internal calls'' counts
+the calls of the program's own function symbols (the entry function, $\Pick$,
+the setters, $\Gen$, $\AcceptCandidate$) in the executed Python presentation;
+these calls are not charged, and the remainder calls in their bodies are
+counted in the previous column. These are successful
 computations, not evidence of optimal costs or a deterministic method of
 finding the choices. Fibonacci examples are also recorded, but should not
 be taken as evidence of a new lower-bound separation: Pratt's program is

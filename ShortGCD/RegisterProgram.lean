@@ -2,8 +2,9 @@ import ShortGCD.Derivation
 
 /-! # A finite-arity nondeterministic generator
 
-`Run` is the big-step semantics of the generator of the paper's fixed-programs
-theorem, expanded in research/nondeterministic-prefix.tex. `Registers w` is the
+`Run` is the big-step semantics of the generator in the paper's section "Fixed
+programs with arbitrarily small coefficients", expanded in
+research/nondeterministic-prefix.tex. `Registers w` is the
 generator's parameter tuple `x₀ … x_{w−1}`. The width is fixed before execution.
 Indices and routing functions name finitely many syntactic choices, not
 natural-number data available to the program. Only remainder calls are charged.
@@ -100,8 +101,8 @@ theorem Accepts.correct {width a b n g : ℕ} (h : Accepts width a b n g) :
         · exact Nat.gcd_dvd_right _ _
         · exact Nat.gcd_dvd_left _ _
 
-/-- Euclid is a successful choice sequence with at least two registers.
-This theorem assumes no improved asymptotic cost bound. -/
+/-- Euclid gives a successful choice sequence whenever there are at least two registers;
+this existence proof is independent of the cost analysis. -/
 theorem exists_run_gcd {width : ℕ} (hw : 2 ≤ width) (a b : ℕ) :
     ∃ n, Run (inputs width a b) n (Nat.gcd a b) := by
   let i₀ : Fin width := ⟨0, by omega⟩
