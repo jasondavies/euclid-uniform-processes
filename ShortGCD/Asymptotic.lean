@@ -1,9 +1,16 @@
 import ShortGCD.UpperBound
 
+/-! # The uniform bound with real logarithms
+
+`T̂(a) ≤ C log₂ a / log₂ log₂ a` for `a ≥ 4`, hence the same bound for `G a b` with `b ≤ a`,
+and the asymptotic forms `sizeCost_isBigO` and `sizeCost_isLittleO_log`. These feed the
+certificate bounds (`Certificates`, `Conjecture`) and the leading-coefficient refinement
+(`SharpBound`).
+-/
+
 namespace ShortGCD
 
-/-- Explicit real-logarithmic version of the uniform bound, with base-two logs.
-The constant is independent of both inputs. -/
+/-- Some `C > 0` satisfies `T̂(a) ≤ C log₂ a / log₂ log₂ a` for every `a ≥ 4`. -/
 theorem uniform_size_real_bound : ∃ C : ℝ, 0 < C ∧ ∀ a : ℕ, 4 ≤ a →
     (sizeCost a : ℝ) ≤ C * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
   obtain ⟨K,hK,hbound⟩ := uniform_size_input_bound
@@ -51,7 +58,8 @@ theorem uniform_size_real_bound : ∃ C : ℝ, 0 < C ∧ ∀ a : ℕ, 4 ≤ a �
   rw [← mul_div_assoc]
   exact (le_div_iff₀ hpos).mpr htotal
 
-/-- Explicit uniform bound for every pair, including noncoprime inputs. -/
+/-- Some `C > 0` satisfies `G a b ≤ C log₂ a / log₂ log₂ a` for all `b ≤ a` with `a ≥ 4`,
+including non-coprime inputs. -/
 theorem uniform_real_bound : ∃ C : ℝ, 0 < C ∧ ∀ a b : ℕ, 4 ≤ a → b ≤ a →
     (G a b : ℝ) ≤ C * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
   obtain ⟨C,hC,hbound⟩ := uniform_size_real_bound
@@ -59,7 +67,7 @@ theorem uniform_real_bound : ∃ C : ℝ, 0 < C ∧ ∀ a b : ℕ, 4 ≤ a → b
   intro a b ha hba
   exact (Nat.cast_le.mpr (G_le_sizeCost le_rfl hba)).trans (hbound a ha)
 
-/-- Big-O notation for the worst-case value-generation complexity at size a. -/
+/-- `T̂(a) = O(log₂ a / log₂ log₂ a)`. -/
 theorem sizeCost_isBigO :
     (fun a : ℕ => (sizeCost a : ℝ)) =O[Filter.atTop]
       (fun a => Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
@@ -69,7 +77,7 @@ theorem sizeCost_isBigO :
   rw [Real.norm_of_nonneg (Nat.cast_nonneg _), Real.norm_eq_abs]
   exact (hbound a ha).trans (mul_le_mul_of_nonneg_left (le_abs_self _) hC.le)
 
-/-- The worst-case bound is strictly sublogarithmic. -/
+/-- `T̂(a) = o(log₂ a)`: the worst case is strictly sublogarithmic. -/
 theorem sizeCost_isLittleO_log :
     (fun a : ℕ => (sizeCost a : ℝ)) =o[Filter.atTop] (fun a => Real.logb 2 a) := by
   apply sizeCost_isBigO.trans_isLittleO

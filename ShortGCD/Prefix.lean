@@ -1,5 +1,14 @@
 import Mathlib
 
+/-! # The Euclidean-prefix lemma
+
+Products of Euclidean step matrices (`Transition`) have bounded entries and determinant `±1`,
+so none fixes a positive coprime pair modulo an `m` exceeding twice its largest entry. Hence if `m · r_h > 2a`, the
+consecutive residue pairs `(r_i mod m, r_{i+1} mod m)`, `i < h`, are pairwise distinct
+(`prefix_pairs_distinct`), and the prefix has at least `√h` residues modulo `m`
+(`residue_card_sq`). `Contraction` turns this into a reservoir.
+-/
+
 namespace ShortGCD
 
 /-- The four integer entries of a nonempty product of Euclidean step matrices. -/

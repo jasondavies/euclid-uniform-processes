@@ -1,5 +1,12 @@
 import ShortGCD.Composition
 
+/-! # Normalization and the worst-case cost `sizeCost`
+
+Derivations commute with scaling and with division by a common divisor, so `G` is homogeneous
+and `G a b = G (a/g) (b/g)` for `g = gcd(a, b)`; this reduces the recurrence to coprime inputs.
+`sizeCost M`, the worst case of `G` over inputs `≤ M`, is the paper's `T̂(M)`.
+-/
+
 namespace ShortGCD
 
 theorem Derives.divide {S T n g} (h : Derives S n T) (hg : 0 < g)
@@ -49,6 +56,8 @@ theorem G_normalize {a b : ℕ} (hp : 0 < Nat.gcd a b) :
   simpa [Nat.mul_div_cancel' (Nat.gcd_dvd_left a b),
     Nat.mul_div_cancel' (Nat.gcd_dvd_right a b)] using hh
 
+/-- `sizeCost M`: the maximum of `G a b` over `a, b ≤ M`, the worst-case number of remainder
+calls at size `M` (the paper's `T̂(M)`). -/
 noncomputable def sizeCost (M : ℕ) : ℕ :=
   (Finset.range (M+1)).sup (fun a => (Finset.range (M+1)).sup (G a))
 

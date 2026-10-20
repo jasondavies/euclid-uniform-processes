@@ -84,6 +84,7 @@ theorem callsCoprimeness_eq_callsRem {a b : ℕ} (ha : 0 < a) (hb : 0 < b)
     rw [← hk]
     exact Nat.sInf_le ⟨U, ⟨hS, hG, fun π h ↦ ((hπ π h).2 ⟨ha, hb, hc⟩).2.2⟩, rfl⟩
 
+/-- For `a, b > 0`, `callsCoprimeness a b ≤ G a b + 2`. -/
 theorem callsCoprimeness_le {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
     callsCoprimeness a b ≤ G a b + 2 := by
   unfold callsCoprimeness
@@ -97,6 +98,7 @@ theorem callsCoprimeness_le {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
       ⟨U, ⟨hS, hG, fun π h ↦ iff_of_false (fun h' ↦ hπ π h h'.2.2) fun h' ↦ hc h'.2.2⟩, rfl⟩
     exact (Nat.sInf_le hmem).trans hcard
 
+/-- For `a > 0` and every `b`, `callsGcd a b ≤ G a b + 2`. -/
 theorem callsGcd_le {a b : ℕ} (ha : 0 < a) : callsGcd a b ≤ G a b + 2 := by
   unfold callsGcd
   obtain ⟨U, hU, h1, hcard⟩ := gcd_certificate_bound (b := b) ha
@@ -121,10 +123,11 @@ theorem zeroCert_certifiesGcd_left (y : ℕ) : zeroCert.CertifiesGcd 0 y := by
   have h0 : π 0 = 0 := by simpa [zeroCert] using hπ.2.1 (0, true) (by simp [zeroCert])
   simp [h0]
 
-/-- A pair with a zero entry needs no remainder facts. -/
+/-- `callsGcd x 0 = 0`: a zero second input needs no remainder facts. -/
 theorem callsGcd_zero_right (x : ℕ) : callsGcd x 0 = 0 :=
   Nat.eq_zero_of_le_zero (Nat.sInf_le ⟨zeroCert, zeroCert_certifiesGcd_right x, rfl, rfl⟩)
 
+/-- `callsGcd 0 y = 0`: a zero first input needs no remainder facts. -/
 theorem callsGcd_zero_left (y : ℕ) : callsGcd 0 y = 0 :=
   Nat.eq_zero_of_le_zero (Nat.sInf_le ⟨zeroCert, zeroCert_certifiesGcd_left y, rfl, rfl⟩)
 

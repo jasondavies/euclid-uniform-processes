@@ -1,5 +1,13 @@
 import Mathlib
 
+/-! # Parameter choices for the uniform bound
+
+Natural-number parameters for `sizeCost_step` at size `2^n`: with `j = ⌊log₂ n⌋` and
+`p = j/4`, a prefix of length `4^p + 1`, `n/p + 1` contractions of ratio `2^p`, and recursive
+sizes of about `3n/4` and `n/3` bits. `parameter_bounds` collects the inequalities they
+satisfy, and `absorb` is the arithmetic step of the induction in `UpperBound`.
+-/
+
 namespace ShortGCD
 
 /-- Elementary exponential domination, used to bound the cost of storing the prefix. -/

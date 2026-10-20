@@ -1,5 +1,13 @@
 import ShortGCD.Derivation
 
+/-! # Composing derivations and the gcd complexity `G`
+
+Derivations can be run from larger stores and concatenated. `G a b` is the least number of
+remainder calls generating `gcd(a, b)` from `{a, b}`, and `GBound M K` says that `K` calls
+suffice for all inputs `≤ M`. `finish_from_modulus` finishes from a small available modulus
+with two calls and two recursive gcd computations; it ends the large branch of the recurrence.
+-/
+
 namespace ShortGCD
 
 /-- A derivation can be run with any larger initial store. -/

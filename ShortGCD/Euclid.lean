@@ -1,12 +1,21 @@
 import ShortGCD.Contraction
 import ShortGCD.Normalization
 
+/-! # The Euclidean remainder sequence
+
+`remainder a b i` is the Euclidean remainder `r_i`, and `euclidStore a b n` holds
+`r_0, …, r_{n+1}`, derived with `n` calls. `euclid_dichotomy` splits a coprime input: either
+some early remainder pair is small (`≤ L`) and coprime, or the remainders `r_0, …, r_h` all
+exceed `L` and form the prefix used by the large branch in `FiniteBound`.
+-/
+
 namespace ShortGCD
 
 def euclidPair (a b : ℕ) : ℕ → ℕ × ℕ
   | 0 => (a,b)
   | n+1 => ((euclidPair a b n).2, (euclidPair a b n).1 % (euclidPair a b n).2)
 
+/-- The Euclidean remainder `r_i`: `r_0 = a`, `r_1 = b`, `r_{i+2} = r_i mod r_{i+1}`. -/
 def remainder (a b i : ℕ) : ℕ := (euclidPair a b i).1
 
 @[simp] theorem remainder_zero (a b) : remainder a b 0 = a := rfl
@@ -27,6 +36,7 @@ theorem remainder_bound {a b} (hab : b ≤ a) (i) : remainder a b i ≤ a := by
   | one => simpa
   | more i hi hi' => exact (Nat.mod_le _ _).trans hi
 
+/-- The store `{r_0, …, r_{n+1}}`. -/
 def euclidStore (a b n : ℕ) : Finset ℕ := (Finset.range (n+2)).image (remainder a b)
 
 @[simp] theorem euclidStore_zero (a b) : euclidStore a b 0 = {a,b} := by

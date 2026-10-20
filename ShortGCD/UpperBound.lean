@@ -1,10 +1,18 @@
 import ShortGCD.FiniteBound
 import ShortGCD.Arithmetic
 
+/-! # The uniform bound in integer form
+
+Strong induction on `n`, applying `sizeCost_step` at `A = 2^n` with the parameters of
+`Arithmetic`, gives `T̂(2^n) ⌊log₂ n⌋ ≤ C n` (`uniform_bit_bound`);
+`uniform_size_input_bound` restates it for every size `a` through `⌈log₂ a⌉`. `Asymptotic`
+converts it to real logarithms.
+-/
+
 namespace ShortGCD
 
-/-- Uniform sublogarithmic bound in exact integer form. It includes all gcd
-inputs, not only coprime pairs. Integer logarithms avoid singular real-log cases. -/
+/-- **Uniform bound, integer form.** Some `C > 0` satisfies `T̂(2^n) ⌊log₂ n⌋ ≤ C n` for every
+`n`. It covers all gcd inputs, not only coprime pairs. -/
 theorem uniform_bit_bound :
     ∃ C : ℕ, 0 < C ∧ ∀ n, sizeCost (2^n) * Nat.log 2 n ≤ C*n := by
   let B := (Finset.range (2^32)).sup (fun n => sizeCost (2^n)*Nat.log 2 n)

@@ -13,11 +13,18 @@ noncomputable section
 namespace ShortGCD
 namespace Sharp
 
+/-- The normalizing weight `log₂ n / n`. -/
 def weight (n : ℕ) : ℝ := Real.logb 2 n / n
+/-- The normalized cost `T̂(2^n) · log₂ n / n`, whose upper limit is at most `6`. -/
 def profile (n : ℕ) : ℝ := sizeCost (2^n) * weight n
+/-- The rounded rescaling `⌈q n⌉`, the bit size of a recursive argument. -/
 def scale (q : ℝ) (n : ℕ) : ℕ := ⌈q * n⌉₊
+/-- The exponent `e = ⌊c log₂ n⌋` of the contraction ratio `k = 2^e`. -/
 def exponent (c : ℝ) (n : ℕ) : ℕ := ⌊c * Real.logb 2 n⌋₊
+/-- The prefix length `h = k² + 1` with `k = 2^e`: the analogue of `Fixed.prefixLength`, now
+growing with `n`. -/
 def prefixSize (c : ℝ) (n : ℕ) : ℕ := (2^(exponent c n))^2 + 1
+/-- The number of contractions `J = ⌈n/e⌉`, so that `k^J ≥ 2^n`. -/
 def steps (c : ℝ) (n : ℕ) : ℕ := ⌈(n : ℝ) / exponent c n⌉₊
 
 lemma log_tendsto : Tendsto (fun n : ℕ => Real.logb 2 n) atTop atTop :=
@@ -292,7 +299,7 @@ lemma limsup_le_three_div {c : ℝ} (hc0 : 0 < c) (hc : c < 1/2) :
     (eventually_lt_nhds (show (0 : ℝ) < 1/2 by norm_num)).filter_mono inf_le_left] with β hβ0 hβ
   exact limsup_parameter_bound hc0 hc hβ0 hβ
 
-/-- The normalized worst-case bit complexity has upper limit at most six. -/
+/-- **The leading-coefficient bound.** `limsup_{n → ∞} T̂(2^n) log₂ n / n ≤ 6`. -/
 theorem limsup_profile_le_six : limsup profile atTop ≤ 6 := by
   apply le_of_forall_pos_le_add
   intro ε hε
@@ -373,8 +380,8 @@ lemma sizeCost_input_le {a : ℕ} (ha : 4 ≤ a) :
 
 end Sharp
 
-/-- The leading constant six is uniform over input size. Any fixed number of
-additional instructions is absorbed without changing that leading constant. -/
+/-- For every `K` and every `C > 6`, eventually in `a`, `T̂(a) + K ≤ C log₂ a / log₂ log₂ a`:
+a fixed number of extra calls does not change the leading constant. -/
 theorem eventually_sizeCost_add_le_six (K : ℕ) {C : ℝ} (hC : 6 < C) :
     ∀ᶠ a : ℕ in atTop, (sizeCost a + K : ℝ) ≤
       C * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
@@ -397,8 +404,8 @@ theorem eventually_sizeCost_add_le_six (K : ℕ) {C : ℝ} (hC : 6 < C) :
   convert hh using 1
   field_simp
 
-/-- For every ε > 0, all sufficiently large inputs satisfy the bound with
-coefficient `6 + ε`. The threshold is independent of the second input. -/
+/-- For every `ε > 0`, for all sufficiently large `a` and every `b ≤ a`,
+`G a b ≤ (6 + ε) log₂ a / log₂ log₂ a`. -/
 theorem uniform_real_bound_six {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ a : ℕ in atTop, ∀ b : ℕ, b ≤ a →
       (G a b : ℝ) ≤ (6+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by

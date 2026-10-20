@@ -14,6 +14,8 @@ with a two-stack machine specialized to this language and program family.
 noncomputable section
 namespace ShortGCD.RegisterProgram.Syntax
 
+/-- The four internal function symbols: `pick` (the paper's `choose`, returning one of its
+arguments), the generator `gen`, the final check `accept`, and the divergent `loop`. -/
 inductive Fn where
   | pick | gen | accept | loop
   deriving DecidableEq
@@ -23,6 +25,9 @@ abbrev Fn.arity (w : ℕ) : Fn → ℕ
   | .accept => 3
   | .loop => 1
 
+/-- Terms over `n` variables for programs of width `w`: variables, remainder, the zero test
+`iteZero a b c` (`b` if `a = 0`, else `c`), and calls of internal symbols. There are no
+numeric literals. -/
 inductive Expr (w n : ℕ) where
   | var : Fin n → Expr w n
   | rem : Expr w n → Expr w n → Expr w n
@@ -45,6 +50,9 @@ def acceptBody (w : ℕ) : Expr w 3 :=
   let reject := Expr.app .loop (fun _ => g)
   .iteZero g reject (.iteZero (.rem a g) (.iteZero (.rem b g) g reject) reject)
 
+/-- The finitely many bodies of each symbol. For `gen`: return a picked parameter
+(`pickVars`), reroute all parameters through `pick` (`genRoute`), or replace one parameter by
+a remainder of two picked values (`genMod`) or by a recursive generator value (`genSub`). -/
 def bodies (w : ℕ) (f : Fn) : Finset (Expr w (f.arity w)) := by
   classical
   exact match f with
@@ -216,7 +224,8 @@ lemma accept_invokes {w a b g} (hg : 0 < g) (ha : a%g = 0) (hb : b%g = 0) :
   simpa [acceptBody] using Eval.pos (Eval.var ![a,b,g] 2) hg
     (Eval.zero hea (Eval.zero heb (Eval.var ![a,b,g] 2)))
 
-/-- The acceptance wrapper compiles with exactly the same remainder count. -/
+/-- Every accepted run on `(a, b)` returning `g` with `K` remainder calls gives an evaluation of
+`head w` on `(a, b)` with the same value and cost. -/
 theorem accepts_eval {w a b K g} (h : Accepts w a b K g) : Eval ![a,b] (head w) K g := by
   classical
   induction h with
@@ -274,13 +283,14 @@ theorem eval_head_correct {w a b K z} (h : Eval ![a,b] (head w) K z) : z = Nat.g
         · exact Nat.dvd_of_mod_eq_zero (by simpa [hb] using hs.2.2.2)
       · exact hd
 
-/-- Every input has a terminating evaluation of the finite program. -/
+/-- For `w ≥ 2`, every input `(a, b)` has an evaluation of `head w` returning `gcd(a, b)`. -/
 theorem eval_head_exists {w} (hw : 2 ≤ w) (a b : ℕ) :
     ∃ K, Eval ![a,b] (head w) K (Nat.gcd a b) := by
   obtain ⟨K, hK⟩ := exists_accepts hw a b
   exact ⟨K, accepts_eval hK⟩
 
-/-- Fully syntactic version of the fixed-program upper bound. -/
+/-- For `p > 0` and `C > 3/p`: for all sufficiently large `a` and every `b ≤ a`, `head W` with
+`W = 4^p + 5` evaluates on `(a, b)` to `gcd(a, b)` with at most `C log₂ a` remainder calls. -/
 theorem eventually_eval_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ) < C) :
     ∀ᶠ a : ℕ in Filter.atTop, ∀ b, b ≤ a → ∃ n,
       Eval ![a,b] (head (Fixed.width p)) n (Nat.gcd a b) ∧ (n:ℝ) ≤ C*Real.logb 2 a := by
@@ -290,6 +300,9 @@ theorem eventually_eval_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ) <
   obtain ⟨n, hn, hc⟩ := ha b hb
   exact ⟨n, accepts_eval hn, hc⟩
 
+/-- **Fixed programs with arbitrarily small coefficients**, for first-order syntax: for every
+`ε > 0` there are `p > 0` and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, `head W` with
+`W = 4^p + 5` evaluates on `(a, b)` to `gcd(a, b)` with at most `ε log₂ a + B` remainder calls. -/
 theorem arbitrarily_small_program {ε : ℝ} (hε : 0 < ε) :
     ∃ p : ℕ, 0 < p ∧ ∃ B : ℝ, 0 ≤ B ∧ ∀ a b : ℕ, 1 ≤ b → b ≤ a →
       ∃ n, Eval ![a,b] (head (Fixed.width p)) n (Nat.gcd a b) ∧

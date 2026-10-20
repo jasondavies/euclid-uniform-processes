@@ -47,6 +47,7 @@ theorem D_le_of_within {a b d : ℕ} (h : Within a b d) : D a b ≤ d := by
   exact (Nat.sInf_le (show l.length ∈ {k | ∃ l : List ℕ, ValidFrom [a, b] l ∧
     1 ∈ a :: b :: l ∧ l.length = k} from ⟨l, hl, h1, rfl⟩)).trans hlen
 
+/-- On coprime pairs, `Within a b d` holds iff `D a b ≤ d`. -/
 theorem within_iff_D_le {a b d : ℕ} (h : Nat.Coprime a b) : Within a b d ↔ D a b ≤ d :=
   ⟨D_le_of_within, within_of_D_le h⟩
 
@@ -218,7 +219,8 @@ theorem rep_validFrom {B : ℝ} {a b : ℕ} (hB : 1 ≤ B) (hreg : Regular B a b
     · obtain ⟨h1, h2⟩ := ih z hz
       exact ⟨h1, h2.mono (le_of_eq (by simp [List.length_cons]; ring_nf))⟩
 
-/-- **Regular pairs need long derivations.** -/
+/-- **Regular pairs need long derivations.** If `B ≥ 1`, `(a, b)` is `B`-regular, `2 ≤ b ≤ a`,
+and a derivation of length at most `d` reaches `1`, then `a ≤ (2B)^(2^d)/2`. -/
 theorem le_of_within_regular {B : ℝ} {a b d : ℕ} (hB : 1 ≤ B) (hreg : Regular B a b)
     (ha : 2 ≤ a) (hb : 2 ≤ b) (hba : b ≤ a) (hw : Within a b d) :
     (a : ℝ) ≤ (2 * B) ^ (2 ^ d) / 2 := by
@@ -352,6 +354,8 @@ theorem sum_inv_le_log (Q : ℕ) (X : ℝ) (hQX : (Q : ℝ) ≤ X) (hX : 1 ≤ X
     have := Real.log_le_log this hQX
     linarith
 
+/-- For `1 ≤ X ≤ 2N`, at most `18 X N (1 + ln X)` pairs in `box N` have a primitive witness of
+irregularity at scale `X`. -/
 theorem card_irr_le (N : ℕ) (X : ℝ) (hX1 : 1 ≤ X) (hXN : X ≤ 2 * N) :
     (((box N).filter (fun ab : ℕ × ℕ => Irr X ab.1 ab.2)).card : ℝ) ≤
       18 * X * N * (1 + Real.log X) := by
@@ -590,7 +594,8 @@ theorem card_within_le (N d : ℕ) (hN : 1 ≤ N) :
         nlinarith
     _ ≤ 40 * (2 + Real.log N) * (N : ℝ) ^ (2 - α) := by nlinarith
 
-/-- The almost-all bound for `D`, on coprime pairs. -/
+/-- The almost-all bound for `D`: at most `40 (2 + ln N) N^(2 − 2^(−d))` coprime pairs
+`2 ≤ b < a ≤ N` have `D a b ≤ d`. -/
 theorem card_D_le (N d : ℕ) (hN : 1 ≤ N) :
     (((box N).filter
         (fun ab : ℕ × ℕ => Nat.Coprime ab.1 ab.2 ∧ D ab.1 ab.2 ≤ d)).card : ℝ) ≤
@@ -619,7 +624,9 @@ theorem tendsto_decay {ε : ℝ} (hε : 0 < ε) :
   ring
 
 open Filter Topology in
-/-- **Almost all pairs need `(1 − ε) log₂ log₂ N` steps.** -/
+/-- **Almost all pairs need `(1 − ε) log₂ log₂ N` steps.** For `0 < ε ≤ 1`, the number of pairs
+`2 ≤ b < a ≤ N` with a derivation of `1` of length at most `⌊(1 − ε) log₂ log₂ N⌋`, divided by
+`N²`, tends to `0`. -/
 theorem tendsto_card_within_loglog {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1) :
     Tendsto (fun N : ℕ => (((box N).filter (fun ab : ℕ × ℕ =>
       Within ab.1 ab.2 ⌊(1 - ε) * Real.logb 2 (Real.logb 2 N)⌋₊)).card : ℝ) / (N : ℝ) ^ 2)

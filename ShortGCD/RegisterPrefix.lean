@@ -1,5 +1,13 @@
 import ShortGCD.RegisterMachine
 
+/-! # The stored prefix and register contraction
+
+`stored w a b t` holds `r_0, …, r_{t−1}` in the first `t` registers, and `prefix_exec` fills
+`t + 2` of them with `t` calls. At width `h + 4`, `reservoir` collects the prefix slots
+(the stored values `r_0, …, r_h`), and `register_contract` and `register_iterate` replay the
+three-call contraction of `Contraction` in the remaining registers without disturbing them.
+-/
+
 namespace ShortGCD.RegisterProgram
 
 lemma Exec.copy {w} (r : Registers w) (d i : Fin w) :
@@ -83,7 +91,8 @@ lemma three_registers {w} (r : Registers w) (x y m u v : Fin w)
   refine ⟨_, by omega, le_rfl, ?_⟩
   simpa [hrem] using (h₁.trans h₂).then_compute h₃
 
-/-- Prefix positions and the three scratch positions are disjoint. -/
+/-- Register layout at width `h + 4`: prefix slots `0, …, h`, the modulus at `h + 1`, and two
+scratch registers at `h + 2` and `h + 3`. -/
 def prefixIndex (h : ℕ) (i : Fin (h+1)) : Fin (h+4) := ⟨i.val, by omega⟩
 def modulusIndex (h : ℕ) : Fin (h+4) := ⟨h+1, by omega⟩
 def tempU (h : ℕ) : Fin (h+4) := ⟨h+2, by omega⟩

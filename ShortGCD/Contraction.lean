@@ -2,6 +2,15 @@ import ShortGCD.Gap
 import ShortGCD.Composition
 import ShortGCD.Prefix
 
+/-! # Contraction with a reservoir
+
+`Reservoir R L k`: the set `R` has at least `k + 1` residues modulo every `m > L`. By the
+Euclidean-prefix lemma, the stored prefix `r_0, …, r_h` is one when `k² < h` and `2a ≤ L r_h`
+(`prefix_reservoir`). Each contraction costs three calls and shrinks the modulus below `m/k`,
+and `large_branch` assembles the large branch: prefix, `J` contractions, then
+`finish_from_modulus`.
+-/
+
 namespace ShortGCD
 
 /-- Every modulus above L sees at least k+1 residue classes in the reservoir. -/

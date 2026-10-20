@@ -1,14 +1,28 @@
 import ShortGCD.RegisterRecurrence
 import ShortGCD.SharpBound
 
+/-! # Fixed programs with arbitrarily small coefficients
+
+For each `p > 0`, one generator of width `W = 4^p + 5` is fixed. Iterating `maxCost_step`
+gives `limsup T_W(n)/n ≤ 3/p` (`Fixed.limsup_profile_le`), hence accepting runs with at most
+`C log₂ a` remainder calls for every `C > 3/p` and large `a`. Taking `p > 3/ε` gives the
+fixed-programs theorem (`Fixed.arbitrarily_small_coefficient`); `RegisterSyntax` restates it
+for first-order syntax.
+-/
+
 open Filter Topology
 noncomputable section
 namespace ShortGCD.RegisterProgram
 namespace Fixed
 
+/-- The prefix length `h = k² + 1`, with contraction ratio `k = 2^p`. -/
 def prefixLength (p : ℕ) := (2^p)^2+1
+/-- The width `W = h + 4`: `h + 1` prefix slots, the modulus, and two scratch residues. It
+equals `4^p + 5` (`width_eq`). -/
 def width (p : ℕ) := prefixLength p+4
+/-- The number of contractions `J = ⌈n/p⌉`, so that `k^J ≥ 2^n`. -/
 def steps (p n : ℕ) := Sharp.scale (1/(p:ℝ)) n
+/-- The normalized cost `T_W(n)/n`, where `T_W(n) = maxCost W (2^n)`. -/
 def profile (p n : ℕ) : ℝ := maxCost (width p) (2^n) / n
 
 lemma width_eq (p : ℕ) : width p = 4^p+5 := by
@@ -133,7 +147,8 @@ lemma limsup_recurrence {p : ℕ} (hp : 0 < p) {β : ℝ} (hβ0 : 0 < β) (hβ :
   filter_upwards [self_mem_nhdsWithin] with u hu
   exact hbound u hu
 
-/-- The cost bound concerns one fixed generator for each `p`. -/
+/-- For each `p > 0`, the fixed generator of width `W = 4^p + 5` satisfies
+`limsup_{n → ∞} T_W(n)/n ≤ 3/p`, where `T_W(n) = maxCost W (2^n)`. -/
 theorem limsup_profile_le {p : ℕ} (hp : 0 < p) : limsup (profile p) atTop ≤ 3/(p:ℝ) := by
   have hnonneg : 0 ≤ limsup (profile p) atTop := by
     apply le_limsup_of_le (profile_bounded p)
@@ -173,8 +188,9 @@ lemma input_ratio : Tendsto (fun a : ℕ => (Nat.clog 2 a:ℝ)/Real.logb 2 a)
   have h := (tendsto_nat_ceil_div_atTop (R := ℝ)).comp Sharp.log_tendsto
   simpa only [Function.comp_def, Sharp.ceil_log_nat] using h
 
-/-- Accepted runs, including the two verification remainders, satisfy every
-coefficient strictly greater than `3/p`, uniformly over the second input. -/
+/-- For `p > 0` and `C > 3/p`: for all sufficiently large `a` and every `b ≤ a`, the program of
+width `4^p + 5` has an accepting run on `(a, b)` returning `gcd(a, b)` with at most `C log₂ a`
+remainder calls, counting the two verification calls. -/
 theorem eventually_accepts_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ) < C) :
     ∀ᶠ a : ℕ in atTop, ∀ b, b ≤ a → ∃ n,
       Accepts (width p) a b n (Nat.gcd a b) ∧ (n:ℝ) ≤ C*Real.logb 2 a := by
@@ -206,8 +222,10 @@ theorem eventually_accepts_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ
     exact h
   linarith
 
-/-- The program is fixed after choosing the coefficient. The additive constant
-covers the finite initial segment. This is not a single sublogarithmic program. -/
+/-- **Fixed programs with arbitrarily small coefficients.** For every `ε > 0` there are `p > 0`
+and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the program of width `4^p + 5` has an accepting run
+on `(a, b)` returning `gcd(a, b)` with at most `ε log₂ a + B` remainder calls. The program
+depends on `ε` and `B` covers small inputs; this is not a single sublogarithmic program. -/
 theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :
     ∃ p : ℕ, 0 < p ∧ ∃ B : ℝ, 0 ≤ B ∧ ∀ a b : ℕ, 1 ≤ b → b ≤ a →
       ∃ n, Accepts (width p) a b n (Nat.gcd a b) ∧ (n:ℝ) ≤ ε*Real.logb 2 a+B := by

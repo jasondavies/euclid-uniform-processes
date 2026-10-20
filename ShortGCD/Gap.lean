@@ -1,5 +1,13 @@
 import ShortGCD.Derivation
 
+/-! # The small-gap lemma
+
+If a store `S` contains a modulus `m > 0` and its elements have `t ≥ 2` distinct residues
+modulo `m`, two of the residues are less than `m/(t − 1)` apart, and three remainder calls
+produce a positive `w` with `w (t − 1) < m` (`small_remainder`). This is the contraction step
+used in `Contraction`.
+-/
+
 namespace ShortGCD
 
 /-- Finite packing inequality, in division-free form. -/
@@ -35,7 +43,8 @@ theorem exists_small_gap (R : Finset ℕ) {m : ℕ} (ht : 2 ≤ R.card)
     omega
   exact (Nat.mul_lt_mul_of_pos_right hf (by omega)).not_ge hp
 
-/-- Full three-call small-remainder lemma, including the choice of the residues. -/
+/-- **Small-remainder lemma.** If `m ∈ S`, `m > 0`, and `S` has `t ≥ 2` residues modulo `m`,
+three remainder calls from `S` produce some `w > 0` with `w (t − 1) < m`. -/
 theorem small_remainder (S : Finset ℕ) {m : ℕ} (hm : 0 < m) (hmem : m ∈ S)
     (ht : 2 ≤ (S.image (fun x => x % m)).card) :
     ∃ w, 0 < w ∧ w*((S.image (fun x => x % m)).card-1) < m ∧ Generates S 3 w := by

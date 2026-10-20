@@ -87,7 +87,8 @@ lemma Steps.trans {w k l} {s t u : State w} (h : Steps s k t) (h' : Steps t l u)
 def State.context {w} (s : State w) (cs : List (Instr w)) (vs : List Value) : State w :=
   ⟨s.control ++ cs, s.values ++ vs⟩
 
-/-- Transition locality: pending caller work and saved values are unchanged. -/
+/-- Transition locality: a transition stays a transition, with the same cost, when control and
+value stacks are appended below it. -/
 lemma Step.context {w k} {s t : State w} (h : Step s k t) (cs vs) :
     Step (s.context cs vs) k (t.context cs vs) := by
   cases h with
@@ -278,7 +279,8 @@ lemma Steps.finishes {w k l z} {s t : State w} (hs : Steps s k t)
   | refl => simpa using ht
   | cons hs hrest ih => simpa [Nat.add_assoc] using hs.finishes (ih ht)
 
-/-- Exact-cost equivalence for all source terms, not only selected generator runs. -/
+/-- `Eval r e K z` holds iff the machine runs from evaluating `e` under `r` to the value `z`
+with total remainder cost `K`, for every term `e`. -/
 theorem eval_iff_steps {w n K z} {r : Registers n} {e : Expr w n} :
     Eval r e K z ↔ Steps ⟨[.eval (.mk r e)], []⟩ K ⟨[], [.nat z]⟩ := by
   constructor
@@ -294,14 +296,20 @@ theorem eval_iff_steps {w n K z} {r : Registers n} {e : Expr w n} :
 def start (w a b : ℕ) : State w := ⟨[.eval (.mk ![a,b] (head w))], []⟩
 def halt (w z : ℕ) : State w := ⟨[], [.nat z]⟩
 
+/-- Every halting machine computation from `start w a b` outputs `gcd(a, b)`. -/
 theorem head_correct {w a b K z} (h : Steps (start w a b) K (halt w z)) :
     z = Nat.gcd a b := eval_head_correct (eval_iff_steps.mpr h)
 
+/-- For `w ≥ 2`, the machine has a halting computation from `start w a b` with output
+`gcd(a, b)`. -/
 theorem head_exists {w} (hw : 2 ≤ w) (a b : ℕ) :
     ∃ K, Steps (start w a b) K (halt w (Nat.gcd a b)) := by
   obtain ⟨K, hK⟩ := eval_head_exists hw a b
   exact ⟨K, eval_iff_steps.mp hK⟩
 
+/-- For `p > 0` and `C > 3/p`: for all sufficiently large `a` and every `b ≤ a`, the machine for
+width `4^p + 5` halts from `start` with output `gcd(a, b)` at remainder cost at most
+`C log₂ a`. -/
 theorem eventually_steps_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ) < C) :
     ∀ᶠ a : ℕ in Filter.atTop, ∀ b, b ≤ a → ∃ K,
       Steps (start (Fixed.width p) a b) K (halt (Fixed.width p) (Nat.gcd a b)) ∧
@@ -311,6 +319,9 @@ theorem eventually_steps_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ) 
   obtain ⟨K, he, hK⟩ := ha b hb
   exact ⟨K, eval_iff_steps.mp he, hK⟩
 
+/-- **Fixed programs with arbitrarily small coefficients**, for the machine: for every `ε > 0`
+there are `p > 0` and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the machine for width `4^p + 5`
+halts from `start` with output `gcd(a, b)` at remainder cost at most `ε log₂ a + B`. -/
 theorem arbitrarily_small_program {ε : ℝ} (hε : 0 < ε) :
     ∃ p : ℕ, 0 < p ∧ ∃ B : ℝ, 0 ≤ B ∧ ∀ a b : ℕ, 1 ≤ b → b ≤ a →
       ∃ K, Steps (start (Fixed.width p) a b) K (halt (Fixed.width p) (Nat.gcd a b)) ∧

@@ -28,11 +28,11 @@ coefficients. Each program uses only remainder and the zero test, and its
 arity is fixed independently of the inputs. This does not give a single
 sublogarithmic program. We give the program schema, correctness and cost
 arguments, and an executable compilation into first-order syntax.
-Lean checks the fixed-register recurrence, the asymptotic program bound,
-and translations preserving remainder counts into finite first-order syntax
-and a specialized two-stack recursive machine.
-It also checks correctness of every terminating syntactic evaluation and
-existence of a successful evaluation on every input.
+Lean checks the fixed-parameter recurrence and the asymptotic program bound.
+It also checks translations preserving remainder counts into finite
+first-order syntax and into a specialized two-stack recursive machine,
+correctness of every terminating syntactic evaluation, and existence of a
+successful evaluation on every input.
 \end{abstract}
 
 \section{The result and its quantifiers}
@@ -50,9 +50,7 @@ program $P_p$ over $(\mathbb N,\rem,\eqzero)$ computing the gcd such that
 \limsup_{a\to\infty}\;
 \max_{1\leq b\leq a}\frac{c_{P_p}(a,b)}{\log a}\leq\frac3p.
 \]
-Its generator has $W=4^p+5$ individual parameters; the largest auxiliary
-arity is $W+1$, from the setters below. Inlining the setters, as in the
-companion manuscript and in Lean, gives maximal arity $W$. In particular,
+Its generator has $W=4^p+5$ individual parameters. In particular,
 \[
 \forall\varepsilon>0\ \exists P, B\ \forall a\geq b\geq1,
 \qquad c_P(a,b)\leq\varepsilon\log a+B.
@@ -62,13 +60,21 @@ companion manuscript and in Lean, gives maximal arity $W$. In particular,
 The program may depend on $\varepsilon$, but not on $a,b$.
 This is compatible with the Main Conjecture, whose lower-bound coefficient
 may depend on the program \cite[p.~2]{book}.
-No passage from this family to one sublogarithmic program is asserted.
 The bound concerns remainder calls, not internal recursive-machine steps
 or the time needed to find a successful branch.
+
+The theorem and its proof also appear in the companion paper's section
+``Fixed programs with arbitrarily small coefficients'' \cite{companion};
+this note retains the expanded operational discussion and the executable
+checks. The accompanying \texttt{model-novelty-audit.txt} records the model
+comparison and the scope of the primary-literature search.
 
 \section{A finite program for each fixed width}
 
 Fix $W\geq2$ and write $\vec x=(x_0,\ldots,x_{W-1})$.
+(The definitions and the correctness argument below need only $W\geq2$, which
+is also the hypothesis $2\leq w$ in Lean; the companion paper states $W\geq3$,
+and the cost bound uses $W=4^p+5\geq9$ in any case.)
 Define the following finite family of equations:
 \begin{align*}
 \Pick(\vec x)&=x_i &&(0\leq i<W),\\
@@ -81,28 +87,29 @@ Define the following finite family of equations:
 \Gen(\vec x)&=\Gen(\Pick(\vec x),\ldots,\Pick(\vec x)).
 \end{align*}
 There are exactly $W$ occurrences of $\Pick$ in the last equation.
+The setters $\Set_i$ have arity $W+1$, the largest auxiliary arity in this
+presentation; inlining them, as in the companion paper and in Lean, gives
+maximal arity $W$.
 The repeated definitions express finite nondeterministic choice.
 Each index $i$ is a syntactic index: after fixing $W$, all the displayed
 families are expanded into finitely many ordinary equations.
 The symbols $W,i$ are not runtime data, and there is no array-access,
 list-construction, or numeric-constant primitive.
 
+\paragraph{Call-by-value meaning.}
 The last equation copies or permutes any available parameters without a
 remainder call. In the subcomputation equation
 $\Set_i(\vec x,\Gen(\vec x))$, call-by-value evaluates the inner generator
 once and retains the caller's parameters until its return. The result replaces
 one parameter, and the outer generator continues.
-The Lean presentation inlines the setters: for example, the remainder
-alternative becomes
-$\Gen(\vec x)=\Gen(x_0,\ldots,x_{i-1},
-\rem(\Pick(\vec x),\Pick(\vec x)),x_{i+1},\ldots,x_{W-1})$.
-The subcomputation alternative is inlined in the same way. Its fixed
-signature has four internal symbols: choose, gen, accept, and loop.
-The executable Python presentation retains the setters.
 These are ordinary first-order calls; each recursive variable has fixed
-arity \cite[\S\S2A, 2D]{book}. The recursion stack may grow, so $W$ is not a
-bound on the total number of values in the entire computation.
+arity \cite[\S\S2A, 2D]{book}.
 
+\paragraph{$W$ bounds arity, not storage.}
+The recursion stack may grow, so $W$ is not a bound on the total number of
+values in the entire computation.
+
+\paragraph{Verification wrapper.}
 Complete the program by setting $\Loop(z)=\Loop(z)$ and
 \[
 \AcceptCandidate(a,b,g)=
@@ -125,6 +132,18 @@ a,&\eqzero(b),\\
 Only $\rem$ and $\eqzero$ are primitive symbols in this program.
 On a successful computation with $b>0$, verification adds exactly two
 remainder calls and the whole program makes four zero tests.
+
+\paragraph{Presentations.}
+The Lean presentation inlines the setters: for example, the remainder
+alternative becomes
+$\Gen(\vec x)=\Gen(x_0,\ldots,x_{i-1},
+\rem(\Pick(\vec x),\Pick(\vec x)),x_{i+1},\ldots,x_{W-1})$,
+and the subcomputation alternative is inlined in the same way.
+The resulting program has a fixed signature of four internal symbols,
+$\Pick$, $\Gen$, $\AcceptCandidate$, and $\Loop$; Lean's \lean{Syntax.Fn}
+names them \lean{pick}, \lean{gen}, \lean{accept}, and \lean{loop}, so
+Lean's \lean{pick} is the selector called $\Pick$ here.
+The executable Python presentation retains the setters.
 
 \section{Correctness and the operational interpretation}
 
@@ -155,33 +174,10 @@ Finally $\rem(gx,gy)=g\rem(x,y)$ for $g>0$, and nonzero divisors remain
 nonzero under scaling. Induction preserves the same computation and its cost.
 \end{proof}
 
-The Lean relation \lean{ShortGCD.RegisterProgram.Run} has four constructors:
-return a parameter, overwrite one parameter by a remainder, route parameters,
-or run a subcomputation and overwrite one parameter by its result.
-These correspond to the four generator alternatives above. For a remainder
-step, the two selector calls choose its operands; for a routing step, the $W$
-selector calls choose its argument tuple. Internal selector calls make no
-remainder calls.
-
-The kernel-checked theorem \lean{Syntax.run_invokes} translates every register
-run into an evaluation of the inlined first-order generator, preserving its
-remainder count exactly. \lean{Syntax.accepts_eval} includes the verification
-wrapper. Independently, \lean{Syntax.eval_head_correct} proves correctness of
-\emph{every} terminating evaluation, and \lean{Syntax.eval_head_exists}
-proves existence of a successful evaluation on every input. Thus correctness
-is not restricted to the selected fast witnesses.
-
-The syntax contains variables, remainder, zero-test conditionals, and calls
-to a fixed finite signature; each symbol has a finite set of bodies.
-\lean{Syntax.Eval} uses call-by-value evaluation trees, evaluating all arguments
-before the chosen body and summing their remainder counts.
-\lean{RegisterSmallStep} gives an explicit two-stack machine for this language:
-it evaluates arguments right to left and has separate transitions for
-zero tests and branching. Its closures encode substituted source terms,
-not a new data type available to the program. The Python
-compiler and interpreter are independently checked executable artifacts,
-not verified implementations of the Lean semantics.
-
+The program is pure first-order syntax: variables, remainder, zero-test
+conditionals, and calls to a fixed finite signature, each symbol having a
+finite set of bodies. Its call-by-value evaluation trees evaluate all
+arguments before the chosen body and sum their remainder counts.
 For these pure terms the evaluation trees correspond, with the same result
 and remainder count, to the book's recursive machine. In the forward direction,
 induct on a tree and serialize its argument evaluations right to left before
@@ -193,17 +189,14 @@ into its completed argument computations and selected body or branch, and
 induct on its length. Each selector occurrence makes its own choice, with no
 shared mutable state. The setters in this note merely pass their evaluated
 arguments to the generator, so inlining them also preserves results and
-remainder counts. \lean{Syntax.Machine.eval_iff_steps} now checks the
-tree-to-machine equivalence in both directions; \lean{Machine.Step.context}
-checks transition locality. The machine specializes the book's transition
-table to the fixed language and signature, rather than formalizing arbitrary
-structures and vocabularies. The separate equivalence with the Python
-presentation retaining setters remains a mathematical argument.
+remainder counts.
 
 \section{The fixed-prefix cost bound}
 
+\begin{proof}[Proof of Theorem~\ref{thm:family}]
+Fix $p\geq1$ and take $P_p=P_W$ with $W=4^p+5$.
 We use the Euclidean-prefix and three-call contraction lemmas from the
-companion manuscript \cite{companion}. Fix $p\geq1$, and put
+companion paper \cite{companion}. Put
 \[
 k=2^p,\qquad h=k^2+1=4^p+1,\qquad W=h+4.
 \]
@@ -262,6 +255,7 @@ Letting $\beta\downarrow0$ yields $L_W\leq3/p$.
 Taking $n=\lceil\log a\rceil$ and adding the two verification calls proves
 the first assertion of Theorem~\ref{thm:family}. For the second, choose
 $p>3/\varepsilon$ and absorb the finitely many smaller inputs in $B$.
+\end{proof}
 
 This argument uses a fixed $h$, unlike the sublogarithmic certificate
 construction. The price for a smaller logarithmic coefficient is a larger
@@ -272,17 +266,16 @@ claimed optimal.
 
 The original construction uses a prefix length growing with input size.
 Replacing $W$ by a function of the input in the compiler would produce
-different programs on different inputs. It would not prove the desired
-single-program result.
+different programs on different inputs.
 
 Saving a growing prefix in nested calls also does not directly implement the
-reservoir. A current function body can use its individual parameters; values
-retained in older continuations are not an indexed store. Returning exposes
-an older continuation but passes only the return value from the completed
-call. For example, a recursive prefix builder that carries only the current
-Euclidean pair leaves the innermost call without all earlier remainders as
-parameters. The reservoir lemma cannot be applied there as though those
-values were freely available.
+stored prefix. A current function body can use its individual parameters;
+values retained in older continuations are not an indexed store. Returning
+exposes an older continuation but passes only the return value from the
+completed call. For example, a recursive prefix builder that carries only the
+current Euclidean pair leaves the innermost call without all earlier
+remainders as parameters. The three-call contraction lemma cannot be applied
+there to a stored prefix as though those values were freely available.
 
 Regenerating the whole prefix for every contraction is too expensive for
 this construction: a positive prefix $r_0,\ldots,r_h$ requires $h-1$
@@ -299,33 +292,105 @@ organization has been proved here. In particular, the quantifier exchange
 \qquad\hbox{to}\qquad
 \exists P\ \forall\varepsilon
 \]
-remains unjustified.
+remains unjustified, and this note does not give a single sublogarithmic
+program. The separate note \emph{Growing prefixes in a fixed remainder
+program} \cite{investigation} tests a fixed program that regenerates selected
+prefix operands, analyzes its accounting limitation, and identifies a
+possible structural direction.
 
-\section{Executable checks and current status}
+\section{Formal verification}
 
-\lean{register_program.py} compiles a fixed-width instance to an AST containing
-only individual variables, function calls, and conditionals. A static checker
-checks arities and sorts and rejects extra primitives and numeric literals.
-A separate evaluator implements call-by-value, with right-to-left argument
-evaluation. It executes the compiled syntax and counts actual remainder calls.
-The offline planner supplies nondeterministic choices; its unrestricted
-arithmetic is not executed by the program.
+Lean declarations named below are in the namespace
+\lean{ShortGCD.RegisterProgram}, and we omit that prefix. They are part of
+the normal \texttt{lake build} target.
 
-The suite reuses each of the three compiled programs of widths $9,21,69$
-across 138 cases, including zero, unordered, scaled, random, and Fibonacci
-inputs. It additionally replays 129 positive-input cases after scaling both
-inputs by 13 with exactly the same choices. The suite exercises 2,086
-contractions and 101 recursive subcomputations, with nesting depth up to four.
-Eight negative checks cover rejected candidates, zero divisors, malformed
-choices, and invalid program syntax. A two-register instance separately
-replays Euclid.
+\paragraph{Generator runs.}
+The relation \lean{Run} has four constructors: return a parameter, overwrite
+one parameter by a remainder, route parameters, or run a subcomputation and
+overwrite one parameter by its result. These correspond to the four generator
+alternatives of the program above. For a remainder step, the two selector
+calls choose its operands; for a routing step, the $W$ selector calls choose
+its argument tuple. Internal selector calls make no remainder calls.
+
+\paragraph{First-order syntax.}
+The syntax contains variables, remainder, zero-test conditionals, and calls
+to the fixed finite signature \lean{Syntax.Fn}; each symbol has a finite set
+of bodies. \lean{Syntax.Eval} uses call-by-value evaluation trees, evaluating
+all arguments before the chosen body and summing their remainder counts.
+The theorem \lean{Syntax.run_invokes} translates every generator run into an
+evaluation of the inlined first-order generator, preserving its remainder
+count exactly. \lean{Syntax.accepts_eval} includes the verification wrapper.
+Independently, \lean{Syntax.eval_head_correct} proves correctness of
+\emph{every} terminating evaluation, and \lean{Syntax.eval_head_exists}
+proves existence of a successful evaluation on every input. Thus correctness
+is not restricted to the selected fast witnesses.
+
+\paragraph{Two-stack machine.}
+The module \texttt{ShortGCD/RegisterSmallStep.lean} gives an explicit
+two-stack machine for this language: it evaluates arguments right to left and
+has separate transitions for zero tests and branching. Its closures encode
+substituted source terms, not a new data type available to the program.
+\lean{Syntax.Machine.eval_iff_steps} checks the tree-to-machine equivalence in
+both directions, and \lean{Syntax.Machine.Step.context} checks transition
+locality. The machine specializes the book's transition table to the fixed
+language and signature, rather than formalizing arbitrary structures and
+vocabularies. The equivalence with the Python presentation retaining setters
+remains a mathematical argument.
+
+\paragraph{Main declarations.}
+\begin{itemize}
+\item \lean{maxCost_step}: the fixed-parameter finite recurrence;
+\item \lean{Fixed.limsup_profile_le}: the leading coefficient $3/p$;
+\item \lean{Fixed.eventually_accepts_bound}: the bound for accepted runs,
+including the final verification;
+\item \lean{Syntax.eventually_eval_bound}: the same bound for first-order
+program evaluations;
+\item \lean{Syntax.arbitrarily_small_program}: the quantified
+$\varepsilon\log a+B_\varepsilon$ statement with the program fixed before
+the inputs are chosen;
+\item \lean{Syntax.Machine.eval_iff_steps}: exact-cost equivalence between
+evaluation trees and terminating small-step executions;
+\item \lean{Syntax.Machine.arbitrarily_small_program}: the same quantified
+bound directly for finite machine transition sequences.
+\end{itemize}
+
+\paragraph{Axiom audit.}
+The research entry point \texttt{research/RegisterProgram.lean}, run from the
+repository root by
+\begin{verbatim}
+lake env lean research/RegisterProgram.lean
+\end{verbatim}
+prints the axiom dependencies of these declarations, recorded in
+\texttt{register-axioms.txt}; only the standard axioms \lean{propext},
+\lean{Classical.choice}, and \lean{Quot.sound} occur.
+
+\section{Experiments}
+
+\texttt{register\_program.py} compiles a fixed-width instance to an AST
+containing only individual variables, function calls, and conditionals.
+A static checker checks arities and sorts and rejects extra primitives and
+numeric literals. A separate evaluator implements call-by-value, with
+right-to-left argument evaluation. It executes the compiled syntax and counts
+actual remainder calls. The offline planner supplies nondeterministic choices;
+its unrestricted arithmetic is not executed by the program. The Python
+compiler and interpreter are independently checked executable artifacts,
+not verified implementations of the Lean semantics.
+
+Each compiled program ($W=9,21,69$) is run on the same 46 inputs, for 138
+successful cases in all, including zero, unordered, scaled, random, and
+Fibonacci inputs. The suite additionally replays 129 positive-input cases
+after scaling both inputs by 13 with exactly the same choices. It exercises
+2,086 contractions and 101 recursive subcomputations, with nesting depth up
+to four. Eight negative checks cover rejected candidates, zero divisors,
+malformed choices, and invalid program syntax. A two-parameter instance
+separately replays Euclid.
 
 On one seeded 2,048-bit pair, whose ordinary Euclidean computation takes
 1,188 remainder calls, the fixed programs give:
 \begin{center}
 \begin{tabular}{rrrr}
 \toprule
-$p$ & Generator parameters & Remainder calls & Internal calls\\
+$p$ & $W$ & Remainder calls & Internal calls\\
 \midrule
 1 & 9 & 1,036 & 4,476\\
 2 & 21 & 713 & 3,564\\
@@ -341,43 +406,12 @@ already known to be fast on that family \cite[Corollary~6C.7]{book}.
 
 Run from the repository root:
 \begin{verbatim}
-lake env lean research/RegisterProgram.lean
 python3 research/check_register_program.py
 python3 -O research/check_register_program.py
 python3 research/register_program.py --width 9
 \end{verbatim}
-The program-family bound is now kernel-checked as well as available for
-independent mathematical scrutiny. The main declarations, all under
-\lean{ShortGCD.RegisterProgram}, are:
-\begin{itemize}
-\item \lean{maxCost_step}: the fixed-register finite recurrence;
-\item \lean{Fixed.limsup_profile_le}: the leading coefficient $3/p$;
-\item \lean{Fixed.eventually_accepts_bound}: the bound for accepted runs,
-including the final verification;
-\item \lean{Syntax.eventually_eval_bound}: the same bound for first-order
-program evaluations;
-\item \lean{Syntax.arbitrarily_small_program}: the quantified
-$\varepsilon\log a+B_\varepsilon$ statement with the program fixed before
-the inputs are chosen.
-\item \lean{Syntax.Machine.eval_iff_steps}: exact-cost equivalence between
-evaluation trees and terminating small-step executions;
-\item \lean{Syntax.Machine.arbitrarily_small_program}: the same quantified
-bound directly for finite machine transition sequences.
-\end{itemize}
-The proof modules are included in the normal \lean{lake build} target.
-The research entry point prints their axiom dependencies, recorded in
-\lean{register-axioms.txt}; only the standard axioms \lean{propext},
-\lean{Classical.choice}, and \lean{Quot.sound} occur.
-The program-family theorem and its proof are included in Section~6 of the
-companion manuscript; this note retains the expanded operational discussion
-and executable checks. The accompanying \lean{model-novelty-audit.txt}
-records the model comparison and the scope of the primary-literature search.
-Obtaining one sublogarithmic program remains the larger open task.
-The separate investigation \lean{single-program-investigation.pdf} tests a
-fixed program that regenerates selected prefix operands, analyzes its
-accounting limitation, and identifies a possible structural direction.
 
-\begin{thebibliography}{2}
+\begin{thebibliography}{3}
 \bibitem{book}
 Yiannis N. Moschovakis.
 \emph{Abstract Recursion and Intrinsic Complexity}.
@@ -387,5 +421,9 @@ Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019.
 Jason Davies.
 \emph{The Euclidean algorithm is not optimal among uniform processes}.
 Companion repository manuscript, October 2026.
+\bibitem{investigation}
+\emph{Growing prefixes in a fixed remainder program}.
+Research note accompanying the uniform-process construction,
+\texttt{research/single-program-investigation.pdf}, October 2026.
 \end{thebibliography}
 \end{document}

@@ -36,11 +36,13 @@ recursive program over $(\mathbb N,\rem,\eq_0)$ computing the gcd with
 where $c_P$ is the minimum remainder count of a convergent computation.
 Every convergent computation must be correct, and at least one must exist
 on every input. These are the conventions of \cite[\S2E]{book}.
-The existing theorem chooses a different fixed program for each desired
+The fixed-programs theorem of the companion paper \cite{companion}
+(expanded in the note \emph{Fixed-arity nondeterministic remainder programs}
+\cite{nondet}) chooses a different fixed program for each desired
 coefficient; its generator arity is $4^p+5$ and its coefficient is at most
-$3/p$. The quantifiers cannot simply be exchanged.
+$3/p$.
 
-The module \lean{ShortGCD.RegisterSmallStep} now formalizes the specialized
+The Lean module \texttt{ShortGCD.RegisterSmallStep} formalizes the specialized
 two-stack recursive machine. It proves exact-cost equivalence with finite
 evaluation trees, including right-to-left argument evaluation, separate zero
 tests and branches, finite nondeterministic body choice, and a positive
@@ -60,7 +62,10 @@ Write $a=r_0,b=r_1,r_2,\ldots$ for the Euclidean sequence. The fixed equations
 \end{align*}
 can select $r_i$ with exactly $\max(0,i-1)$ remainder calls, whenever the
 necessary divisors are positive. Thus arbitrary selection depth itself is
-available in one finite program.
+available in one finite program. Here $\operatorname{prefix}$ is the name of a
+function symbol, kept as in \texttt{rebuilding\_program.py}: a call walks
+along the Euclidean sequence and returns one of its terms. Elsewhere,
+``prefix'' means an initial segment $r_0,\ldots,r_h$ of that sequence.
 
 Define the four alternatives
 \[
@@ -78,7 +83,10 @@ Finally let
 \operatorname{generate}(a,b,m)&=
  \operatorname{generate}(a,b,\operatorname{shrink}(a,b,m)).
 \end{align*}
-Use the earlier verification wrapper: if $b=0$, return $a$; otherwise
+The symbol $\operatorname{generate}$, also named as in the Python file,
+iterates $\operatorname{shrink}$ and returns a candidate.
+Use the verification wrapper $\operatorname{accept}$ of the fixed-program
+construction \cite{nondet}: if $b=0$, return $a$; otherwise
 generate a candidate starting with $m=b$ and return it only if it is positive
 and divides both original inputs. Rejection enters a self-loop. All tests
 are implemented using $\eq_0$ and remainder.
@@ -88,18 +96,27 @@ loop, all of arity at most three. There are no numeric constants, list
 operations, or runtime indices in the program. Its syntax is independent of
 every input and of the planner's prefix length.
 
+\begin{proposition}[Correctness and witness cost; proof in this note]
+\label{prop:rebuilding}
+Every convergent computation of this program returns $\gcd(a,b)$, and a
+successful computation exists on every input. For $a\geq b>0$, if Euclid
+takes $E$ calls to make the gcd available, some successful computation costs
+at most $2E+4$ calls, including verification.
+\end{proposition}
+\begin{proof}
 Every common divisor of $a,b$ divides every generated candidate, by induction
 on evaluations. The wrapper therefore makes every convergent computation
 correct. A successful computation always exists: if $b=\gcd(a,b)$, stop
 immediately; otherwise choose the gcd as both prefix operands. Their residues
 modulo $b$ equal the gcd, so a projection alternative of near returns it.
-For $a\geq b>0$, if Euclid takes $E$ calls to make the gcd available, this
-witness costs at most $2E+4$ calls, including verification. This proves only
-an $O(\log a)$ upper bound.
+This witness costs at most $2E+4$ calls, including verification.
+\end{proof}
+Proposition~\ref{prop:rebuilding} proves only an $O(\log a)$ upper bound.
 
 \paragraph{Executable check.}
-\lean{rebuilding_program.py} compiles these equations to the existing finite
-AST. The independently defined right-to-left interpreter executes the same
+\texttt{rebuilding\_program.py} compiles these equations to the finite AST
+of \texttt{register\_program.py} \cite{nondet}. The independently defined
+right-to-left interpreter executes the same
 compiled object for every test and planning depth. The planner chooses close
 residues among the first $h+1$ prefix values; it uses unrestricted arithmetic
 offline and provides only the nondeterministic choices to the interpreter.
@@ -117,7 +134,7 @@ random and scaled pairs, and a Fibonacci pair. On one seeded 2,048-bit input:
 \begin{center}
 \begin{tabular}{rrrrr}
 \toprule
-Planning $h$ & Contractions & Regeneration calls & Local calls & Total calls\\
+$h$ (planner uses $r_0,\ldots,r_h$) & Contractions & Regeneration calls & Local calls & Total calls\\
 \midrule
 2 & 538 & 373 & 1,566 & 1,941\\
 5 & 349 & 1,056 & 1,042 & 2,100\\
@@ -127,20 +144,20 @@ Planning $h$ & Contractions & Regeneration calls & Local calls & Total calls\\
 \end{center}
 Totals include two final verification calls. Increasing the available prefix
 reduces contractions on this example but increases operand regeneration.
-These are costs of particular selected runs, not minimum costs. They do not
-prove that this program has no sublogarithmic successful computations or
-that a better planner cannot find them.
+These are costs of particular selected runs, not minimum costs.
 
 \section{What the prefix estimate can certify without reuse}
 
-For a target contraction factor $2^p$, the existing prefix lemma uses
+For a target contraction factor $2^p$, the Euclidean-prefix lemma of the
+companion paper \cite{companion} uses
 $h=4^p+1$ ordered pairs. Building that prefix from its initial pair takes
 $h-1=4^p$ Euclidean calls. The lemma guarantees at least $p$ bits of decrease.
 Suppose an analysis budgets a fresh prefix for each contraction, discards it
 afterwards, and accounts for progress only by these guaranteed factors.
 It may choose a different positive integer $p_i$ at every stage.
 
-\begin{proposition}[Restricted accounting bound]
+\begin{proposition}[Restricted accounting bound; checked in Lean:
+\texttt{PrefixPolicies.lean}]
 For any such finite list $p_1,\ldots,p_J$,
 \[
 \sum_{i=1}^J4^{p_i}\ \geq\ 4\sum_{i=1}^Jp_i.
@@ -153,13 +170,13 @@ For integers $p\geq1$, $4p\leq4^p$, by induction. Sum these inequalities
 and use the assumed target inequality.
 \end{proof}
 
-\lean{PrefixPolicies.lean} checks both inequalities. This is a lower bound
-on the budget of this proof policy, not on actual executions. In particular,
-the hypothesis $n\leq\sum_i p_i$ is not necessary for an actual successful
-run: its contractions may be much stronger than their guaranteed factors.
-The prototype also reconstructs only its selected operands, so it need not
-pay the full fresh-prefix charge at every stage. The proposition cannot be
-applied to its measured costs as an algorithmic lower bound.
+The Lean declarations are
+\lean{ShortGCD.PrefixPolicies.rebuild_charge_ge_four_progress} and
+\lean{ShortGCD.PrefixPolicies.target_charge}. This is a lower bound on the
+budget of this proof policy, not on actual executions: an actual successful
+run need not satisfy $n\leq\sum_i p_i$, since its contractions may be much
+stronger than their guaranteed factors, and the prototype reconstructs only
+its selected operands rather than a fresh prefix at every stage.
 
 Two related attempts have the same limitation at the level of this estimate.
 Recomputing all prefix residues at every modulus replaces three calls per
@@ -176,8 +193,7 @@ stronger residue information, and schedules that exploit larger contractions.
 
 The following observation concerns computation occurrences, not numerical
 values identified whenever they happen to agree. It suggests a way to state
-the remaining issue more precisely. It is a mathematical argument, not a
-Lean theorem or a result claimed to be new.
+the remaining issue more precisely; we do not claim it is new.
 
 For a terminating evaluation, form its data-dependence graph. Give every
 primitive result and every local expression result an occurrence vertex.
@@ -188,7 +204,7 @@ occurrences even if their numerical values are equal. Consider the underlying
 undirected graph, optionally adding edges that make each primitive's operands
 and result a clique.
 
-\begin{proposition}[Call-tree decomposition]
+\begin{proposition}[Call-tree decomposition; proof in this note]
 For each fixed finite first-order recursive program $P$ without shared mutable
 state, these occurrence graphs have treewidth bounded by a constant depending
 only on $P$, independently of the input and recursion depth.
@@ -254,17 +270,27 @@ python3 -O research/rebuilding_program.py
 \end{verbatim}
 The machine correspondence is part of the normal library build and axiom
 audit. The restricted budget lemma has its own audit in
-\lean{prefix-policy-axioms.txt}. Prototype results are recorded in
-\lean{rebuilding-validation.json}. The prototype and the call-tree
-decomposition are not formalized in Lean. The established main-paper bounds
-are unchanged; one fixed sublogarithmic program remains open.
+\texttt{prefix-policy-axioms.txt}. Prototype results are recorded in
+\texttt{rebuilding-validation.json}. The prototype and the call-tree
+decomposition are not formalized in Lean. The bounds established in the
+companion paper \cite{companion} are unchanged; one fixed sublogarithmic
+program remains open.
 
-\begin{thebibliography}{2}
+\begin{thebibliography}{4}
 \bibitem{book}
 Yiannis N. Moschovakis.
 \emph{Abstract Recursion and Intrinsic Complexity}.
 Lecture Notes in Logic 48, Cambridge University Press / ASL, 2019.
 \url{https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf}.
+\bibitem{companion}
+Jason Davies.
+\emph{The Euclidean algorithm is not optimal among uniform processes}.
+Companion repository manuscript, October 2026.
+\bibitem{nondet}
+\emph{Fixed-arity nondeterministic remainder programs: expanded proof and
+executable checks}.
+Research note accompanying the uniform-process construction,
+\texttt{research/nondeterministic-prefix.pdf}, October 2026.
 \bibitem{js}
 Maurice Jansen and Jayalal Sarma M.N.
 \emph{Balancing Bounded Treewidth Circuits}, 2009.

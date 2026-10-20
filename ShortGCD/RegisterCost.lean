@@ -1,5 +1,13 @@
 import ShortGCD.RegisterPrefix
 
+/-! # Elementary bounds on fixed-width costs
+
+At any width `w ≥ 2`: inputs can be swapped, one Euclidean step costs one call, zero and equal
+inputs cost nothing, positive scaling preserves costs, and ordinary Euclid gives
+`maxCost w (2^n) ≤ 2n` (`maxCost_pow_le`). `RegisterRecurrence` uses these for the recurrence,
+and `RegisterAsymptotic` for boundedness of `T_W(n)/n`.
+-/
+
 namespace ShortGCD.RegisterProgram
 
 lemma computes_swap {w a b K z} (hw : 2 ≤ w)

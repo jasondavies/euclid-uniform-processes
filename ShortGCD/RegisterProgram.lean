@@ -2,10 +2,11 @@ import ShortGCD.Derivation
 
 /-! # A finite-arity nondeterministic generator
 
-`Run` is the big-step semantics of the program schema in the research note.
-The width is fixed before execution. Indices and routing functions name
-finitely many syntactic choices, not natural-number data available to the
-program. Only remainder calls are charged.
+`Run` is the big-step semantics of the generator of the paper's fixed-programs
+theorem, expanded in research/nondeterministic-prefix.tex. `Registers w` is the
+generator's parameter tuple `x₀ … x_{w−1}`. The width is fixed before execution.
+Indices and routing functions name finitely many syntactic choices, not
+natural-number data available to the program. Only remainder calls are charged.
 
 Arithmetic soundness, homogeneity, and existence of successful computations
 are checked here. `RegisterRecurrence` and `RegisterAsymptotic` establish the
@@ -16,6 +17,7 @@ exact-cost correspondence with the specialized two-stack recursive machine.
 
 namespace ShortGCD.RegisterProgram
 
+/-- The generator's parameter tuple `x₀, …, x_{w−1}`. -/
 abbrev Registers (width : ℕ) := Fin width → ℕ
 
 /-- Successful generator computations. The subcall retains the caller's

@@ -1,7 +1,7 @@
 import ShortGCD.RegisterSmallStep
 
-/-! Research entry point and axiom audit. The development now belongs to the
-normal library build; this file preserves the original verification command. -/
+/-! Research entry point and axiom audit. The development belongs to the normal
+library build; this file preserves the original verification command. -/
 
 #print axioms ShortGCD.RegisterProgram.Accepts.correct
 #print axioms ShortGCD.RegisterProgram.Run.scale

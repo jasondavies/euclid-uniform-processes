@@ -1,5 +1,13 @@
 import Mathlib
 
+/-! # Straight-line remainder derivations
+
+The basic model of the upper bound: a finite store of naturals grows by remainder calls
+`x mod y` with `x, y` in the store and `y > 0`, and the cost is the number of calls. Besides
+composition, scaling and divisibility, this module proves the three-call step `three_calls`
+behind the contraction and the identity `gcd_recombine` used to finish from a small modulus.
+-/
+
 namespace ShortGCD
 
 /-- A straight-line derivation: each step is remainder with an available positive divisor.
@@ -9,6 +17,8 @@ inductive Derives : Finset ℕ → ℕ → Finset ℕ → Prop
   | step {S T n x y} : Derives S n T → x ∈ T → y ∈ T → 0 < y →
       Derives S (n + 1) (insert (x % y) T)
 
+/-- `Generates S k w`: some derivation from `S` with at most `k` remainder calls has `w` in its
+final store. -/
 def Generates (S : Finset ℕ) (k w : ℕ) : Prop :=
   ∃ n T, n ≤ k ∧ Derives S n T ∧ w ∈ T
 

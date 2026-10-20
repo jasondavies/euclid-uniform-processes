@@ -1,5 +1,13 @@
 import ShortGCD.Euclid
 
+/-! # The finite recurrence for `sizeCost`
+
+`coprime_step` combines the two branches for a coprime pair `b < a ≤ A`: a small coprime pair
+early in the Euclidean sequence (cost `h + 1 + T̂(L)`), or a long prefix used as a reservoir
+(cost `h + 3J + 2 + 2T̂(M)`). Normalization by the gcd extends this to all inputs, giving the
+recurrence `sizeCost_step` that `UpperBound` and `SharpBound` iterate.
+-/
+
 namespace ShortGCD
 
 /-- An explicit finite version of the two-branch construction. All parameters are
@@ -63,8 +71,9 @@ theorem G_symm (a b : ℕ) : G a b = G b a := by
   apply G_le
   simpa using (Generates.available (S := {a,0}) (k := 0) (w := a) (by simp))
 
-/-- The finite recurrence for maximum value-generation complexity, including
-noncoprime and zero inputs through normalization. -/
+/-- **The recurrence.** If `L ≥ 1`, `h > 0`, `k ≥ 1`, `k² < h`, `2A ≤ ML` and `A ≤ M k^J`, then
+`T̂(A) ≤ max(h + 1 + T̂(L), h + 3J + 2 + 2T̂(M))`. Non-coprime and zero inputs are covered
+through normalization. -/
 theorem sizeCost_step {A L M h k J : ℕ}
     (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : k^2 < h)
     (hthreshold : 2*A ≤ M*L) (hpower : A ≤ M*k^J) :

@@ -1,5 +1,13 @@
 import ShortGCD.RegisterCost
 
+/-! # The fixed-width recurrence
+
+The two-branch construction of `FiniteBound`, replayed inside one generator of width `h + 4`:
+`finish_registers` finishes from a small modulus, and `register_coprime_step` handles coprime
+inputs with the prefix kept in registers. Normalization by the gcd gives `maxCost_step`, the
+analogue of `sizeCost_step` for `maxCost (h+4)`, which `RegisterAsymptotic` iterates.
+-/
+
 namespace ShortGCD.RegisterProgram
 
 lemma finish_registers {h M} (hh : 0 < h) (r : Registers (h+4))
@@ -164,7 +172,9 @@ theorem register_coprime_step {a b A L M h k J : ℕ}
     exact hres.mono ((show h-1+0+3*J+(2+2*maxCost (h+4) M) ≤
       h+3*J+2+2*maxCost (h+4) M by omega).trans (le_max_right _ _))
 
-/-- Fixed-register analogue of the finite certificate recurrence. -/
+/-- **The fixed-width recurrence**, the analogue of `sizeCost_step` for one generator of width
+`h + 4`: if `L ≥ 1`, `h > 0`, `k ≥ 1`, `k² < h`, `2A ≤ ML` and `A ≤ M k^J`, then
+`maxCost (h+4) A ≤ max(h + 1 + maxCost (h+4) L, h + 3J + 2 + 2 maxCost (h+4) M)`. -/
 theorem maxCost_step {A L M h k J : ℕ}
     (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : k^2 < h)
     (hthreshold : 2*A ≤ M*L) (hpower : A ≤ M*k^J) :

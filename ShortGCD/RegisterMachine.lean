@@ -1,8 +1,18 @@
 import ShortGCD.RegisterProgram
 import ShortGCD.Euclid
 
+/-! # Costs of fixed-width generator computations
+
+`Computes` bounds the cost of a generator run and `Exec` composes register transformations,
+so runs can be assembled piecewise. `cost w a b` is the least cost of producing `gcd(a, b)` at
+width `w`, and `maxCost w A` its maximum over `a, b ≤ A`; the paper's `T_W(n)` is
+`maxCost W (2^n)`. This is the fixed-width counterpart of `Composition` and `Normalization`.
+-/
+
 namespace ShortGCD.RegisterProgram
 
+/-- `Computes r K z`: some generator run from the registers `r` returns `z` with at most `K`
+remainder calls. -/
 def Computes {w : ℕ} (r : Registers w) (K z : ℕ) : Prop :=
   ∃ n, n ≤ K ∧ Run r n z
 
@@ -32,8 +42,8 @@ theorem Computes.scale {w K z g} {r : Registers w} (h : Computes r K z)
   obtain ⟨n, hn, hr⟩ := h
   exact ⟨n, hn, hr.scale hg⟩
 
-/-- Finite state transitions, interpreted by the same generator equations.
-The cost is an upper bound; no padding instructions are required. -/
+/-- Multi-step register transformations, interpreted by the generator equations. The index is
+an upper bound on the remainder calls (`mono` allows slack). -/
 inductive Exec {w : ℕ} : Registers w → ℕ → Registers w → Prop
   | refl (r) : Exec r 0 r
   | mod (r) (i j d : Fin w) (hp : 0 < r j) :
@@ -63,7 +73,8 @@ theorem Exec.finish {w K} {r s : Registers w} (h : Exec r K s) (i : Fin w) :
     Computes r K (s i) := by
   simpa using h.then_compute (Computes.ret (K := 0) s i)
 
-/-- A finite width-dependent minimum over successful generator computations. -/
+/-- `cost w a b`: the least number of remainder calls in a generator run of width `w`
+producing `gcd(a, b)` from the inputs (`0` if `w < 2`). -/
 noncomputable def cost (w a b : ℕ) : ℕ := by
   classical
   exact if hw : 2 ≤ w then Nat.find (exists_run_gcd hw a b) else 0
@@ -81,6 +92,8 @@ theorem cost_le {w a b K} (hw : 2 ≤ w)
   simp only [cost, dite_eq_left hw]
   exact (Nat.find_min' (exists_run_gcd hw a b) hr).trans hn
 
+/-- `maxCost w A`: the maximum of `cost w a b` over `a, b ≤ A`, the fixed-width analogue of
+`sizeCost`. The paper's `T_W(n)` is `maxCost W (2^n)`. -/
 noncomputable def maxCost (w A : ℕ) : ℕ :=
   (Finset.range (A+1)).sup (fun a => (Finset.range (A+1)).sup (cost w a))
 
