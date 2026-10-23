@@ -39,6 +39,9 @@ import ShortGCD
 #print axioms ShortGCD.uniform_real_bound_six
 #print axioms ShortGCD.uniform_intrinsic_bound_six
 -- Fixed finite nondeterministic programs and their first-order syntax.
+#print axioms ShortGCD.RegisterProgram.Accepts.correct
+#print axioms ShortGCD.RegisterProgram.Run.scale
+#print axioms ShortGCD.RegisterProgram.exists_accepts
 #print axioms ShortGCD.RegisterProgram.maxCost_step
 #print axioms ShortGCD.RegisterProgram.Fixed.limsup_profile_le
 #print axioms ShortGCD.RegisterProgram.Fixed.eventually_accepts_bound

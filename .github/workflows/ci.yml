@@ -1,8 +1,8 @@
-# Build the Lean library and run every repository check (scripts/check.sh) on each push and
+# Build the Lean library and run scripts/check.sh on each push and
 # pull request.
 #
 # Third-party actions are pinned to full commit SHAs (the release tag is in the comment), and
-# the elan installer to a release commit, so that a moved tag or branch cannot change the job.
+# elan is pinned to a release archive and SHA-256 checksum.
 name: CI
 
 on:
@@ -18,8 +18,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # elan v4.2.4
-  ELAN_INIT_URL: https://raw.githubusercontent.com/leanprover/elan/227caca133724d5516bee25c2aeb3e609478f2d8/elan-init.sh
+  ELAN_VERSION: v4.2.4
+  ELAN_SHA256: 42b94d4244e8353142c456ec0e4ca6528fd898a6c604d4059f494e706e431f63
 
 jobs:
   check:
@@ -32,7 +32,12 @@ jobs:
           python-version: "3.14"
       - name: Install elan
         run: |
-          curl -sSfL "$ELAN_INIT_URL" | sh -s -- -y --default-toolchain none
+          installer_dir=$(mktemp -d)
+          trap 'rm -rf "$installer_dir"' EXIT
+          curl -fsSL --retry 3 "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o "$installer_dir/elan.tar.gz"
+          echo "$ELAN_SHA256  $installer_dir/elan.tar.gz" | sha256sum --check --strict
+          tar -xzf "$installer_dir/elan.tar.gz" -C "$installer_dir"
+          "$installer_dir/elan-init" -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Restore project build
         id: restore

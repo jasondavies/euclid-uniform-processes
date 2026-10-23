@@ -252,7 +252,8 @@ There are at most $J$ contractions: if $J$ have occurred then
 $m<N/\kappa^{J}\leq N^{1/3}$. Since
 $\log\kappa=\tfrac14\log n+O(1)$, their cost is $3J=O(n/\log n)$.
 This is the source of the saving: the prefix costs only $O(\sqrt n)$
-instructions, yet every contraction removes about $\tfrac14\log n$ bits.
+instructions, and each contraction reduces $\log m$ by at least
+$\log\kappa=\tfrac14\log n+O(1)$.
 
 \paragraph{Phase (iii): two recursive derivations.}
 The small $m$ need not be coprime to either input. Generate
@@ -508,9 +509,9 @@ syntax or determinism.
 The difficult pairs of \cite[Theorem~6C.5]{moschovakis2019} give
 $\Omega(\log\log a)$ on a sparse set. An elementary Diophantine argument gives
 the same order for almost all coprime pairs. Write each generated value as
-$ua+wb$. A remainder call at most roughly squares the coefficients, and
-unless $b/a$ has an unusually good rational approximation, a positive value
-with small coefficients cannot be small. Reaching $1$ therefore takes about
+$ua+wb$. On the regular pairs defined below, small coefficients cannot give
+a small positive value, and each remainder call grows their bound at most
+quadratically, with a factor depending on regularity. Reaching $1$ therefore takes about
 $\log\log a$ calls, except on a sparse set of pairs.
 
 \begin{proposition}\label{prop:loglog}

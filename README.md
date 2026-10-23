@@ -142,8 +142,8 @@ lake env lean validation/Axioms.lean
 ```
 
 The last command should print the audit recorded in
-[validation/axioms.txt](validation/axioms.txt); a reference build log is in
-[validation/build.txt](validation/build.txt).
+[validation/axioms.txt](validation/axioms.txt). CI runs the build and checks that
+the audit matches this file.
 
 <details>
 <summary>Lean declarations: bounds, certificates, and refutations</summary>
@@ -368,6 +368,33 @@ covers the language and program family used here. The book's theory for arbitrar
 structures and the Python interpreter are not formalized.
 
 <details>
+<summary>Model conventions</summary>
+
+The syntax follows Sections 2A and 2E of Moschovakis's book, and the machine follows
+Table 1 (p. 75) and Lemma 2D.1. Tuple updates and indices construct finite syntax;
+they supply no extra runtime operations or numeric constants. Remainder evaluation
+requires a positive divisor, so Lean's total `Nat.mod` at zero is never used as a
+successful primitive call.
+
+Each function call makes its own nondeterministic choice. Incorrect candidates loop;
+divergent or stuck branches do not count as successful computations. The result requires
+one successful computation on every input and correctness of every terminating one,
+without fairness or termination of all branches. Cost counts only remainder calls,
+not total machine steps or the work of finding successful choices. Arguments are
+evaluated separately, including repeated expressions, and each remainder call is charged.
+
+The stack retains the caller's values during a nested call, but a callee can use only
+its own parameters. Machine environments implement substitution; programs cannot
+inspect them as data. Positive scaling preserves successful register runs and their
+costs (`RegisterProgram.Run.scale`).
+
+The related-work discussion in the paper compares Pratt's program as presented in
+Theorem 2E.2 and Corollary 6C.7 of the book. Pratt's unpublished manuscript was not
+obtained; the literature search does not establish exhaustive coverage or priority.
+
+</details>
+
+<details>
 <summary>Lean declarations for the program family</summary>
 
 | Statement | Lean name |
@@ -392,12 +419,9 @@ structures and the Python interpreter are not formalized.
 <details>
 <summary>Axiom audit and executable checks</summary>
 
-The program-family theorems are part of the main build and appear in
-[axioms.txt](validation/axioms.txt). The research entry point
-[research/RegisterProgram.lean](research/RegisterProgram.lean) (distinct from
-ShortGCD/RegisterProgram.lean) repeats that audit with three further lemmas
-(`Accepts.correct`, `Run.scale`, `exists_accepts`); output in
-[register-axioms.txt](research/register-axioms.txt).
+The program-family theorems and the lemmas `Accepts.correct`, `Run.scale` and
+`exists_accepts` are included in the main [axiom audit](validation/Axioms.lean),
+with output recorded in [axioms.txt](validation/axioms.txt).
 
 The compiler in [register_program.py](research/register_program.py) produces finite
 first-order syntax, which a separate interpreter executes using supplied nondeterministic
@@ -418,39 +442,12 @@ program. Successful runs with a positive second input include two final verifica
 calls. The recorded internal-call counts include the Python setters and are uncharged.
 
 ```sh
-lake env lean research/RegisterProgram.lean
 python3 research/check_register_program.py
 python3 -O research/check_register_program.py
 python3 research/register_program.py --width 9
 ```
 
 </details>
-
-## Exploratory checks
-
-These checks are not part of the main paper's theorems.
-
-- A [fixed program](research/rebuilding_program.py) of maximum arity three
-  selects arbitrarily deep Euclidean-prefix operands by recomputing them; the same syntax
-  passes 270 runs and 270 scaled replays across different planning depths
-  ([results](research/rebuilding-validation.json)). On the recorded 2,048-bit example,
-  longer prefixes reduce the number of contractions but increase the cost of rebuilding
-  their operands. The Lean lemma in [PrefixPolicies.lean](research/PrefixPolicies.lean)
-  shows that a fresh-prefix budget is at least four times its guaranteed bit progress,
-  even with varying prefix lengths ([axiom audit](research/prefix-policy-axioms.txt)).
-  This limits that accounting argument; it is **not a lower bound on the minimum cost of
-  the program**, whose contractions can exceed the guarantee. No single sublogarithmic
-  program has been obtained.
-- **[model-novelty-audit.txt](research/model-novelty-audit.txt)** records the model
-  correspondence checks and the bounded literature search for the program family, with
-  their limits: no matching uniform coefficient result was located in the sources
-  checked, which is not an exhaustive novelty determination.
-
-```sh
-lake env lean research/PrefixPolicies.lean
-python3 research/rebuilding_program.py
-python3 -O research/rebuilding_program.py
-```
 
 ## Repository layout
 
@@ -459,10 +456,10 @@ python3 -O research/rebuilding_program.py
   [comparator.json](comparator.json), [formalization.yaml](formalization.yaml): the
   Palomar submission surface.
 - [paper/](paper/): the manuscript.
-- [research/](research/): program implementations, supplementary Lean checks and results.
+- [research/](research/): the finite-program compiler, interpreter checks and results.
 - [scripts/](scripts/): finite checks for the main results, and Palomar's checks in
   [scripts/palomar/](scripts/palomar/).
-- [validation/](validation/): axiom audit, build log and check results.
+- [validation/](validation/): axiom audit and recorded check results.
 - [remainder_only_certificate.py](remainder_only_certificate.py): the numerical examples
   in the manuscript.
 

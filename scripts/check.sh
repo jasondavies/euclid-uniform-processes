@@ -14,7 +14,12 @@ trap 'rm -f "$actual"' EXIT
 expect() {
   local recorded=$1
   shift
-  "$@" > "$actual" 2>&1
+  "$@" > "$actual" 2>&1 || {
+    local status=$?
+    cat "$actual" >&2
+    echo "error: '$*' failed with status $status" >&2
+    exit "$status"
+  }
   if ! diff -u "$recorded" "$actual"; then
     echo "error: output of '$*' differs from $recorded" >&2
     exit 1
@@ -29,14 +34,10 @@ ruby scripts/palomar/validate-formalization.rb formalization.yaml
 lake build
 
 expect validation/axioms.txt lake env lean validation/Axioms.lean
-expect research/register-axioms.txt lake env lean research/RegisterProgram.lean
-expect research/prefix-policy-axioms.txt lake env lean research/PrefixPolicies.lean
 
 expect validation/replay.json python3 scripts/check_certificates.py
 expect research/register-validation.json python3 research/check_register_program.py
 expect research/register-validation.json python3 -O research/check_register_program.py
-expect research/rebuilding-validation.json python3 research/rebuilding_program.py
-expect research/rebuilding-validation.json python3 -O research/rebuilding_program.py
 
 # The examples record wall-clock seconds, which are dropped before comparing.
 python3 remainder_only_certificate.py | sed -E 's/, "seconds": [0-9.]+//' > "$actual"

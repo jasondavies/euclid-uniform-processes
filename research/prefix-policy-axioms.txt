@@ -1,2 +1,0 @@
-'ShortGCD.PrefixPolicies.rebuild_charge_ge_four_progress' depends on axioms: [propext, Classical.choice, Quot.sound]
-'ShortGCD.PrefixPolicies.target_charge' depends on axioms: [propext, Classical.choice, Quot.sound]
