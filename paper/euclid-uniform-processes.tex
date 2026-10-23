@@ -54,9 +54,11 @@ $\gcd(x,y)$ there is an $r>0$ such that $\alpha$ makes more than $r\log x$
 remainder calls on infinitely many pairs $x>y\geq1$
 \cite[p.~2]{moschovakis2019}. We refute its formulations for uniform
 processes, the book's more general model (Section~\ref{sec:certificates});
-for algorithms it remains open. Here ``uniform process'' is Moschovakis's
-technical notion; the existence of one such process does not imply an
-implementation by one finite recursive program.
+for algorithms it remains open. Uniform processes are the book's abstract
+model of computation from given primitives: every deterministic or
+nondeterministic recursive program induces one
+\cite[\S4A, Proposition~4A.1]{moschovakis2019}, but a uniform process need
+not be implemented by any finite program.
 Throughout, ``the book'' means Moschovakis's monograph
 \cite{moschovakis2019}, and logarithms are to base $2$.
 
@@ -69,7 +71,7 @@ constants and no other operations are supplied. Let $G(a,b)$ be the least
 number of instructions in a derivation containing $\gcd(a,b)$, and let
 $D(a,b)=G(a,b)$ for coprime inputs. Thus $G(a,0)=0$ and $D(a,1)=0$.
 Arithmetic used in the proofs, such as subtraction, sorting or comparison,
-only selects instructions; it is never itself an instruction. Thus $G$
+only selects instructions; it is never itself an instruction. So $G$
 measures the length of a derivation, not the work of finding one.
 
 \begin{theorem}\label{thm:main}
@@ -81,9 +83,7 @@ In particular this bound holds for $D(a,b)$ when $\gcd(a,b)=1$.
 \end{theorem}
 
 \paragraph{Idea of the proof.}
-The key is to reuse a short Euclidean prefix across many contractions.
-Either the prefix already reaches a substantially smaller pair, or it
-supplies many distinct residues modulo every sufficiently large modulus.
+The key is to store one short Euclidean prefix and reuse it many times.
 For sufficiently large $n$, let $a>b$ be coprime with $a\leq N=2^n$.
 Store a Euclidean prefix
 $r_0=a,r_1=b,\ldots,r_h$, where $h=\lceil\sqrt n\rceil$.
@@ -102,9 +102,6 @@ Tuning the prefix length sharpens the upper coefficient to $6+o(1)$
 (Corollary~\ref{cor:six}).
 
 \paragraph{Consequences and further results.}
-Uniform processes are the book's abstract model of computation from given
-primitives; every deterministic or nondeterministic recursive program
-induces one \cite[\S4A, Proposition~4A.1]{moschovakis2019}.
 Section~\ref{sec:certificates} converts the derivations into small
 certificates. This bounds the intrinsic complexity of gcd and coprimeness,
 refutes Conjecture~3.4 of \cite{moschovakis2012} and version (4F-5) of the
@@ -429,8 +426,8 @@ remainder-call complexity} $\calls_{\rem}(\mathcal A,f,\vec x)$ is the least
 number of remainder facts in a certificate
 \cite[\S\S1D, 4C--4E]{moschovakis2019}.
 
-Finite generated partial substructures can equivalently be represented by
-their operation and test facts.
+The following lemma shows that a finite generated partial substructure is
+determined by its remainder and test facts, as in the Lean encoding.
 
 \begin{lemma}[Fact representation]\label{lem:fact-representation}
 Let $F$ be a finite set of true remainder and test facts in which every
@@ -570,7 +567,7 @@ $\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$, and for every
 $K>0$ only finitely many pairs $(x,y)\in\mathbb N^2$ satisfy
 $L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$.
 \end{corollary}
-The same certificate bounds prove the corollary, since
+The bounds used for Corollary~\ref{cor:uniform} prove this corollary, since
 $\log a/\log\log a=o(\log a)$. For (4F-5), symmetry covers $x<y$;
 pairs with a zero entry need no remainder facts.
 
@@ -774,21 +771,20 @@ Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$,
 roughly $6/\log W$, so no bound $c\log a$ with $c$ independent of the number
 of registers holds for nondeterministic register programs. A register
 program has only a fixed number of slots for prefix values. Does every
-nondeterministic register program computing gcd with $W$ registers make at least
-$c\log a/\log W$ remainder calls on infinitely many inputs, for an absolute
-$c>0$?
+nondeterministic register program computing gcd with $W$ registers make at
+least $c\log a/\log W$ remainder calls on infinitely many inputs, for an
+absolute $c>0$? Such a bound cannot rest on how quickly values shrink,
+since $\rem(m+1,m)=1$. Pratt's algorithm is itself a nondeterministic
+register program \cite[Theorem~2E.2]{moschovakis2019}; compare also the
+book's question whether recursion reduces to tail recursion in the pointed
+Euclidean structure \cite[Problem~x2G.6]{moschovakis2019}.
 
 Recursion permits unbounded saved state, but does not directly provide
 reusable access to an arbitrarily long prefix. Can one fixed recursive
-program retain and repeatedly access a
-growing prefix at the same remainder cost? A lower bound cannot rest on how
-quickly values shrink, since $\rem(m+1,m)=1$, and Proposition~2E.1 of the
-book \cite[\S2E]{moschovakis2019} converts each certificate into a
-computation of some program, not of one program for all certificates.
-Pratt's algorithm is itself a nondeterministic register program
-\cite[Theorem~2E.2]{moschovakis2019}; compare also the book's question
-whether recursion reduces to tail recursion in the pointed Euclidean
-structure \cite[Problem~x2G.6]{moschovakis2019}.
+program retain and repeatedly access a growing prefix at the same remainder
+cost? Proposition~2E.1 of the book \cite[\S2E]{moschovakis2019} converts
+each certificate into a computation of some program, not of one program for
+all certificates.
 
 \paragraph{Stronger lower-bound methods.}
 The limit established in Section~\ref{sec:certificates} leaves room for
@@ -807,7 +803,7 @@ default) it uses Euclid's algorithm. An independent replay then checks
 operand availability, nonzero divisors, every remainder equation and the
 final gcd.
 
-The benchmark samples $25$ coprime pairs at each size: $a$ is uniform among
+A benchmark script samples $25$ coprime pairs at each size: $a$ is uniform among
 integers of that bit length, and $b$ is drawn uniformly from
 $\{2,\ldots,a-1\}$ until $\gcd(a,b)=1$. It also runs the successive
 Fibonacci pair $(F_k,F_{k-1})$ with $F_k$ the first Fibonacci number of
