@@ -51,6 +51,8 @@
 'ShortGCD.TailRecursive.steps_total' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.TailRecursive.arbitrarily_small_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.Recursive.Machine.eval_iff_steps' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.Recursive.Machine.stacks_bounded' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.TailRecursive.stacks_bounded' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.AlmostAll.within_iff_D_le' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.AlmostAll.le_of_within_regular' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.AlmostAll.card_irr_le' depends on axioms: [propext, Classical.choice, Quot.sound]

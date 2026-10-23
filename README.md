@@ -410,7 +410,11 @@ Lean checks the result in two of the book's models of computation.
   run(u⃗[d := rem(u_i, u_j)]) for each choice of i, j, d, and accept(a, b, u_i) for each
   i. `TailRecursive.program_tailRecursive` proves that the head and every body
   have only tail-position calls: call arguments, remainder operands and conditional
-  guards contain no internal calls. `TailRecursive.executes_iff_eval`
+  guards contain no internal calls. Operationally, `TailRecursive.stacks_bounded`
+  proves that on the book's machine the control and value stacks together never hold
+  more than max(w + 6, 17) entries (instructions and values), for any input and however
+  long the computation runs; closure environments have at most w + 2 entries each.
+  `TailRecursive.executes_iff_eval`
   matches its evaluations exactly, in value and remainder cost, with executions of the
   register program. For every program in the language of `Recursive` (terms with
   variables, remainder, a zero-test conditional and calls of internal symbols, each
@@ -461,6 +465,8 @@ manuscript, and make no claim of exhaustive coverage or priority.
 | The ε log₂ a + Bε bound for the register program, with the program chosen before the inputs | `TailSource.arbitrarily_small_coefficient` |
 | The tail-recursive program is finite | `TailRecursive.bodies_finite` |
 | The head and every alternative body have only tail-position internal calls | `TailRecursive.program_tailRecursive` |
+| For every tail-recursive program, the machine's stacks stay within the size of the largest head or body | `Recursive.Machine.stacks_bounded` |
+| For this program, the machine's control and value stacks never exceed max(w + 6, 17) entries | `TailRecursive.stacks_bounded` |
 | Exact-cost equivalence between register-program executions and evaluations of the tail-recursive program | `TailRecursive.executes_iff_eval` |
 | Exact-cost equivalence between evaluation and the two-stack machine, for every program | `Recursive.Machine.eval_iff_steps` |
 | The same for the tail-recursive program's machine computations | `TailRecursive.executes_iff_steps` |

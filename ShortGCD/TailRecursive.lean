@@ -124,7 +124,7 @@ theorem bodies_tail (w : ℕ) (f : Fn) (body : Term w (arity w f))
     subst body
     simp [Recursive.Expr.TailCalls, Recursive.Expr.CallFree]
 
-/-- The zero-input head also has only tail-position calls. -/
+/-- The head, which returns `a` when `b = 0`, also has only tail-position calls. -/
 theorem head_tail (w : ℕ) : (head w).TailCalls := by
   simp [head, Recursive.Expr.TailCalls, Recursive.Expr.CallFree]
 
@@ -410,6 +410,49 @@ theorem steps_total {w} (hw : 2 ≤ w) (a b : ℕ) :
     ∃ c, Machine.Steps (bodies w) (start w a b) c (halt w (Nat.gcd a b)) := by
   obtain ⟨c, hc⟩ := executes_total hw a b
   exact ⟨c, (executes_iff_steps w a b c _).mp hc⟩
+
+/-! ## Bounded stacks -/
+
+lemma remArgs_size (w : ℕ) (i j d : Fin w) (x : Fin (2+w)) :
+    (remArgs w i j d x).size = 1 + if x = work d then 2 else 0 := by
+  unfold remArgs
+  split <;> simp [Recursive.Expr.size]
+
+lemma runRem_size (w : ℕ) (i j d : Fin w) : (runRem w i j d).size = w+5 := by
+  simp only [runRem, Recursive.Expr.size, remArgs_size, Finset.sum_add_distrib,
+    Finset.sum_const, Finset.card_univ, Fintype.card_fin, smul_eq_mul, mul_one,
+    Finset.sum_ite_eq', Finset.mem_univ, ite_true, arity]
+  omega
+
+lemma bodies_size (w : ℕ) (f : Fn) (body : Term w (arity w f)) (hb : body ∈ bodies w f) :
+    body.size ≤ max (w+6) 17 := by
+  cases f with
+  | run =>
+    rcases hb with ⟨⟨i, j, d⟩, rfl⟩ | ⟨i, rfl⟩
+    · rw [runRem_size]; omega
+    · simp [runAccept, Recursive.Expr.size, Fin.sum_univ_three]
+  | accept =>
+    have he : body = acceptBody w := hb
+    subst body
+    simp [acceptBody, Recursive.Expr.size]
+  | loop =>
+    have he : body = .app .loop (fun x => .var x) := hb
+    subst body
+    simp [Recursive.Expr.size]
+
+lemma head_size (w : ℕ) : (head w).size = w+6 := by
+  simp [head, Recursive.Expr.size, arity]
+  omega
+
+/-- **No recursion stack.** Every state reachable by the book's recursive machine from the
+head has at most `max (w + 6) 17` entries on its control and value stacks together,
+independently of the inputs and of the length of the computation. Each closure environment
+holds the arguments of one function: `w + 2` for `run`, `3` for `accept` and `1` for `loop`. -/
+theorem stacks_bounded {w a b k} {t : Machine.State (arity w)}
+    (h : Machine.Steps (bodies w) (start w a b) k t) :
+    t.control.length + t.values.length ≤ max (w+6) 17 :=
+  Machine.stacks_bounded (program_tailRecursive w) (by rw [head_size]; omega)
+    (bodies_size w) h
 
 /-- **Arbitrarily small coefficients for recursive programs**: for every `ε > 0` there are
 `p > 0` and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the book's recursive machine running the

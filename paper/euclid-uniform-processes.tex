@@ -899,6 +899,7 @@ Theorem~\ref{thm:registers} &
 \lean{TailSource.arbitrarily_small_coefficient}\\
 Recursive programs (Section~\ref{sec:programs}) &
 \lean{TailRecursive.program_tailRecursive},
+\lean{TailRecursive.stacks_bounded},
 \lean{TailRecursive.executes_iff_eval}, \lean{Recursive.Machine.eval_iff_steps},
 \lean{TailRecursive.arbitrarily_small_coefficient}\\
 \bottomrule
@@ -940,7 +941,11 @@ variables, remainder, a zero-test conditional and calls of internal
 symbols, each symbol with finitely many bodies, evaluated call by value.
 \lean{TailRecursive.program_tailRecursive} certifies that the head and every
 body have only tail-position internal calls: arguments, remainder operands
-and conditional guards contain no internal calls.
+and conditional guards contain no internal calls. Consequently
+(\lean{TailRecursive.stacks_bounded}) the machine's control and value stacks
+never hold more than $\max(w+6,17)$ entries in all, for $w$ work registers,
+on any input and however long the computation runs; each closure
+environment has at most $w+2$ entries.
 \lean{TailRecursive.executes_iff_eval} matches its evaluations exactly, in
 value and remainder cost, with executions of the register program. For
 every program in the language, \lean{Recursive.Machine.eval_iff_steps}

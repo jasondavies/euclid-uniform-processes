@@ -62,6 +62,8 @@ import ShortGCD
 #print axioms ShortGCD.TailRecursive.steps_total
 #print axioms ShortGCD.TailRecursive.arbitrarily_small_coefficient
 #print axioms ShortGCD.Recursive.Machine.eval_iff_steps
+#print axioms ShortGCD.Recursive.Machine.stacks_bounded
+#print axioms ShortGCD.TailRecursive.stacks_bounded
 -- The almost-all lower bound.
 #print axioms ShortGCD.AlmostAll.within_iff_D_le
 #print axioms ShortGCD.AlmostAll.le_of_within_regular
