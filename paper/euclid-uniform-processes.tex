@@ -231,8 +231,9 @@ $4<7$ gives the contraction
 \rem(44,10)=4,\qquad \rem(17,10)=7,\qquad \rem(7,4)=3,
 \]
 with new modulus $3<10/(3-1)$, as in Lemma~\ref{lem:gap}. One more
-instruction, $\rem(10,3)=1$, finishes. Euclid's algorithm also takes five
-instructions here; the saving appears only for large inputs.
+instruction, $\rem(10,3)=1$, finishes. This derivation takes five instructions;
+Euclid reaches $1$ in four. The example illustrates contraction without a
+saving on this pair.
 
 \section{Construction and recurrence}\label{sec:construction}
 Fix an integer $n>16$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil>4$.
@@ -433,7 +434,7 @@ $\mathcal N_\varepsilon$, or of $\mathcal N_0$ if $F$ has no $\eq_1$
 facts), and every such substructure arises in this way. A map
 $\pi:\mathbb N\to\mathbb N$ preserves the facts of $F$ exactly when its
 restriction to the universe is a homomorphism, and every homomorphism
-extends to such a map. Every element of the universe is the last value of
+extends to such a map. Every element of the universe is available after
 a derivation from $a,b$ with at most as many instructions as $F$ has
 remainder facts.
 \end{lemma}
@@ -698,8 +699,9 @@ Conjecture lets its coefficient $r$ depend on the program, so the family is
 consistent with it; no single sublogarithmic program is obtained.
 
 \begin{proof}
-Put $k=2^p$, $h=k^2+1$ and $W=h+6$, and start the registers
-$x_0,\ldots,x_{W-1}$ at $(a,b,a,b,a,\ldots,a)$. At its main line the program
+Put $k=2^p$, $h=k^2+1$ and $W=h+6$. If $b=0$, return $a$.
+Otherwise initialise the registers $x_0,\ldots,x_{W-1}$ at
+$(a,b,a,b,a,\ldots,a)$ and enter the main line. There the program
 may perform any assignment $x_l:=\rem(x_i,x_j)$ with $i,j,l\geq2$, or pass to
 verification with a candidate $x_i$, $i\geq2$. Verification halts with $x_i$
 if $x_i\neq0$, $\rem(x_0,x_i)=0$ and $\rem(x_1,x_i)=0$, and loops otherwise.
@@ -717,8 +719,9 @@ starting from any state with $a,b$ in two working registers, place $1$ in a
 working register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
 
 Compute the Euclidean remainders $r_0=a,r_1=b,r_2,\ldots$ in working
-registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$. In the
-latter case one further remainder gives the coprime pair $r_j,r_{j+1}$,
+registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$.
+If $1$ has been reached, no further generation is needed. In the remaining early case,
+one further remainder gives the positive coprime pair $r_j,r_{j+1}$,
 bounded by $N^\alpha$, at total cost at most $h$; continue with that pair.
 Otherwise $r_h>N^\alpha$. As in the proof of Corollary~\ref{cor:six}, now
 with $p$ fixed, the prefix lemma applies to every modulus above $N^\beta$
@@ -773,8 +776,9 @@ residues would take about $h$ calls per contraction. By
 Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$,
 roughly $6/\log W$, so no bound $c\log a$ with $c$ independent of the number
 of registers holds for nondeterministic register programs. A register
-program cannot hold a growing prefix at all; a recursive program can hold
-one only on its stack, where a callee cannot read it. Does every
+program has only a fixed number of slots for prefix values. Recursion
+permits unbounded saved state, but does not directly provide reusable
+access to an arbitrarily long prefix. Does every
 nondeterministic register program with $W$ registers make at least
 $c\log a/\log W$ remainder calls on infinitely many inputs, for an absolute
 $c>0$? Can one fixed recursive program retain and repeatedly access a
@@ -961,10 +965,11 @@ writing \texttt{Challenge.lean}, the lower-bound module and a proof change
 needed by the independent kernels. GPT-6-Astra, through Codex, later revised
 the exposition and expanded the computational checks.
 
-The Lean development gives a machine-checkable version of the main claims,
-subject to its trusted foundations (Lean's kernel, mathlib, and the axioms
-listed in Appendix~\ref{app:lean}) and to the correspondence between its
-definitions and the book's notions (Lemma~\ref{lem:fact-representation}).
+The Lean development gives a machine-checkable version of the main claims.
+Lean's kernel checks the proofs, including the mathlib results they use,
+relative to the axioms listed in Appendix~\ref{app:lean}. The correspondence
+between the formal definitions and the book's notions is a separate
+mathematical obligation (Lemma~\ref{lem:fact-representation}).
 
 This declaration distinguishes the provenance of the work from conventional
 AI-assisted writing. The human author accepts responsibility for the
