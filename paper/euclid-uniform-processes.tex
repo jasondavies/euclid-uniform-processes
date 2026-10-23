@@ -24,23 +24,20 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Van den Dries and Moschovakis conjectured that the Euclidean algorithm is
-optimal, up to a constant factor, among the algorithms that compute the
-greatest common divisor from the remainder function. Their homomorphism method
-gives lower bounds for all uniform processes, but for this problem it has given only
-$\Omega(\log\log a)$. We show that every pair $a>b\geq1$ has a remainder-only
-derivation of $\gcd(a,b)$ with $O(\log a/\log\log a)$ remainder calls and
-leading coefficient $6+o(1)$: one stored Euclidean prefix lets three-call
-contractions shrink every modulus. Hence the intrinsic remainder-call
-complexity of the gcd and of coprimeness is $O(\log a/\log\log a)$, and the
-homomorphism method cannot reach $\Omega(\log a)$. This refutes Conjecture~3.4
-of Moschovakis's 2012 notes and the version (4F-5) of the Main Conjecture in
-his book. In the other direction, $\Omega(\log\log a)$ holds for almost all coprime pairs.
-For each $\varepsilon>0$ we also give a fixed finite nondeterministic program
-with remainder cost at most $\varepsilon\log a+B_\varepsilon$ on all inputs
-$a\geq b\geq1$; the program depends on $\varepsilon$. The Main Conjecture for
-algorithms remains open. The results are formalized in Lean~4; the cited
-general theory of uniform processes is not.
+Every pair $a>b\geq1$ has a remainder-only derivation of $\gcd(a,b)$ with
+at most $(6+o(1))\log_2 a/\log_2\log_2 a$ remainder calls, uniformly in $b$.
+The construction repeatedly shrinks a modulus in three calls using one
+stored Euclidean prefix. It gives the same asymptotic upper bound on the
+intrinsic complexity of gcd and coprimeness. By Moschovakis's
+best-uniform-process theorem, each function has a single uniform process
+attaining this bound on all inputs. Thus the Euclidean algorithm is not
+optimal among uniform processes, and the homomorphism method cannot give a logarithmic lower bound
+in this model. We also prove an $\Omega(\log\log a)$ lower bound for almost
+all coprime pairs. For each $\varepsilon>0$, a fixed finite nondeterministic
+gcd program has remainder cost at most $\varepsilon\log_2 a+B_\varepsilon$
+on all inputs $a\geq b\geq1$; the program depends on $\varepsilon$.
+The Main Conjecture for algorithms remains open. The new bounds and program
+results are formalized in Lean~4; the general uniform-process theorem is cited.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
@@ -58,11 +55,11 @@ A \emph{derivation} from $a,b$ is a finite list that starts with $a,b$ and in
 which each further entry is $\rem(x,y)$ for earlier entries $x,y$ with $y>0$.
 Each further entry is one \emph{instruction}, that is, one remainder call.
 Entries already in the list are \emph{available} and may be reused; no
-constants and no other operations are supplied. Let $G(a,b)$ be the least number of instructions in a
-derivation from $a,b$ that contains $\gcd(a,b)$, and let $D(a,b)=G(a,b)$ for
-coprime inputs. Thus $G(a,0)=0$ and $D(a,1)=0$. Arithmetic used in the proofs,
-such as subtraction, sorting or comparison, only selects instructions; it is
-never itself an instruction.
+constants and no other operations are supplied. Let $G(a,b)$ be the least
+number of instructions in a derivation containing $\gcd(a,b)$, and let
+$D(a,b)=G(a,b)$ for coprime inputs. Thus $G(a,0)=0$ and $D(a,1)=0$.
+Arithmetic used in the proofs, such as subtraction, sorting or comparison,
+only selects instructions; it is never itself an instruction.
 
 \begin{theorem}\label{thm:main}
 Uniformly for integers $a>b\geq1$,
@@ -71,201 +68,65 @@ G(a,b)=O\left(\frac{\log a}{\log\log a}\right).
 \]
 In particular this bound holds for $D(a,b)$ when $\gcd(a,b)=1$.
 \end{theorem}
-As usual, the asymptotic assertion concerns sufficiently large $a$; a bound
-valid at every positive input is $O(1+\log(2+a)/\log\log(4+a))$.
-By Proposition~\ref{prop:certificates}, the intrinsic remainder-call
-complexity of coprimeness equals $D$ on positive coprime pairs, and that of the
-gcd lies between $G$ and $G+2$. Hence Theorem~\ref{thm:main} refutes
-Conjecture~3.4 of \cite{moschovakis2012} and version (4F-5) of the Main
-Conjecture (Corollary~\ref{cor:refute}).
 
-\paragraph{Structures and intrinsic complexity.}
-Write $\mathrm{tt}$ and $\mathrm{ff}$ for the truth values, and
-$\eq_c(x)=\mathrm{tt}$ if $x=c$ and $\eq_c(x)=\mathrm{ff}$ otherwise. We use
-the book's partial remainder operation: its second argument must be nonzero.
-Write
-$\mathcal N_0=(\mathbb N,\rem,\eq_0)$ and
-$\mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1)$; compare
-\cite[(1C-10), pp.~24, 142--143]{moschovakis2019}. The structure
-$\mathcal N_0$ is not the book's $\mathbf N_0$, whose expansion
-$\mathbf N_0[\div]$ appears below. Coprimeness is the relation
-$x\coprime y\iff x,y\geq1\wedge\gcd(x,y)=1$
-\cite[\S1A]{moschovakis2019}, \cite{moschovakis2012}. Informally, a
-\emph{certificate} for $f$ at $\vec x$ in a structure $\mathcal A$ is a finite
-partial substructure of $\mathcal A$ generated by $\vec x$ on which every
-homomorphism into $\mathcal A$ respects $f$ at $\vec x$; the definitions of
-certificates and intrinsic complexities are in
-\cite[\S\S1D, 4C--4E]{moschovakis2019} and are used in
-Section~\ref{sec:certificates}. Write $\calls_{\rem}(\mathcal A,f,\vec x)$
-for the least number of remainder facts in a certificate for $f$ at $\vec x$
-in $\mathcal A$. Uniform processes are the book's abstract model of
-algorithms from given primitives; every deterministic or nondeterministic
-recursive program induces one \cite{moschovakis2019}.
+\paragraph{Idea of the proof.}
+For sufficiently large $n$, let $a>b$ be coprime with $a\leq N=2^n$.
+Store a Euclidean prefix
+$r_0=a,r_1=b,\ldots,r_h$, where $h=\lceil\sqrt n\rceil$.
+If the prefix reaches a positive remainder at most $N^{3/4}$, take one
+further remainder and recurse on the resulting smaller pair.
+Otherwise its consecutive pairs stay distinct modulo every $m>N^{1/3}$
+(Lemma~\ref{lem:prefix}). There are therefore at least $\sqrt h$ distinct
+prefix residues modulo $m$. A close pair of residues lets three remainder
+calls produce a positive value below $m/(\sqrt h-1)$
+(Lemma~\ref{lem:gap}). Reusing the same prefix, we repeatedly shrink the
+modulus from $r_h$ to at most $N^{1/3}$ in $O(n/\log n)$ calls.
+Two recursive gcd derivations on inputs at most $N^{1/3}$ finish.
+The resulting recurrence \eqref{eq:recurrence} gives $T(n)=O(n/\log n)$,
+where $T(n)$ is the worst derivation cost for inputs at most $2^n$.
+Tuning the prefix length sharpens the upper coefficient to $6+o(1)$
+(Corollary~\ref{cor:six}).
 
-\paragraph{Background.}
-The best known lower bound, $\Omega(\log\log a)$, is a logarithm below the
-conjectured $\Omega(\log a)$. For a recursive program deciding
-coprimeness from $=$, $<$, $+$, truncated subtraction, $\mathrm{iq}$ and $\rem$,
-the depth of nested calls to these primitives exceeds $\tfrac1{10}\log\log a$ on
-infinitely many coprime pairs \cite[Theorem~A]{vddm2004}; see also
-\cite{vddm2009}. The book proves this as an intrinsic bound in
-$\mathbf N_0[\div]=(\mathbb N,0,1,=,<,+,\dot{-},\mathrm{iq},\rem)$:
-$\mathrm{depth}_{\coprime}(\mathbf N_0[\div],a,b)>\tfrac1{10}\log\log a$
-for every ``difficult pair'', a class that contains every solution of Pell's
-equation \cite[Theorem~6C.5, p.~187]{moschovakis2019}. Being intrinsic, the
-bound holds for all uniform processes, nondeterministic ones included.
+\paragraph{Consequences and further results.}
+Uniform processes are the book's abstract model of computation from given
+primitives; every deterministic or nondeterministic recursive program
+induces one. Section~\ref{sec:certificates} converts the derivations into
+small certificates and uses the book's best-uniform-process theorem to
+obtain a single process with the same asymptotic bound on every input.
+This refutes Conjecture~3.4 of \cite{moschovakis2012} and version (4F-5) of
+the Main Conjecture, and limits what the homomorphism method can prove.
+The Main Conjecture for algorithms remains open.
 
-A certificate in $\mathcal N_\varepsilon$ becomes one in $\mathbf N_0[\div]$
-when each $\eq_0$ or $\eq_1$ fact is replaced by an equality with the constant
-$0$ or $1$, and its depth then exceeds its number of remainder facts by at most
-a constant. Hence
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)=\Omega(\log\log a)$ on
-all difficult pairs. Pratt's nondeterministic algorithm
-\cite[Theorem~2E.2 and Problems x2E.17--x2E.19]{moschovakis2019} matches this
-$\Omega(\log\log a)$ bound up to a constant factor on successive Fibonacci numbers
-\cite[Corollary~6C.7]{moschovakis2019}. By contrast, for the binary gcd
-algorithm the same method gives a matching logarithmic lower bound: a recursive
-program deciding coprimeness from $=$, $<$, $+$, truncated subtraction, $2x$,
-$\mathrm{iq}(x,2)$ and $\mathrm{rem}(x,2)$ needs more than
-$\tfrac1{10}\log(a^2-1)$ calls on the pair $(a,a^2-1)$, for every $a>2$
-\cite[Theorem~B]{vddm2004}. Whether a logarithmic bound holds for
-all uniform processes was left open \cite[p.~188]{moschovakis2019},
-\cite[Conjecture~3.4]{moschovakis2012}.
+We also prove that $D(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$
+coprime pairs $2\leq b<a\leq N$ (Proposition~\ref{prop:loglog}).
+Finally, fixing the prefix length gives finite nondeterministic programs
+with arbitrarily small logarithmic coefficients, uniformly over all inputs
+(Theorem~\ref{thm:programs}). Their program size grows as the requested
+coefficient decreases.
 
-In a different model, Bshouty showed that a random access machine with linear
-operations, shifts and indirect addressing computes the gcd of two integers in
-$[0,N]$ in $O(\log N/\log\log N)$ operations, by reading precomputed blocks of the binary
-gcd algorithm from a table. He also proved that this is optimal: even with
-rational constants, multiplication and division by constants, and the floor
-function added, $\Omega(\log N/\log\log N)$ operations are necessary
-\cite[Theorems~i and~ii]{bshouty1989}. The construction here uses no
-operation other than remainder and no table. Its saving of a factor
-$\log\log a$ comes instead from reusing one stored Euclidean prefix for every
-modulus.
+\paragraph{Related work.}
+The known intrinsic lower bound is $\Omega(\log\log a)$ on special families
+of coprime pairs \cite{vddm2004,vddm2009},
+\cite[Theorem~6C.5]{moschovakis2019}. Pratt's nondeterministic algorithm
+matches this order on successive Fibonacci numbers
+\cite[Theorem~2E.2 and Corollary~6C.7]{moschovakis2019}.
+Our almost-all bound establishes the same order on a set of full density
+among coprime pairs; our program family gives an all-input upper bound.
 
-\paragraph{The conjectures refuted.}
-Moschovakis's 2012 notes state:
-\begin{quote}
-\textbf{Conjecture 3.4} \cite{moschovakis2012}. There is a rational number
-$r>0$ such that for infinitely many $a\geq b\geq1$,
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$.
-\end{quote}
-The book formulates one precise version of the Main Conjecture
-\cite[p.~151]{moschovakis2019}: there are a set $\mathcal D\subseteq\mathbb N^2$
-and a $K>0$ such that
-\[
-(x,y)\in\mathcal D\ \Longrightarrow\
-\calls_{\rem}(\varepsilon,x,y)\leq L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y),
-\tag{4F-5}
-\]
-where $L(x,y)=2\log\max(x,y)$, $\mathcal A$ is the structure ($\mathcal N_0$
-or $\mathcal N_\varepsilon$), and $\varepsilon$ denotes, as in the book, the
-Euclidean algorithm, and $\calls_{\rem}(\varepsilon,x,y)$ is the number of
-remainder calls it makes on $(x,y)$. Elsewhere, apart from the subscript of
-$\mathcal N_\varepsilon$, $\varepsilon$ denotes a small positive real.
-The book adds that $\mathcal D$ then satisfies its conditions (4F-3) and
-(4F-4). Condition (4F-4) makes the intrinsic complexity unbounded on
-$\mathcal D$, so the intended $\mathcal D$ is infinite; for finite $\mathcal D$
-the statement would be trivial. Dropping the first inequality and asking only
-for an infinite $\mathcal D$ gives a weaker statement, and we refute that
-weaker statement.
+In a different model, Bshouty obtained the optimal bound
+$\Theta(\log N/\log\log N)$ for gcd on inputs in $[0,N]$ using a random
+access machine with linear operations, shifts and indirect addressing.
+His construction reads precomputed blocks of the binary gcd algorithm from
+a table \cite[Theorems~i and~ii]{bshouty1989}. Here the saving comes from
+reusing a Euclidean prefix with remainder as the only instruction.
 
-\begin{corollary}\label{cor:refute}
-The intrinsic complexities
-\[
-\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b),\qquad
-\calls_{\rem}(\mathcal N_0,\gcd,a,b),\qquad
-\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)
-\]
-are $O(\log a/\log\log a)$, uniformly for $a\geq b\geq1$. Consequently Conjecture~3.4 of
-\cite{moschovakis2012} is false, and so is the version (4F-5) of the Main
-Conjecture with $\mathcal A=\mathcal N_0$ or $\mathcal A=\mathcal N_\varepsilon$:
-for every $r>0$ only finitely many pairs $a\geq b\geq1$ satisfy
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$, and for every
-$K>0$ only finitely many pairs $(x,y)\in\mathbb N^2$ satisfy
-$L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$.
-\end{corollary}
-The corollary follows from Theorem~\ref{thm:main} and
-Proposition~\ref{prop:certificates}; for noncoprime pairs, the bound on the
-coprimeness complexity comes from Remark~\ref{rem:noncoprime}. For (4F-5) it covers all pairs in
-$\mathbb N^2$: the gcd is symmetric, and a pair with a zero entry is certified by
-the single fact $\eq_0(0)=\mathrm{tt}$, with no remainder facts. The
-corollary is formalized, and so are refutations of the literal statements:
-Conjecture~3.4 with $r$ rational and with infinitely many values of $a$ (not
-merely of pairs), and (4F-5) for $\mathcal N_\varepsilon$ with a set
-$\mathcal D$ on which the intrinsic complexity is unbounded.
-
-Theorem~4F.1 \cite[pp.~149--150]{moschovakis2019} supplies a single uniform
-process that attains these pointwise intrinsic bounds. Hence some uniform
-processes of $\mathcal N_\varepsilon$ decide coprimeness and compute the gcd
-with $O(\log a/\log\log a)$ remainder calls on all pairs $a\geq b\geq1$. This settles
-the possibility
-raised after Corollary~6C.7 \cite[p.~188]{moschovakis2019}: the Main Conjecture
-does not hold for all uniform processes of $\mathcal N_\varepsilon$.
-
-\paragraph{The limit of the homomorphism method.}
-The homomorphism method proves lower bounds on intrinsic complexities. These
-bound every uniform process that computes the function: for any of the book's
-complexity measures $\mu$, such as $\calls_{\rem}$, if $\alpha$ computes
-$f$ in $\mathcal A$ with cost $\mu(\alpha,\vec x)$ on $\vec x$, then
-$\mu(\mathcal A,f,\vec x)\leq\mu(\alpha,\vec x)$, in particular for every deterministic or nondeterministic recursive program
-\cite[Proposition~4E.1, Corollary~4E.2]{moschovakis2019}. The Homomorphism
-Test \cite[Lemma~4E.3]{moschovakis2019} proves a lower bound on
-$\mu(\mathcal A,f,\vec x)$ itself, by showing that every generated diagram
-below the proposed cost admits a homomorphism that fails to preserve the
-answer. Corollary~\ref{cor:refute} caps every such argument.
-
-\begin{corollary}[Limit of the homomorphism method]\label{cor:method}
-Let $\mathcal A=\mathcal N_0$ or $\mathcal A=\mathcal N_\varepsilon$, and
-let $g(a,b)$ be any lower bound for
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)$ or for
-$\calls_{\rem}(\mathcal A,\gcd,a,b)$. Then $g(a,b)=O(\log a/\log\log a)$, uniformly for
-$a\geq b\geq1$.
-\end{corollary}
-\begin{proof}
-Immediate from Corollary~\ref{cor:refute}.
-\end{proof}
-\begin{remark}
-By Corollary~\ref{cor:method}, no lower bound on intrinsic complexity shows that every algorithm from $\rem,\eq_0$ computing the gcd
-makes at least $r\log a$ remainder calls on infinitely many pairs. A proof of
-the Main Conjecture must use properties of algorithms that uniform processes
-need not have, such as being induced by a finite program, or determinism.
-\end{remark}
-
-\paragraph{Fixed programs.}
-There is also an algorithmic consequence with a different quantifier order.
-Section~\ref{sec:programs} constructs fixed finite nondeterministic recursive
-programs with arbitrarily small logarithmic remainder-call coefficients,
-uniformly over all inputs. The programs use a fixed-length prefix and ordinary
-recursive calls. Pratt's algorithm is known to attain $O(\log\log a)$ on
-successive Fibonacci numbers; here the logarithmic coefficient holds on all
-inputs and is made small by enlarging the program.
-
-\par\paragraph{Idea of the proof.}
-Let $a>b$ be coprime with $a\leq N=2^n$, and store the Euclidean remainders
-$r_0=a,r_1=b,\ldots,r_h$, where $h=\lceil\sqrt n\rceil$. If one of them is
-at most the early threshold $N^{3/4}$, recurse on that consecutive pair.
-Otherwise the consecutive pairs of the prefix stay distinct modulo every
-$m>N^{1/3}$ (Lemma~\ref{lem:prefix}), so the residues $r_i\bmod m$ take at
-least $\sqrt h$ values, and three remainder calls produce a new positive
-modulus below $m/(\sqrt h-1)$ (Lemma~\ref{lem:gap}). Repeating this from
-$m=r_h$ reaches the target modulus $N^{1/3}$ within $O(n/\log n)$ calls, and
-two recursive gcd computations on inputs at most $N^{1/3}$ finish. The
-resulting recurrence \eqref{eq:recurrence} has solution
-$O(n/\log n)=O(\log a/\log\log a)$.
-
-agraph{Organization.}
-Section~\ref{sec:normalization} reduces to coprime inputs.
-Section~\ref{sec:contractions} proves the two arithmetic lemmas, and
-Section~\ref{sec:construction} combines them into a recurrence that proves
-Theorem~\ref{thm:main} and the leading coefficient $6+o(1)$.
-Section~\ref{sec:certificates} relates derivations to certificates.
-Section~\ref{sec:loglog} proves the almost-all lower bound, and
-Section~\ref{sec:programs} constructs the fixed programs.
-Section~\ref{sec:discussion} discusses open problems, and
-Section~\ref{sec:checks} reports computational checks.
-Appendix~\ref{app:lean} maps the numbered results to their Lean~4
-formalizations.
+\paragraph{Organization.}
+Sections~\ref{sec:normalization}--\ref{sec:construction} prove the upper
+bound. Section~\ref{sec:certificates} gives its certificate and
+uniform-process consequences. Sections~\ref{sec:loglog} and~\ref{sec:programs}
+prove the almost-all bound and the program-family theorem.
+Sections~\ref{sec:discussion} and~\ref{sec:checks} discuss open problems and
+computational checks; Appendix~\ref{app:lean} records the formalization.
 
 \section{Normalization}\label{sec:normalization}
 Write $g=\gcd(a,b)>0$. For positive $y$,
@@ -359,19 +220,14 @@ $h=\lceil\sqrt n\rceil$, while Corollary~\ref{cor:six} and
 Section~\ref{sec:programs} choose $h=k^2+1$.
 
 \section{Construction and recurrence}\label{sec:construction}
-Fix an integer $n>16$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil$, so that
-$h>4$; this $h$ is the prefix length to which Lemma~\ref{lem:prefix} will be
-applied. After normalization we may assume that $a>b>1$ are coprime and
-$a\leq N$. The derivation has three phases.
-\begin{enumerate}
-\item[(i)] Store a Euclidean prefix of length at most $h$. If it reaches a
-positive remainder at most the \emph{early threshold} $N^{3/4}$, recurse on
-that smaller consecutive pair; this gives \eqref{eq:early}.
-\item[(ii)] Otherwise contract the modulus with \eqref{eq:contract}, starting
-at $m=r_h$, until $0<m\leq N^{1/3}$, the \emph{target modulus}.
-\item[(iii)] Finish with two recursive gcd derivations on inputs at most $m$;
-phases (ii) and (iii) together give \eqref{eq:late}.
-\end{enumerate}
+Fix an integer $n>16$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil>4$.
+After normalization, assume $a>b>1$ are coprime and $a\leq N$.
+We use $N^{3/4}$ as the \emph{early threshold} and $N^{1/3}$ as the
+\emph{target modulus}. With thresholds $N^\alpha,N^\beta$, the prefix lemma applies above the
+target when $\alpha+\beta>1$, and the two final recursive problems together
+have smaller bit size when $2\beta<1$. Also $\alpha<1$ makes the early
+recursive problem smaller. The choices $\alpha=3/4$, $\beta=1/3$ satisfy
+all three conditions.
 
 \paragraph{Phase (i): the prefix.}
 Generate the Euclidean remainders $r_2,r_3,\ldots$, one instruction each, and stop as
@@ -493,9 +349,8 @@ Taking upper limits in the recurrence yields
 \[
 L\leq\max\{\alpha L,\ 2\beta L+3/c\}.
 \]
-If the first term is the larger, $L\leq\alpha L$ forces $L=0$, as
-$\alpha<1$; otherwise $L(1-2\beta)\leq3/c$. In either case
-$L(1-2\beta)\leq3/c$. First let $\beta\downarrow0$ and then $c\uparrow1/2$ to obtain
+Since $\alpha<1$ and $L\geq0$, this implies
+$(1-2\beta)L\leq3/c$. First let $\beta\downarrow0$ and then $c\uparrow1/2$ to obtain
 $L\leq6$. Finally, $n=\lceil\log a\rceil$ satisfies
 $f(n)\sim\log a/\log\log a$, proving the assertion. All upper limits concern
 the worst-case function $T$, so the resulting threshold is independent of $b$.
@@ -504,11 +359,31 @@ No optimality of the coefficient $6$ is asserted. The parameters of
 Section~\ref{sec:construction} suffice for the simpler Big-O proof above.
 
 \section{Certificates and uniform processes}\label{sec:certificates}
-This section shows that certificates for coprimeness correspond to derivations
-of $1$, and certificates for the gcd to derivations of the gcd with two extra
-remainder facts. A derivation determines a finite generated partial
-substructure by recording its remainder equations. Repeated equations can be
-discarded.
+\paragraph{Structures and certificates.}
+Write $\mathrm{tt},\mathrm{ff}$ for the truth values and $\eq_c$ for the
+test $x=c$. We use the book's partial remainder operation, defined only
+when its second argument is nonzero, in the structures
+\[
+\mathcal N_0=(\mathbb N,\rem,\eq_0),\qquad
+\mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1).
+\]
+The latter is the book's Euclidean structure; our $\mathcal N_0$ should not
+be confused with its richer $\mathbf N_0$
+\cite[(1C-10), pp.~24, 142--143]{moschovakis2019}.
+Coprimeness is the relation
+$x\coprime y\iff x,y\geq1\wedge\gcd(x,y)=1$
+\cite[\S1A]{moschovakis2019}.
+
+A derivation records finitely many remainder equations. These form a
+partial structure generated by the inputs; repeated equations can be
+discarded. A \emph{certificate} for $f$ at $\vec x$ in a structure
+$\mathcal A$ is such a finite generated partial substructure, possibly with
+test facts, on which every homomorphism into $\mathcal A$ respects $f$ at
+$\vec x$. In other words, any assignment of values preserving the recorded
+operations and tests must preserve the answer. The \emph{intrinsic
+remainder-call complexity} $\calls_{\rem}(\mathcal A,f,\vec x)$ is the least
+number of remainder facts in a certificate
+\cite[\S\S1D, 4C--4E]{moschovakis2019}.
 
 \begin{proposition}\label{prop:certificates}
 For coprime $a,b\geq1$,
@@ -529,20 +404,12 @@ map $x\mapsto2x$ preserves every recorded remainder and zero-test fact, as
 well as every negative one-test fact. It cannot preserve coprimeness. A
 certificate therefore contains a positive $\eq_1$ fact, hence the value $1$. Enumerating a finite generated diagram
 in generation order gives a derivation using no more calls than the number
-of remainder facts. Consequently, on coprime inputs,
-writing $\calls(\cdot)$ for the number of all primitive facts of a
-certificate, not only remainder facts,
-\[
-\calls_{\rem}(\mathcal N_\varepsilon,\gcd{=}1,a,b)=D(a,b),\qquad
-\calls(\mathcal N_\varepsilon,\gcd{=}1,a,b)=D(a,b)+1.
-\]
-For the book's relation $\coprime$, which also requires $a,b\geq1$, it
-suffices to add the facts $\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$.
-Conversely, when $a\coprime b$, every certificate for
-$\coprime$ also certifies $\gcd(a,b)=1$. So for coprime $a,b\geq1$ the
-remainder count is unchanged,
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)=D(a,b)$, and the
-total count is at most $D(a,b)+3$.
+of remainder facts. Thus the least remainder count of a certificate for $\gcd(a,b)=1$ is
+$D(a,b)$ on coprime inputs. For the book's relation $\coprime$, add
+$\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$ to ensure positive input
+images. Conversely, on positive coprime inputs every certificate for
+$\coprime$ certifies $\gcd(a,b)=1$. These extra tests cost no remainder
+facts, proving the first assertion.
 
 For gcd as a function, the certificate must reach its output $g$, giving a
 lower bound of $G(a,b)$. For an upper bound, append
@@ -572,6 +439,93 @@ coefficient, so Corollary~\ref{cor:six} holds for all three complexities of
 Corollary~\ref{cor:refute} on positive inputs.
 \end{remark}
 
+\paragraph{A single uniform process.}
+Proposition~\ref{prop:certificates}, Remark~\ref{rem:noncoprime}, and
+Theorem~\ref{thm:main} bound each intrinsic complexity by
+$O(\log a/\log\log a)$, uniformly for $a\geq b\geq1$.
+The book's Theorem~4F.1 states that, whenever every input has a certificate,
+one uniform process attains the intrinsic complexity at every input
+\cite[pp.~149--150]{moschovakis2019}. It therefore gives the following
+consequence.
+
+\begin{corollary}\label{cor:uniform}
+For each of gcd and coprimeness, there is a single uniform process of
+$\mathcal N_\varepsilon$ computing that function on $\mathbb N^2$ with
+$O(\log a/\log\log a)$ remainder calls, uniformly for $a\geq b\geq1$.
+The gcd process can also be taken over $\mathcal N_0$.
+\end{corollary}
+\begin{proof}
+The certificate bounds give the cost assertion by Theorem~4F.1. Every input
+has a certificate: symmetry covers reversed inputs, and a zero-test fact
+suffices when either input is zero. Thus the same process is defined on
+all of $\mathbb N^2$.
+\end{proof}
+The certificate bounds are formalized here; Theorem~4F.1 is cited.
+The corollary settles the possibility raised after Corollary~6C.7 of the
+book that the Main Conjecture holds for all uniform processes of
+$\mathcal N_\varepsilon$ \cite[p.~188]{moschovakis2019}.
+
+\paragraph{The conjectures refuted.}
+Moschovakis's 2012 notes state:
+\begin{quote}
+\textbf{Conjecture 3.4} \cite{moschovakis2012}. There is a rational number
+$r>0$ such that for infinitely many $a\geq b\geq1$,
+$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$.
+\end{quote}
+The book formulates one precise version of the Main Conjecture
+\cite[p.~151]{moschovakis2019}: there are a set $\mathcal D\subseteq\mathbb N^2$
+and a $K>0$ such that
+\[
+(x,y)\in\mathcal D\ \Longrightarrow\
+\calls_{\rem}(\varepsilon,x,y)\leq L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y),
+\tag{4F-5}
+\]
+where $L(x,y)=2\log\max(x,y)$, $\mathcal A$ is the structure ($\mathcal N_0$
+or $\mathcal N_\varepsilon$). Here $\varepsilon$ denotes the Euclidean
+algorithm, as in the book, and $\calls_{\rem}(\varepsilon,x,y)$ counts its
+remainder calls on $(x,y)$. Elsewhere, apart from the subscript of
+$\mathcal N_\varepsilon$, $\varepsilon$ denotes a small positive real.
+The book adds that $\mathcal D$ then satisfies its conditions (4F-3) and
+(4F-4). Condition (4F-4) makes the intrinsic complexity unbounded on
+$\mathcal D$, so the intended $\mathcal D$ is infinite; for finite $\mathcal D$
+the statement would be trivial. Dropping the first inequality and asking only
+for an infinite $\mathcal D$ gives a weaker statement, and we refute that
+weaker statement.
+
+\begin{corollary}\label{cor:refute}
+The intrinsic complexities
+\[
+\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b),\qquad
+\calls_{\rem}(\mathcal N_0,\gcd,a,b),\qquad
+\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)
+\]
+are $O(\log a/\log\log a)$, uniformly for $a\geq b\geq1$. Consequently Conjecture~3.4 of
+\cite{moschovakis2012} is false, and so is the version (4F-5) of the Main
+Conjecture with $\mathcal A=\mathcal N_0$ or $\mathcal A=\mathcal N_\varepsilon$:
+for every $r>0$ only finitely many pairs $a\geq b\geq1$ satisfy
+$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$, and for every
+$K>0$ only finitely many pairs $(x,y)\in\mathbb N^2$ satisfy
+$L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$.
+\end{corollary}
+The corollary follows from Theorem~\ref{thm:main} and
+Proposition~\ref{prop:certificates}; for noncoprime pairs, the bound on the
+coprimeness complexity comes from Remark~\ref{rem:noncoprime}. For (4F-5) it covers all pairs in
+$\mathbb N^2$: the gcd is symmetric, and a pair with a zero entry is certified by
+the single fact $\eq_0(0)=\mathrm{tt}$, with no remainder facts.
+
+\paragraph{The limit of the homomorphism method.}\label{par:method}
+The Homomorphism Test proves lower bounds on intrinsic complexity by
+showing that every generated diagram below the proposed cost admits a
+homomorphism that fails to preserve the answer
+\cite[Lemma~4E.3]{moschovakis2019}. Such bounds apply to every uniform
+process computing the function, hence to every recursive program
+\cite[Proposition~4E.1, Corollary~4E.2]{moschovakis2019}.
+By Corollary~\ref{cor:refute}, any nonnegative lower bound $g(a,b)$ on one
+of these intrinsic complexities satisfies
+$g(a,b)=O(\log a/\log\log a)$ uniformly for $a\geq b\geq1$.
+A logarithmic lower bound for algorithms must therefore use restrictions
+beyond uniformity, such as finite program syntax or determinism.
+
 \section{An almost-all lower bound}\label{sec:loglog}
 The difficult pairs of \cite[Theorem~6C.5]{moschovakis2019} give
 $\Omega(\log\log a)$ on a sparse set. An elementary Diophantine argument gives
@@ -579,44 +533,73 @@ the same order for almost all coprime pairs, simultaneously for every
 derivation.
 
 \begin{proposition}\label{prop:loglog}
-For every $d\geq1$ and $N\geq3$, at most $16(2+\ln N)N^{2-2^{-d}}$ coprime
-pairs $2\leq b<a\leq N$ satisfy $D(a,b)\leq d$. Hence
-$D(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$ coprime pairs below $N$.
+For integers $d\geq1$ and $N\geq3$, at most
+$40(2+\ln N)N^{2-2^{-d}}$ coprime pairs $2\leq b<a\leq N$ satisfy
+$D(a,b)\leq d$. Hence $D(a,b)\geq(1-o(1))\log\log N$ for all but
+$o(N^2)$ coprime pairs below $N$.
 \end{proposition}
 
 \begin{proof}
-For $B\geq1$ call $(a,b)$ \emph{$B$-regular} if $|qb-pa|\geq a/(Bq)$ whenever
-$q\geq1$, $p\in\mathbb Z$ and $qb\neq pa$.
-\begin{itemize}
-\item \textbf{Small values have large coefficients.} Every generated value is
-an integer form $v=ua+wb$. If $(a,b)$ is $B$-regular and $v>0$, then
-$v\geq a/(B(|u|+|w|))$: for $w\neq0$ apply regularity with $q=|w|$, and for
-$w=0$ note $v\geq a$.
-\item \textbf{Coefficients grow at most doubly exponentially.} Let $H_t$ bound
-$|u|+|w|$ over the values available after $t$ instructions, so $H_0=1$. An
-instruction $r=\rem(x,y)$, with $x=sy+r$, has quotient $s\leq a/y\leq BH_t$,
-hence $H_{t+1}\leq H_t+BH_t^2\leq2BH_t^2$ and $H_t\leq(2B)^{2^t-1}$.
-\item \textbf{Regular pairs need long derivations.} Producing $1$ within $d$
-instructions forces $1\geq a/(BH_d)$, that is $a\leq(2B)^{2^d}/2$.
-\item \textbf{Few pairs are irregular.} Suppose $0<|qb-pa|<a/(Bq)$. Dividing
-$p,q$ by their gcd preserves this, and it forces $q<a/B\leq N/B$ and
-$0\leq p\leq q$. For each $q$ there are at most $2q$ values of $p$ and
-$2N/(Bq)$ values of $r=qb-pa$. Given $p,q,r$ with $\gcd(p,q)=1$, $a$ lies in
-one residue class modulo $q$, which leaves at most $N/q+1$ choices, and $b$ is
-then determined. So at most $(4N^2/B)(2+\ln N)$ pairs below $N$ are irregular.
-\item \textbf{Dyadic ranges.} For $X/2<a\leq X$ take $B=X^{2^{-d}}/2$. If
-$B\geq1$, a regular pair with $D\leq d$ would have $a\leq X/2$, so every pair
-in the range with $D\leq d$ is irregular. That gives at most
-$8(2+\ln X)X^{2-2^{-d}}$ pairs, and the same bound is trivial when $B<1$.
-Summing over $X=N,N/2,\ldots$ gives the first claim.
-\end{itemize}
-For the second claim take $d=\lfloor\log_2\ln N-2\log_2\ln\ln N\rfloor$. Then
-$N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the bound is $o(N^2)$. \qedhere
+For $B\geq1$ call $(a,b)$ \emph{$B$-regular} if
+$|qb-pa|\geq a/(Bq)$ whenever $q\in\mathbb N$, $q\geq1$,
+$p\in\mathbb Z$ and $qb\neq pa$. We first bound the cost on regular
+pairs, then count the irregular ones.
+
+Every generated value has an integer representation $v=ua+wb$.
+On a regular pair, $v>0$ implies $v\geq a/(B(|u|+|w|))$:
+for $w\neq0$ use regularity with $q=|w|$, and for $w=0$ note $v\geq a$.
+Let $H_t$ bound the coefficient norm $|u|+|w|$ in one such representation
+of each value available after $t$ instructions, starting with $H_0=1$.
+In an instruction $r=\rem(x,y)$, write $x=sy+r$. Since generated values
+are at most $a$, the quotient satisfies $s\leq a/y\leq BH_t$.
+Subtracting $s$ times the representation of $y$ from that of $x$ gives
+\[
+H_{t+1}\leq H_t+BH_t^2\leq2BH_t^2,\qquad
+H_t\leq(2B)^{2^t-1}.
+\]
+Producing $1$ within $d$ instructions therefore forces
+\[
+1\geq\frac{a}{BH_d},\qquad a\leq\frac{(2B)^{2^d}}2.
+\]
+
+To count irregular pairs below $N$, choose a witness
+$0<|qb-pa|<a/(Bq)$. Dividing $p,q$ by their gcd preserves this inequality,
+so assume $\gcd(p,q)=1$. The nonzero integer $r=qb-pa$ then gives
+$q<a/B\leq N/B$ and $0\leq p\leq q$.
+For each $q$, there are at most $2q$ choices of $p$ and $2N/(Bq)$ choices
+of the signed integer $r$. Given $p,q,r$, the equation
+$pa\equiv-r\pmod q$ determines one residue class for $a$, leaving at most
+$N/q+1$ choices; $b$ is then determined. With $Q=\lfloor N/B\rfloor$,
+the number of irregular pairs is at most
+\[
+\begin{aligned}
+\sum_{q=1}^{Q}(2q)\frac{2N}{Bq}\left(\frac Nq+1\right)
+ &=\frac{4N^2}{B}\sum_{q=1}^{Q}\frac1q+\frac{4NQ}{B}\\
+ &\leq\frac{4N^2}{B}(2+\ln N),
+\end{aligned}
+\]
+using $Q\leq N$, $B\geq1$, and the harmonic-sum bound; an empty sum is zero.
+
+Now split into dyadic ranges $X/2<a\leq X$, and take
+$B=X^{2^{-d}}/2$. If $B\geq1$, a regular pair with $D\leq d$ would have
+$a\leq X/2$, so all such pairs in the range are irregular. Their number is
+at most $8(2+\ln X)X^{2-2^{-d}}$.
+When $B<1$, the same bound follows from the trivial bound $X^2$, since
+$X^{2^{-d}}<2$.
+Put $s=2-2^{-d}\geq3/2$. Summing over the nonempty ranges with
+$X=N/2^j\geq3$, and bounding their logarithmic factors by $2+\ln N$, gives
+\[
+8(2+\ln N)N^s\sum_{j\geq0}2^{-js}
+ =\frac{8}{1-2^{-s}}(2+\ln N)N^s
+ \leq40(2+\ln N)N^s.
+\]
+For the second assertion, take
+$d=\lfloor\log_2\ln N-2\log_2\ln\ln N\rfloor$ for sufficiently large $N$.
+Then $N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the exceptional set has
+size $o(N^2)$, while $d=(1-o(1))\log\log N$.
 \end{proof}
-Proposition~\ref{prop:loglog} is formalized, with a slightly larger constant;
-see Appendix~\ref{app:lean}.
-The saving $2^{-d}$ in the exponent of $N^{2-2^{-d}}$ shrinks as $d$ grows, so this argument cannot reach the
-scale $\log N/\log\log N$ of Theorem~\ref{thm:main}, let alone $\log N$.
+The saving $2^{-d}$ in the exponent of $N^{2-2^{-d}}$ shrinks as $d$ grows,
+so this argument does not reach the upper-bound scale $\log N/\log\log N$.
 
 \section{Fixed programs with arbitrarily small coefficients}\label{sec:programs}
 
@@ -641,10 +624,19 @@ program $P$ and a constant $B\geq0$ such that
 \]
 \end{theorem}
 
+The program may depend on $\varepsilon$, but not on the inputs.
+The Main Conjecture allows its lower-bound coefficient to depend on the
+program, so this family is compatible with it. No single sublogarithmic
+program is obtained. Neither the coefficient nor the arity bound is
+claimed optimal.
+
 \paragraph{The program.}
 Fix $W\geq3$ and write $\vec x=(x_0,\ldots,x_{W-1})$ and
 $\vec x[i\leftarrow E]$ for the tuple with its $i$th expression replaced by
-$E$. The generator is given by the finite alternatives
+$E$. The generator can return a parameter, replace one by a remainder,
+run a recursive subcomputation while retaining the caller's other values,
+or copy parameters into new positions. These four actions are expressed
+by the finite alternatives
 \begin{align*}
 \operatorname{choose}(\vec x)&=x_i &&(0\leq i<W),\tag{C}\\
 \operatorname{gen}(\vec x)&=\operatorname{choose}(\vec x),\tag{G1}\\
@@ -733,57 +725,39 @@ Since $h$ is fixed, division by $n$ and passage to upper limits gives
 \[
 L_W\leq\max\{\alpha L_W,\ 2\beta L_W+3/p\}.
 \]
-If the first term is the larger, $L_W\leq\alpha L_W$ forces $L_W=0$, as
-$\alpha<1$; otherwise $(1-2\beta)L_W\leq3/p$. The program is
-independent of $\beta$, so letting $\beta\downarrow0$ gives $L_W\leq3/p$.
+As $\alpha<1$ and $L_W\geq0$, this implies $(1-2\beta)L_W\leq3/p$.
+The program is independent of $\beta$, so letting $\beta\downarrow0$ gives $L_W\leq3/p$.
 Take $n=\lceil\log a\rceil$ and add the two verification calls. Finally,
 choose $p>3/\varepsilon$ and absorb the finitely many smaller inputs in $B$.
 \end{proof}
 
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
-With the lower bound recalled in Section~\ref{sec:intro}, the intrinsic
-complexity of coprimeness in $\mathcal N_\varepsilon$ now lies between
-$\Omega(\log\log a)$, on infinitely many pairs and in fact on almost all
-coprime pairs (Proposition~\ref{prop:loglog}), and $O(\log a/\log\log a)$, on
-all pairs. Closing this gap is an open problem. In particular, it is not known
-whether the bound of Theorem~\ref{thm:main} is optimal for remainder-only
-derivations, as the corresponding bound is in Bshouty's model.
+The intrinsic complexity of coprimeness in $\mathcal N_\varepsilon$ is at
+least $\Omega(\log\log a)$ on almost all coprime pairs and at most
+$O(\log a/\log\log a)$ on all positive pairs. Closing this gap is open.
+In particular, the upper bound is not known to be optimal for
+remainder-only derivations, as the corresponding bound is in Bshouty's model.
 
-\paragraph{Beyond the homomorphism method.}
-Corollary~\ref{cor:method} does not exclude arguments that combine
-homomorphisms with additional restrictions on computations.
-Corollaries~\ref{cor:refute} and~\ref{cor:method} also do not settle the form
-of the Main Conjecture for deterministic uniform processes
+\paragraph{From a growing prefix to one program.}
+The remaining obstacle in turning the construction into a sublogarithmic
+program is reusable access to a prefix whose length grows with the input.
+Selecting a close pair of residues costs nothing in a derivation, whereas
+computing all prefix residues would take about $h$ calls per contraction.
+The programs of Section~\ref{sec:programs} select operands nondeterministically
+from a fixed number of parameters. Can one fixed first-order recursive
+program retain and repeatedly access a growing prefix at the same
+remainder cost? The book's Proposition~2E.1 converts each certificate into
+a computation of some program; it does not supply one program for all
+certificates \cite[\S2E]{moschovakis2019}.
+
+\paragraph{Stronger lower-bound methods.}
+The limit established in Section~\ref{sec:certificates} leaves room for
+arguments combining homomorphisms with additional restrictions on
+computations. In particular, the conjecture of a logarithmic lower bound
+for deterministic uniform processes remains open
 \cite[Conjecture~3.9]{moschovakis2012},
 \cite[\S4H and p.~188]{moschovakis2019}.
-
-\paragraph{Uncharged choice.}
-Selecting a close pair of residues is uncharged existential choice in a
-straight-line derivation. A deterministic remainder-only algorithm cannot
-assume that choice is available at constant cost. Computing all prefix
-residues would take about $h$ calls per contraction. The programs of
-Section~\ref{sec:programs} make the selection nondeterministically, but only
-with a prefix of fixed length. This leaves a further question: can one fixed
-first-order recursive program store and repeatedly access a prefix whose
-length grows with the input, and so attain $O(\log a/\log\log a)$ remainder
-calls? Proposition~2E.1 converts each certificate into a
-computation of some program; it does not supply one program for all
-certificates \cite[\S2E]{moschovakis2019}. The book also distinguishes the
-best uniform process from a nondeterministic program \cite[p.~150]{moschovakis2019}.
-The construction therefore settles neither algorithmic version of the Main
-Conjecture: the Main Conjecture for algorithms, that is, recursive programs,
-deterministic or nondeterministic \cite[p.~2]{moschovakis2019}, remains open.
-
-\paragraph{Quantifier order.}
-Theorem~\ref{thm:programs} is a statement about a family of programs: the
-prefix length grows when a smaller coefficient is requested, but remains fixed
-as the inputs grow, and no single sublogarithmic program is obtained.
-The Main Conjecture allows its lower-bound coefficient to depend on the
-program, so Theorem~\ref{thm:programs} is compatible with it. Neither the
-coefficient nor the arity bound is claimed optimal. Merely inlining several
-remainder instructions into one term would still charge for each external
-remainder call; the saving here uses the prefix lemma and recursive reduction.
 
 \section{Computational checks}\label{sec:checks}
 The offline Python planner \nolinkurl{remainder_only_certificate.py} in the
@@ -802,235 +776,93 @@ Input bits & This construction & Euclid (to reach $1$)\\\midrule
 8192 & 2059 & 4754\\\bottomrule
 \end{tabular}
 \end{center}
-Random pairs are not Euclid's worst case: on successive Fibonacci numbers
-Euclid needs about $1.44\log a$ calls. These are checks of finite instances,
-not an asymptotic proof. A reproducible suite of 310 cases also passes,
-including 175 noncoprime pairs, with base size 64 bits and 3,543
-contractions in total, and four deliberately invalid derivations are rejected. The
-Euclidean-prefix lemma was also checked exhaustively for every coprime pair
-with $3\leq a<1500$ and $1\leq b<a$, every prefix length, and up to 60
-consecutive moduli above the threshold $2a/r_h$, restricted to $m<4a$
-(254,722,179 instances, no failures).
-
-For the programs of Section~\ref{sec:programs}, an independent Python compiler
-and interpreter, which evaluates arguments right to left as the book's machine
-does, check 138 cases across three values of $W$, 129
-additional scaled replays, and eight negative cases. The interpreter is not
-formally verified; unrestricted arithmetic used to plan successful choices is
-not part of the programs.
+These examples illustrate finite derivations; the asymptotic claim follows
+from the proof. The accompanying repository also checks scaled and
+noncoprime inputs, rejects invalid traces, and exhaustively tests the prefix
+lemma over a finite range. For Section~\ref{sec:programs}, a separate compiler
+and interpreter replay successful choices in finite first-order programs,
+evaluating arguments right to left as the book's machine does. The
+\texttt{README.md} records commands, test ranges, seeds, and results.
+The Python interpreter is not formally verified; unrestricted arithmetic
+used to plan choices is outside the programs.
 
 \appendix
 \section{Formal verification}\label{app:lean}
-The Lean development uses Lean 4.35.0 with mathlib at its v4.35.0 tag.
-Table~\ref{tab:lean} maps the numbered results of the paper to Lean names. Module
-names are given in full.
-Proposition~\ref{prop:loglog} is formalized with the constant $40$ in place of
-$16$. The development contains no proof placeholders or added axioms. An axiom
-audit of the main results reports only the standard Lean foundations
-\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. The
-general theory of uniform processes, Theorem~4F.1 and the lower bounds cited in
-Section~\ref{sec:intro} are cited, not formalized; so is the consequence of
-Theorem~4F.1 drawn after Corollary~\ref{cor:refute}. Theorem~4F.1 is needed
-only to restate the intrinsic bounds in terms of a single best uniform
-process, not for the refutations themselves.
+The development uses Lean 4.35.0 with mathlib at its v4.35.0 tag.
+It contains no proof placeholders or added axioms; the main-result audit
+reports only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. Table~\ref{tab:lean} gives the main declarations;
+the repository README gives the complete map and reproduction commands.
+The general theory of uniform processes, including Theorem~4F.1 used in
+Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
+not formalized. The certificate bounds and conjecture refutations are
+formalized independently of that theory.
 
 \begin{table}[htbp]
 \centering\small
-\caption{Results of the paper and the corresponding Lean declarations. All names are in the namespace \texttt{ShortGCD}.}
+\caption{Main results and Lean declarations, all in the namespace \texttt{ShortGCD}.}
 \label{tab:lean}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.69\textwidth}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.67\textwidth}@{}}
 \toprule
-Paper & Lean name(s)\\\midrule
-$G$ and $D$ (Section~\ref{sec:intro}) &
-\lean{G}, \lean{D}\\
-Theorem~\ref{thm:main} &
-\lean{uniform_real_bound}; worst-case Big-O form
-\lean{sizeCost_isBigO}, stating that $\max_{a,b\leq M}G(a,b)$ is
-$O(\log M/\log\log M)$\\
+Paper & Lean declaration(s)\\\midrule
+Theorem~\ref{thm:main} & \lean{uniform_real_bound}, \lean{sizeCost_isBigO}\\
 Normalization \eqref{eq:normalize} & \lean{G_normalize}\\
 Lemma~\ref{lem:gap} & \lean{small_remainder}\\
-Lemma~\ref{lem:prefix} &
-\lean{prefix_pairs_distinct}, \lean{residue_card_sq}\\
-Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}\\\midrule
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)$ &
-\lean{callsCoprimeness}, with \lean{BookCoprime}\\
-$\calls_{\rem}(\mathcal N_0,\gcd,a,b)$,
-$\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$ &
-\lean{callsGcd}, \lean{callsRemGcd}\\
-$\calls_{\rem}(\mathcal N_\varepsilon,\gcd{=}1,a,b)$ & \lean{callsRem}\\
-Reduction to $D$ (Proposition~\ref{prop:certificates}) &
-\lean{callsRem_eq_D}, \lean{G_eq_D},
-\lean{certifiesCoprimeness_of_certifiesCoprime},
-\lean{callsCoprimeness_eq_callsRem}\\
-Certificate bounds (Proposition~\ref{prop:certificates}) &
-\lean{callsCoprimeness_le}, \lean{callsGcd_le},
-\lean{callsRemGcd_le_callsGcd}; the lower bound for
-$\mathcal N_\varepsilon$ is \lean{gcd_certificate_lower} applied to
-certificates with $\eq_1$ facts\\
+Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}, \lean{residue_card_sq}\\
+Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}, \lean{uniform_intrinsic_bound_six}\\
+Proposition~\ref{prop:certificates} &
+\lean{callsRem_eq_D}, \lean{G_eq_D}, \lean{callsCoprimeness_eq_callsRem},
+\lean{gcd_certificate_lower}, \lean{callsGcd_le}, \lean{callsRemGcd_le_callsGcd}\\
+Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}\\
+Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalized here\\
 Corollary~\ref{cor:refute} &
-\lean{not_conjecture_3_4},
-\lean{not_main_conjecture_4F5} ($\mathcal N_0$),
-\lean{not_main_conjecture_4F5_Neps} ($\mathcal N_\varepsilon$);
-literal readings \lean{not_conjecture_3_4_literal},
-\lean{not_main_conjecture_4F5_literal}; $o(\log a)$ bound
-\lean{eventually_calls_le}\\
-Corollary~\ref{cor:method} & not stated separately; immediate from the
-statements for Corollary~\ref{cor:refute}\\
-Corollary~\ref{cor:six} for intrinsic complexities &
-\lean{uniform_intrinsic_bound_six}\\\midrule
-Proposition~\ref{prop:loglog} &
-\lean{AlmostAll.card_within_le},
-\lean{AlmostAll.card_D_le},
-\lean{AlmostAll.within_iff_D_le},
-\lean{AlmostAll.tendsto_card_within_loglog}\\\midrule
-Theorem~\ref{thm:programs}: recurrence and coefficient &
-\lean{RegisterProgram.maxCost_step},
-\lean{RegisterProgram.Fixed.limsup_profile_le}\\
-Theorem~\ref{thm:programs}: program syntax &
-\lean{RegisterProgram.Syntax.run_invokes},
-\lean{RegisterProgram.Syntax.accepts_eval},
+\lean{not_conjecture_3_4}, \lean{not_main_conjecture_4F5},
+\lean{not_main_conjecture_4F5_Neps}; literal versions
+\lean{not_conjecture_3_4_literal}, \lean{not_main_conjecture_4F5_literal}\\
+Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
+\lean{AlmostAll.tendsto_card_within_loglog}\\
+Theorem~\ref{thm:programs}: cost &
+\lean{RegisterProgram.maxCost_step}, \lean{RegisterProgram.Fixed.limsup_profile_le}\\
+Theorem~\ref{thm:programs}: syntax &
 \lean{RegisterProgram.Syntax.eval_head_correct},
 \lean{RegisterProgram.Syntax.eval_head_exists},
-\lean{RegisterProgram.Syntax.arbitrarily_small_program},
-\lean{RegisterProgram.Syntax.eventually_eval_bound}\\
-Operational correspondence (Section~\ref{sec:programs}) &
+\lean{RegisterProgram.Syntax.arbitrarily_small_program}\\
+Operational correspondence &
 \lean{RegisterProgram.Syntax.Machine.eval_iff_steps},
-\lean{RegisterProgram.Syntax.Machine.Step.context},
-\lean{RegisterProgram.Syntax.Machine.head_correct},
-\lean{RegisterProgram.Syntax.Machine.head_exists},
 \lean{RegisterProgram.Syntax.Machine.arbitrarily_small_program}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Bounds, certificates and refutations}
-The theorem \lean{uniform_real_bound} states
-\[
-\exists C>0\ \forall a,b\in\mathbb N,\quad
-4\leq a\ \wedge\ b\leq a\ \Longrightarrow\
-G(a,b)\leq C\frac{\log_2 a}{\log_2(\log_2 a)}.
-\]
-The sharper theorem \lean{uniform_real_bound_six} states that for
-every $\varepsilon>0$, eventually in $a$, the same inequality holds for all
-$b\leq a$ with $C=6+\varepsilon$, and
-\lean{uniform_intrinsic_bound_six} gives the corresponding statement
-for the three intrinsic complexities on positive inputs.
-The proof starts from a finite-store instruction semantics in which the only
-instruction is remainder with a positive, available divisor. Costs are lengths
-of explicit derivations, not values of an assumed recurrence. A formal conversion to
-finite generated diagrams proves the gcd certificate bound with two extra
-remainder facts and the bound for positive and negative coprimeness instances.
-The reduction itself is also checked: on coprime inputs, the least number of
-remainder facts in a certificate for $\gcd(a,b)=1$ equals $D(a,b)$, and $G$
-agrees with $D$.
+\paragraph{Arithmetic bounds.}
+Costs are lengths of explicit remainder derivations. The finite theorem
+\lean{sizeCost_step} proves the recurrence from natural-number size
+parameters; it does not assume a recurrence for the cost function.
+For the initial Big-O proof, Lean uses
+$j=\lfloor\log_2 n\rfloor$, $p=\lfloor j/4\rfloor$ and $h=2^{2p}+1$
+in place of $h=\lceil\sqrt n\rceil$, and checks the integer rounding
+estimates before passing to real logarithms. The refinement uses the
+tunable parameters of Corollary~\ref{cor:six} and checks the rounding limits
+preserving coefficient $6$.
+For Proposition~\ref{prop:loglog}, Lean takes $B=a^{2^{-d}}/2$ separately
+for each pair instead of splitting into dyadic ranges. It proves the
+stated constant $40$ and the exceptional-set limit for every fixed
+$\varepsilon>0$, with threshold $(1-\varepsilon)\log_2\log_2N$.
 
-The Lean definitions from certificates are \lean{callsCoprimeness}
-for the book's relation $\coprime$ in $\mathcal N_\varepsilon$, with positive
-inputs, and \lean{callsGcd} and \lean{callsRemGcd} for the
-gcd in $\mathcal N_0$ and $\mathcal N_\varepsilon$. Adding the facts
-$\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$ is checked to turn a
-certificate for $\gcd(a,b)=1$ into one for $\coprime$, so on positive coprime
-pairs the complexity agrees with the reduction.
-
-The refutation theorems state that no $r>0$ satisfies
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log_2 a$
-for infinitely many $a\geq b\geq1$, and that no $K>0$ satisfies
-$2\log_2\max(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$ for infinitely
-many pairs in $\mathbb N^2$, for either structure. The original
-$O(\log a/\log\log a)$ bounds combine the certificate bounds, which bound the
-intrinsic complexities by $G(a,b)+2$, with
-\lean{uniform_real_bound}; \lean{eventually_calls_le} states
-the resulting $o(\log)$ bound.
-
-\subsection{The almost-all bound}
-Proposition~\ref{prop:loglog} is checked in the module \lean{ShortGCD.AlmostAll},
-with the constant $40(2+\ln N)$ in place of $16(2+\ln N)$: the proof takes
-$B=a^{2^{-d}}/2$ separately for each pair instead of dyadic ranges.
-\lean{AlmostAll.card_within_le} bounds the number of pairs
-$2\leq b<a\leq N$ with a derivation of $1$ of length at most $d$ by
-$40(2+\ln N)N^{2-2^{-d}}$; \lean{AlmostAll.within_iff_D_le} identifies
-this with $D(a,b)\leq d$ on coprime pairs; and
-\lean{AlmostAll.tendsto_card_within_loglog} proves the second claim
-in the form $D(a,b)>(1-\varepsilon)\log_2\log_2N$ for all but $o(N^2)$ coprime
-pairs, for every $\varepsilon\in(0,1]$.
-
-\subsection{Fixed programs and operational correspondence}
-Theorem~\ref{thm:programs} is checked in the eight modules
-\lean{ShortGCD.RegisterProgram} through \lean{ShortGCD.RegisterSmallStep},
-which are included in the normal build and axiom audit. The theorem
-\lean{RegisterProgram.maxCost_step} proves the fixed-parameter
-recurrence, and \lean{RegisterProgram.Fixed.limsup_profile_le} proves
-its coefficient $3/p$. The syntax development gives finite body sets for the
-four internal symbols of Section~\ref{sec:programs}. Generator runs translate
-into evaluation trees with exactly the same remainder count, including final
-verification. Every terminating evaluation is correct, an evaluation exists on
-every input, and the quantified bound holds; for a fixed $p$, the bound
-holds eventually with every coefficient greater than $3/p$.
-
-In Lean we specialize the book's
-two-stack transition table to this language and program family. Closures
-represent substitution of actual values into terms; they are machine states,
-not additional program data. The control stack has its top at the head, and
-the value stack distinguishes individuals from booleans. Argument evaluation,
-zero testing, and branching are explicit transitions. The finite evaluation
-trees correspond to convergent machine computations, preserving both result
-and remainder count. For the forward direction, induct on the evaluation
-tree. Evaluate argument subtrees right to left, as prescribed by the machine's
-composition rule, then choose the indicated body at the internal call.
-Transition locality permits each subtree computation to be placed in its
-calling context \cite[Table~1 and Lemma~2D.1, pp.~75--76]{moschovakis2019}.
-A remainder node adds one external remainder call; a conditional evaluates
-its guard, makes one uncharged zero test, and evaluates only the selected
-branch. Variables and internal calls add no remainder calls. For the reverse
-direction, decompose a convergent computation at the completed argument
-evaluations and the selected body or branch, and induct on its length.
-This gives the same additive cost equations. Choices belong to individual
-call occurrences, and the language has no shared mutable state, so serializing
-the argument trees introduces no constraint on their choices. No successful
-tree uses a zero divisor or terminates through $\operatorname{loop}$.
-The exact-cost equivalence is
-\lean{RegisterProgram.Syntax.Machine.eval_iff_steps}, and transition
-locality is \lean{RegisterProgram.Syntax.Machine.Step.context}. The
-machine versions of correctness and convergence follow, and
-\lean{RegisterProgram.Syntax.Machine.arbitrarily_small_program}
-states the bound directly for finite transition sequences.
-This formalizes the machine needed here, not the book's theory for arbitrary
-structures and program vocabularies.
-
-\subsection{Integer parameters used in Lean}
-To avoid real rounding in the construction itself, the formal proof uses, for
-$j=\lfloor\log_2 n\rfloor\geq32$,
-\[
-p=\lfloor j/4\rfloor,\quad k=2^p,\quad h=2^{2p}+1,\quad
-J=\lfloor n/p\rfloor+1,\quad
-\ell_1=\lceil3n/4\rceil,\quad \ell_2=\lceil n/3\rceil.
-\]
-Write $\widehat T(X)=\max_{a,b\leq X}G(a,b)$. The finite construction proves,
-for arbitrary natural parameters satisfying $k\geq1$, $k^2<h$, $Y\geq1$,
-$2X\leq ZY$, and $X\leq Zk^J$,
-\[
-\widehat T(X)\leq\max\{h+1+\widehat T(Y),\ h+3J+2+2\widehat T(Z)\}.
-\]
-Taking $X=2^n$, $Y=2^{\ell_1}$, $Z=2^{\ell_2}$ (so $Y$ is the early
-threshold and $Z$ the target modulus) gives the required hypotheses.
-Lean checks
-\[
-(h+1)j\leq64n,\quad (h+3J+2)j\leq64n,\quad
-j-2\leq\log_2^{\mathrm{nat}}\ell_1,\log_2^{\mathrm{nat}}\ell_2,
-\quad 8\ell_1\leq7n,\quad16\ell_2\leq7n.
-\]
-The last estimates and $8j\leq9(j-2)$ give a factor $63/64$ for either
-recursive contribution after clearing denominators. Taking $C\geq4096$ and
-large enough for the finite initial segment proves
-$\widehat T(2^n)\lfloor\log_2 n\rfloor\leq Cn$ for all $n$.
-Comparing integer floors and ceilings with real base-two logarithms yields the
-stated real bound. These parameter choices change only absolute constants,
-not the proof mechanism or its asymptotic order. The refinement in
-\lean{ShortGCD.SharpBound} uses the tunable parameters of
-Corollary~\ref{cor:six}, with recursive size bounds
-$2^{\lceil\alpha n\rceil}$ and $2^{\lceil\beta n\rceil}$. It applies the same
-finite recurrence, uses the original bound to justify a finite upper limit,
-and checks the rounding limits needed to preserve the coefficient $6$.
+\paragraph{Programs and machine computations.}
+Generator runs translate into evaluations of finite first-order syntax
+with exactly the same remainder count, including final verification.
+Every terminating evaluation is correct, and a successful evaluation exists
+on every input. Lean also proves exact-cost equivalence with a specialization
+of the book's two-stack machine: arguments are evaluated right to left,
+zero tests and branches are separate transitions, and only remainder
+transitions are charged \cite[Table~1, pp.~75--76]{moschovakis2019}.
+The forward proof embeds each argument evaluation in its calling context;
+the reverse proof decomposes a convergent computation into its argument
+and body evaluations. Closures represent substitution in machine states,
+not extra program data. This checks the language and program family used
+here; the expanded note \texttt{research/nondeterministic-prefix.tex}
+gives the operational details and the Python compiler and interpreter.
 
 \begin{thebibliography}{5}
 \bibitem{bshouty1989}

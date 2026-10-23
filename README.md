@@ -102,7 +102,8 @@ implement reusable access to the growing stored prefix within the claimed cost.
 
 ## Lean verification
 
-**Status.** The summary at the top says what is machine-checked; the tables below and
+**Status.** The summary at the top says what is machine-checked; the expandable
+declaration tables below and
 [Soundness and scope](#soundness-and-scope) give the details.
 
 The project pins Lean and mathlib to v4.35.0. On a fresh checkout with elan:
@@ -116,6 +117,9 @@ lake env lean validation/Axioms.lean
 The last command should print the audit recorded in
 [validation/axioms.txt](validation/axioms.txt); a reference build log is in
 [validation/build.txt](validation/build.txt).
+
+<details>
+<summary>Lean declarations: bounds, certificates, and refutations</summary>
 
 **Definitions.** Theorem and definition names below, other than mathlib's `Nat.Coprime`,
 are in the namespace `ShortGCD` and are written relative to it. The intrinsic
@@ -173,7 +177,12 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | At most 40 (2 + ln N) N^(2 − 2^(−d)) pairs 2 ≤ b < a ≤ N have a derivation of 1 of length at most d | `AlmostAll.card_within_le` |
 | For every ε > 0, D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs b < a ≤ N | `AlmostAll.tendsto_card_within_loglog` |
 
+</details>
+
 ### Module structure
+
+<details>
+<summary>Imports and proof structure</summary>
 
 All modules are in [ShortGCD/](ShortGCD/). `A → B` means B imports A, and a chain
 `A → B → C` means B imports A and C imports B; `A, B → C` means C imports both A and B.
@@ -218,6 +227,8 @@ The program family
 - **The conjectures.** Conjecture turns the bounds into the refutations;
   SharpCertificates combines the refined bound with the certificate reductions.
 
+</details>
+
 ### Soundness and scope
 
 - **No added assumptions.** The development has no `sorry`/`admit` placeholders and adds
@@ -244,9 +255,10 @@ python3 scripts/check_prefix_lemma.py
 
 - **[check_certificates.py](scripts/check_certificates.py)** runs a 310-case suite. It
   covers zero inputs, equal inputs, scaled non-coprime inputs, random large inputs and
-  Fibonacci pairs. It also checks that four invalid traces are rejected.
+  Fibonacci pairs. With seed 20261016 and base size 64 bits, the 310 cases include
+  175 noncoprime pairs and exercise 3,543 contractions. Four invalid traces are rejected.
 - **[remainder_only_certificate.py](remainder_only_certificate.py)** reproduces the three
-  numerical examples in the manuscript.
+  numerical examples in the manuscript, using seed 20261016 and base size 256 bits.
 - **[check_prefix_lemma.py](scripts/check_prefix_lemma.py)** checks the Euclidean-prefix
   lemma (`prefix_pairs_distinct`): if r_0 = a, r_1 = b, r_2, … are the Euclidean
   remainders and m > 2a/r_h, then the pairs (r_i mod m, r_{i+1} mod m), 0 ≤ i < h, are
@@ -284,6 +296,9 @@ zero-test and branch transitions, nonzero cost only on remainder transitions); t
 covers the language and program family used here. The book's theory for arbitrary
 structures and the Python interpreter are not formalized.
 
+<details>
+<summary>Lean declarations for the program family</summary>
+
 | Statement | Lean name |
 | --- | --- |
 | Operational recurrence for a fixed tuple of W = h + 4 parameters, where h is the prefix length (h = 4ᵖ + 1 in the fixed program), with explicit recursive subcomputations | `RegisterProgram.maxCost_step` |
@@ -300,6 +315,8 @@ structures and the Python interpreter are not formalized.
 | A successful machine execution exists on every input | `RegisterProgram.Syntax.Machine.head_exists` |
 | For each p ≥ 1 and C > 3/p: once a is large enough, every b ≤ a has a machine execution returning gcd(a, b) at remainder cost at most C log₂ a | `RegisterProgram.Syntax.Machine.eventually_steps_bound` |
 | The ε log₂ a + Bε bound for machine executions, with the program chosen before the inputs | `RegisterProgram.Syntax.Machine.arbitrarily_small_program` |
+
+</details>
 
 <details>
 <summary>Axiom audit and executable checks</summary>
