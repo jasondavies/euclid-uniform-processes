@@ -44,6 +44,8 @@ result, the Lean formalisation and the manuscript; the human author initiated th
 research and directed the AI systems. The paper ends with a full declaration.
 
 Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf).
+Palomar registry entry: [PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1), which verifies
+commit `40279dd`.
 
 ## Results
 
@@ -268,7 +270,9 @@ The program family
 ### Palomar packaging
 
 The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
-Lean-verified results.
+Lean-verified results. It is registered as
+[PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1), which records the verification of commit
+`40279dd`.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
   defines every notion the theorems use (derivations, G, certificates and the three

@@ -148,11 +148,13 @@ fidelity:
 review:
   status: "self-assessed; not yet reviewed by an expert in the area"
   reviewers:
-    - "none"
+    - "GPT-6-Astra (OpenAI), via Codex: AI review"
+    - "Claude Opus 5.5 (Anthropic), via Claude Code: AI review"
   notes: >-
     The statements in Challenge.lean were compared with the book's and the notes'
-    formulations in several rounds of AI review, and the paper received several rounds of
-    AI review. No independent human expert review has taken place.
+    formulations in several rounds of AI review by GPT-6-Astra and Claude Opus 5.5, and the
+    paper received several rounds of AI review by both systems. No independent human expert
+    review has taken place.
 
 alignment:
   namespace: "ShortGCD"
