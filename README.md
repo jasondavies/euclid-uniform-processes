@@ -3,8 +3,9 @@
 Euclid's algorithm computes gcd(a, b) with about 1.44 log₂ a remainder operations in the
 worst case. Van den Dries and Moschovakis asked whether any algorithm restricted to the
 remainder operation and a zero test can do essentially better. Moschovakis's *Main
-Conjecture* says no: for every such algorithm there is an r > 0 such that it makes at
-least r log a remainder calls on infinitely many inputs.
+Conjecture* says no: for every such algorithm α there is an r > 0 such that
+
+$$\mathrm{calls}_{\mathrm{rem}}(\alpha, a, b) > r \log a \quad \text{for infinitely many pairs } a > b \ge 1.$$
 
 Lower bounds like this are normally proved for Moschovakis's *uniform processes*, an
 abstract model of any computation that learns about its inputs only through the given
@@ -13,13 +14,17 @@ bound already holds there: Conjecture 3.4 of his 2012 notes, and the precise ver
 (4F-5) of the Main Conjecture in his 2019 book.
 
 **Main result: those uniform-process conjectures are false.** Every pair a ≥ b ≥ 1 has a
-derivation of gcd(a, b) with (6 + o(1)) log₂ a / log₂ log₂ a remainder calls, where each
-call takes the remainder of two values already computed. So the *intrinsic complexity*
+derivation of gcd(a, b) with
+
+$$\bigl(6 + o(1)\bigr) \frac{\log_2 a}{\log_2 \log_2 a}$$
+
+remainder calls, where each call takes the remainder of two values already computed. So
+the *intrinsic complexity*
 of gcd and of coprimeness, which bounds the cost of every uniform process from below, is
 o(log a). This refutes Conjecture 3.4 and (4F-5). With the book's Theorem 4F.1, a single
 uniform process attains this cost, ruling out the possibility raised on p. 188 of the book
-that the Main Conjecture holds for all uniform processes. It also means the homomorphism method, the
-standard tool for such lower bounds, cannot prove a logarithmic one.
+that the Main Conjecture holds for all uniform processes. It also means the homomorphism
+method, the standard tool for such lower bounds, cannot prove a logarithmic one.
 
 **Still open: the Main Conjecture for algorithms.** A derivation chooses which values to
 combine for free, so it does not give a program with this cost, and no single program with
@@ -61,8 +66,9 @@ constants are introduced. Euclid needs about 1.44 log₂ a calls in the worst ca
   f at (a, b) (the Homomorphism Test). The *intrinsic calls(rem)-complexity*
   calls(rem)(Nε, f, a, b) is the least number of remainder facts in a certificate; a
   remainder fact corresponds to a remainder call.
-- The ε in Nε and in calls(rem)(ε, x, y) is the book's name for the Euclidean structure
-  and algorithm, not the small ε > 0 in the bounds.
+- The ε in Nε is the book's name for the Euclidean structure, not the small ε > 0 in
+  the bounds. The book also writes ε for the Euclidean algorithm; like the paper, we
+  write Eucl.
 - Bε is a constant depending only on ε.
 - log means log₂; the base is irrelevant inside O and o.
 
@@ -85,12 +91,16 @@ optimal among its peers:
 - **The "precise version" (4F-5) of the Main Conjecture** in Y. N. Moschovakis,
   *Abstract Recursion and Intrinsic Complexity*, Lecture Notes in Logic 48, Cambridge
   University Press / ASL, 2019, doi:10.1017/9781108234238 (p. 151; all page citations
-  refer to this published edition). With L(x, y) = 2 log max(x, y), we prove there is
-  no K > 0 with L(x, y) ≤ K · calls(rem)(gcd, x, y) on infinitely many pairs. This holds
-  both for gcd certificates without eq1 facts and for certificates in Nε. The book's
-  form, with a set D on which the complexity is unbounded (condition (4F-4)), is refuted
-  as well. These statements omit the book's first inequality,
-  calls(rem)(ε, x, y) ≤ L(x, y), which only weakens the statement being refuted.
+  refer to this published edition). It asks for a set D ⊆ ℕ² and a K > 0 such that
+
+  $$(x, y) \in D \implies \mathrm{calls}_{\mathrm{rem}}(\mathrm{Eucl}, x, y) \le L(x, y) \le K \cdot \mathrm{calls}_{\mathrm{rem}}(\mathcal{A}, \gcd, x, y),$$
+
+  where L(x, y) = 2 log max(x, y) and Eucl is the Euclidean algorithm. We prove that for
+  every K > 0 the second inequality holds on only finitely many pairs. This holds both
+  for gcd certificates without eq1 facts (𝒜 = (ℕ, rem, eq0)) and for certificates in Nε.
+  The book's form, with a set D on which the complexity is unbounded (condition (4F-4)),
+  is refuted as well. These statements omit the first inequality, which only weakens the
+  statement being refuted.
 - **The possibility raised after Corollary 6C.7 (p. 188)**, that the Main Conjecture
   "holds for all uniform processes of Nε". Ruling this out also uses the book's
   best-uniform-process theorem (4F.1), which turns a small intrinsic complexity into a
