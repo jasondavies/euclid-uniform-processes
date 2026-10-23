@@ -7,8 +7,7 @@ public import ShortGCD.Derivation
 /-! # A finite-arity nondeterministic generator
 
 `Run` is the big-step semantics of the generator in the paper's section "Fixed
-programs with arbitrarily small coefficients", expanded in
-research/nondeterministic-prefix.tex. `Registers w` is the
+programs with arbitrarily small coefficients". `Registers w` is the
 generator's parameter tuple `x₀ … x_{w−1}`. The width is fixed before execution.
 Indices and routing functions name finitely many syntactic choices, not
 natural-number data available to the program. Only remainder calls are charged.

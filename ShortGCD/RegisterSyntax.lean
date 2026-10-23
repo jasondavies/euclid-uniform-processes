@@ -6,7 +6,7 @@ public import ShortGCD.RegisterAsymptotic
 
 /-! # Finite first-order syntax for the fixed-width program
 
-The research note's setter functions `set_i` (which replace one parameter and
+The Python compiler's setter functions `set_i` (which replace one parameter and
 call `gen`) are inlined here. Each program has four internal function symbols,
 with arities `w`, `w`, `3`, and `1`. There are finitely many bodies for each
 symbol. Terms contain no numeric literals or higher-order data.

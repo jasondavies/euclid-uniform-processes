@@ -759,7 +759,7 @@ used to plan choices is outside the programs.
 The development uses Lean~4.35.0 \cite{deMouraUllrich2021} with mathlib
 \cite{mathlib2020} at its v4.35.0 tag; the pinned mathlib commit is
 \texttt{56a005855ea17e0b0958f73ec801ae140b0a1679}.
-The development contains no proof placeholders or added axioms; the main-result audit
+The proved library contains no proof placeholders or added axioms; the main-result audit
 reports only \texttt{propext}, \texttt{Classical.choice}, and
 \texttt{Quot.sound}. Table~\ref{tab:lean} gives the main declarations;
 the repository README gives the
@@ -771,7 +771,8 @@ formalized independently of that theory.
 
 The development is also packaged for the Palomar registry:
 \texttt{Challenge.lean} imports only mathlib and states the main theorems
-with every definition visible, and \texttt{Solution.lean} proves them.
+with every definition visible and deliberate \texttt{sorry} placeholders.
+\texttt{Solution.lean} imports the proved library, independently of these placeholders.
 Palomar's comparator checks that the proved statements are exactly those of
 \texttt{Challenge.lean} and replays the proofs through Lean's kernel and
 independent kernels. The eleven compared theorems are marked ${}^\dagger$ in
@@ -844,8 +845,8 @@ The forward proof embeds each argument evaluation in its calling context;
 the reverse proof decomposes a convergent computation into its argument
 and body evaluations. Closures represent substitution in machine states,
 not extra program data. This checks the language and program family used
-here; the expanded note \texttt{research/nondeterministic-prefix.tex}
-gives the operational details and the Python compiler and interpreter.
+here; the repository README describes the Python compiler and interpreter
+and their relation to the Lean syntax.
 
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a

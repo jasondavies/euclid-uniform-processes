@@ -271,7 +271,7 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
 
 ### Soundness and scope
 
-- **No added assumptions.** The development has no `sorry`/`admit` placeholders and adds
+- **No added assumptions.** The proved library has no `sorry`/`admit` placeholders and adds
   no axioms; the only `sorry`s are the deliberate holes in Challenge.lean. The recorded axiom audit ([axioms.txt](validation/axioms.txt)) uses only
   `propext`, `Classical.choice` and `Quot.sound`.
 - **What is cited, not formalized.** The book's general best-uniform-process theorem
@@ -321,13 +321,10 @@ remainder cost at most (3/p + o(1)) log₂ a. Cost is the minimum number of rema
 over successful computations; every terminating computation is correct. Thus, for every
 ε > 0, there is a fixed program with cost at most ε log₂ a + Bε on all positive inputs
 a ≥ b. The paper proves this in the section "Fixed programs with arbitrarily small
-coefficients"; the expanded research note
-[nondeterministic-prefix.pdf](research/nondeterministic-prefix.pdf)
-([source](research/nondeterministic-prefix.tex)) gives implementation details and
-executable checks. **This does not give one sublogarithmic program**: the program
+coefficients". **This does not give one sublogarithmic program**: the program
 depends on ε, and the Main Conjecture allows its lower-bound coefficient to depend on the
-program. The note explains the remaining difficulty with reusing a growing Euclidean
-prefix in one fixed first-order program.
+program. The remaining difficulty is reusing a growing Euclidean prefix in one fixed
+first-order program.
 
 The bound is checked in Lean, including finite first-order syntax and call-by-value
 evaluation. Lean also checks an exact-cost correspondence with an explicit
@@ -373,6 +370,19 @@ first-order syntax, which a separate interpreter executes using supplied nondete
 choices. Checks cover 138 cases, 129 additional scaled replays, and eight negative cases;
 results are in [register-validation.json](research/register-validation.json).
 
+The Python presentation uses setter functions `set_i` of arity W + 1 to replace one
+generator parameter. The paper and Lean inline these setters, giving four internal
+symbols of arities W, W, 3 and 1. A setter only passes its evaluated arguments to the
+generator, so inlining preserves results and remainder counts; this equivalence with
+the Python presentation is not formalized. Both presentations evaluate each nested
+generator once and retain the caller's other parameters until it returns. W bounds
+arity, not total storage: the recursion stack can grow.
+
+The interpreter evaluates arguments right to left and counts actual remainder calls.
+The offline planner supplies nondeterministic choices; its arithmetic is outside the
+program. Successful runs with a positive second input include two final verification
+calls. The recorded internal-call counts include the Python setters and are uncharged.
+
 ```sh
 lake env lean research/RegisterProgram.lean
 python3 research/check_register_program.py
@@ -382,16 +392,11 @@ python3 research/register_program.py --width 9
 
 </details>
 
-## Research notes (exploratory)
+## Exploratory checks
 
-These notes are not part of the main paper's theorems.
+These checks are not part of the main paper's theorems.
 
-- **[nondeterministic-prefix.pdf](research/nondeterministic-prefix.pdf)** expands the
-  program-family construction above, with implementation details and executable checks.
-- **[single-program-investigation.pdf](research/single-program-investigation.pdf)**
-  ([source](research/single-program-investigation.tex)) separates tested constructions,
-  restricted accounting results, and open questions about one fixed sublogarithmic
-  program. A [fixed program](research/rebuilding_program.py) of maximum arity three
+- A [fixed program](research/rebuilding_program.py) of maximum arity three
   selects arbitrarily deep Euclidean-prefix operands by recomputing them; the same syntax
   passes 270 runs and 270 scaled replays across different planning depths
   ([results](research/rebuilding-validation.json)). On the recorded 2,048-bit example,
@@ -400,10 +405,8 @@ These notes are not part of the main paper's theorems.
   shows that a fresh-prefix budget is at least four times its guaranteed bit progress,
   even with varying prefix lengths ([axiom audit](research/prefix-policy-axioms.txt)).
   This limits that accounting argument; it is **not a lower bound on the minimum cost of
-  the program**, whose contractions can exceed the guarantee. The note also proposes
-  studying computation graphs with a fixed bound on treewidth as a way to capture the
-  restriction imposed by a finite program. No single sublogarithmic program has been
-  obtained.
+  the program**, whose contractions can exceed the guarantee. No single sublogarithmic
+  program has been obtained.
 - **[model-novelty-audit.txt](research/model-novelty-audit.txt)** records the model
   correspondence checks and the bounded literature search for the program family, with
   their limits: no matching uniform coefficient result was located in the sources
@@ -422,20 +425,17 @@ python3 -O research/rebuilding_program.py
   [comparator.json](comparator.json), [formalization.yaml](formalization.yaml): the
   Palomar submission surface.
 - [paper/](paper/): the manuscript.
-- [research/](research/): exploratory notes, their Lean files, scripts and results.
+- [research/](research/): program implementations, supplementary Lean checks and results.
 - [scripts/](scripts/): finite checks for the main results, and Palomar's checks in
   [scripts/palomar/](scripts/palomar/).
 - [validation/](validation/): axiom audit, build log and check results.
 - [remainder_only_certificate.py](remainder_only_certificate.py): the numerical examples
   in the manuscript.
 
-## Building the paper and notes
+## Building the paper
 
 ```sh
 (cd paper && pdflatex euclid-uniform-processes.tex && pdflatex euclid-uniform-processes.tex)
-(cd research && pdflatex nondeterministic-prefix.tex && pdflatex nondeterministic-prefix.tex)
-(cd research && pdflatex single-program-investigation.tex \
-  && pdflatex single-program-investigation.tex)
 ```
 
 The second run resolves cross-references. The bibliography is written inline, so no
