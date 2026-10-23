@@ -97,17 +97,18 @@ status:
 automation:
   methods:
     - method: agent
-      models: ["gpt-6-astra"]
-      framework: "n/a"
+      models: ["GPT-6-Astra (OpenAI)"]
+      framework: "Codex"
       tool_setup: >-
-        AI-assisted development: an AI coding agent drafted and revised Lean proofs, the
-        paper and the documentation under the author's direction, with Lean's kernel and the
-        axiom audit as the check on the formal proofs.
+        Identified the principal result during a broader investigation initiated by the
+        author, then wrote the Lean development, the paper and the documentation under the
+        author's direction. Lean's kernel and the axiom audit are the check on the formal
+        proofs.
       cost:
         wall_time: "not tracked"
         spend_usd: "not tracked"
         hardware: "local machine"
-      prompting_notes: "n/a"
+      prompting_notes: "Reasoning effort: high."
     - method: agent
       models: ["Claude Opus 5.5 (Anthropic)"]
       framework: "Claude Code"
@@ -125,7 +126,7 @@ automation:
   spend_usd: "not tracked"
   notes: >-
     The work was produced entirely by AI systems. During a broader investigation initiated
-    by the human author, gpt-6-astra identified the principal result; the author then
+    by the human author, GPT-6-Astra identified the principal result; the author then
     directed it to formalize the result in Lean and to write the manuscript. The author
     wrote no part of the text or the Lean code. Claude was used for review, editing passes
     and the Palomar packaging. Correctness of the formal results rests on Lean's kernel and
