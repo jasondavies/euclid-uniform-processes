@@ -286,13 +286,16 @@ machine) imports only Mathlib.
 The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
 Lean-verified results. It is registered as
 [PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1), which records the verification of commit
-`40279dd`.
+`40279dd` for the first thirteen compared theorems; the three program-family theorems
+were added afterwards.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
-  defines every notion the theorems use (derivations, G, certificates and the three
-  intrinsic complexities), and states the thirteen compared theorems with `sorry`: the
-  two upper bounds, the five refutations, and six theorems showing that the complexities
-  are not trivially small (certificates exist, and four lower bounds).
+  defines every notion the theorems use (derivations, G, certificates, the three
+  intrinsic complexities and the register program), and states the sixteen compared
+  theorems with `sorry`: the two upper bounds, the five refutations, six theorems showing
+  that the complexities are not trivially small (certificates exist, and four lower
+  bounds), and three for the program family (every convergent computation returns the
+  gcd, every input has one, and the ε log₂ a + Bε bound).
 - **[Solution.lean](Solution.lean)** imports `ShortGCD`, where each of these declarations
   is defined and proved under the same name.
 - **[comparator.json](comparator.json)** lists the compared theorems and permitted axioms;
@@ -474,7 +477,10 @@ manuscript, and make no claim of exhaustive coverage or priority.
 | The ε log₂ a + Bε bound on the book's recursive machine | `TailRecursive.arbitrarily_small_coefficient` |
 
 These declarations are in the main [axiom audit](validation/Axioms.lean), with output
-recorded in [axioms.txt](validation/axioms.txt).
+recorded in [axioms.txt](validation/axioms.txt). `TailSource.executes_correct`,
+`TailSource.executes_total` and `TailSource.arbitrarily_small_coefficient` are also
+compared against [Challenge.lean](Challenge.lean), which states the register program in
+full.
 
 </details>
 

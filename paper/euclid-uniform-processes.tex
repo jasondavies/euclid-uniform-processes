@@ -864,9 +864,10 @@ with every definition visible and deliberate \texttt{sorry} placeholders.
 \texttt{Solution.lean} imports the proved library, independently of these placeholders.
 Palomar's comparator checks that the proved statements are exactly those of
 \texttt{Challenge.lean} and replays the proofs through Lean's kernel and
-independent kernels. The thirteen compared theorems are marked ${}^\dagger$ in
-Table~\ref{tab:lean}. The registry entry \cite{palomar2026} records this
-verification for commit \texttt{40279dd}.
+independent kernels. The sixteen compared theorems are marked ${}^\dagger$ in
+Table~\ref{tab:lean}. Version~1 of the registry entry \cite{palomar2026}
+records this verification of the first thirteen, for commit
+\texttt{40279dd}; the three program statements were added afterwards.
 
 \begin{table}[htbp]
 \centering\small
@@ -897,8 +898,9 @@ Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:registers} &
 \lean{TailProgram.maxCost_step}, \lean{TailProgram.Fixed.limsup_profile_le},
-\lean{TailSource.run_trace_relabel}, \lean{TailSource.executes_correct},
-\lean{TailSource.arbitrarily_small_coefficient}\\
+\lean{TailSource.run_trace_relabel}, \lean{TailSource.executes_correct}${}^\dagger$,
+\lean{TailSource.executes_total}${}^\dagger$,
+\lean{TailSource.arbitrarily_small_coefficient}${}^\dagger$\\
 Recursive programs (Section~\ref{sec:programs}) &
 \lean{TailRecursive.program_tailRecursive},
 \lean{TailRecursive.stacks_bounded},

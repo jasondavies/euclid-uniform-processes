@@ -14,7 +14,10 @@
     "ShortGCD.G_le_callsRemGcd",
     "ShortGCD.G_le_callsGcd",
     "ShortGCD.callsCoprimeness_eq_G",
-    "ShortGCD.tendsto_card_callsCoprimeness_loglog"
+    "ShortGCD.tendsto_card_callsCoprimeness_loglog",
+    "ShortGCD.TailSource.executes_correct",
+    "ShortGCD.TailSource.executes_total",
+    "ShortGCD.TailSource.arbitrarily_small_coefficient"
   ],
   "definition_names": [],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]

@@ -232,4 +232,102 @@ theorem tendsto_card_callsCoprimeness_loglog {ε : ℝ} (hε : 0 < ε) (hε1 : �
       atTop (𝓝 0) := by
   sorry
 
+/-! ## Bounded-memory register programs
+
+A finite nondeterministic register program, in the sense of the book (§2F, with the
+nondeterminism of §2E), over `(ℕ, rem, eq0)`. Its numeric state is `w` work registers and
+the two inputs `a, b`, which no command writes; there is no stack. At the main line `run` it
+may assign `u_d := rem(u_i, u_j)` to any work register (charged one remainder call), or
+choose a candidate `u_i`. A zero candidate is rejected; otherwise it checks
+`eq0(rem(a, u_i))` and `eq0(rem(b, u_i))` (one remainder call each) and halts with `u_i`
+if both hold. Rejected computations loop forever. `Executes w a b c z` says that some
+convergent computation on `(a, b)` returns `z` with exactly `c` remainder calls; if `b = 0`
+the program returns `a` at once.
+
+The theorems say that every convergent computation returns the gcd, that every input has
+one, and that for each `ε > 0` one fixed program of this kind has a computation of cost at
+most `ε log₂ a + B` on every input `1 ≤ b ≤ a`. -/
+
+namespace TailProgram
+
+abbrev Registers (width : ℕ) := Fin width → ℕ
+
+/-- The work registers start with copies of the inputs. -/
+def inputs (width a b : ℕ) : Registers width := fun i => if i.val = 1 then b else a
+
+namespace Fixed
+
+/-- The prefix length `h = k² + 1` for contraction ratio `k = 2^p`. -/
+def prefixLength (p : ℕ) := (2^p)^2+1
+/-- The number of work registers, `h + 4 = 4^p + 5`. -/
+def width (p : ℕ) := prefixLength p+4
+
+end Fixed
+
+end TailProgram
+
+namespace TailSource
+open TailProgram
+
+inductive Control (w : ℕ) where
+  | run
+  | left (i : Fin w)
+  | right (i : Fin w)
+  | done (i : Fin w)
+  | reject
+  deriving DecidableEq, Fintype
+
+/-- The control line and the work registers; the inputs `a b` are parameters of `Step`. -/
+abbrev State (w : ℕ) := Control w × Registers w
+
+/-- The commands, read on the inputs `a b`, with their remainder costs. -/
+inductive Step (a b : ℕ) : {w : ℕ} → State w → ℕ → State w → Prop
+  | rem {w} (r : Registers w) (i j d : Fin w) (hp : 0 < r j) :
+      Step a b (.run,r) 1 (.run,Function.update r d (r i % r j))
+  | choose {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) :
+      Step a b (.run,r) 0 (.left i,r)
+  | zero {w} (r : Registers w) (i : Fin w) (hz : r i = 0) :
+      Step a b (.run,r) 0 (.reject,r)
+  | left_ok {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : a % r i = 0) :
+      Step a b (.left i,r) 1 (.right i,r)
+  | left_bad {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : a % r i ≠ 0) :
+      Step a b (.left i,r) 1 (.reject,r)
+  | right_ok {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : b % r i = 0) :
+      Step a b (.right i,r) 1 (.done i,r)
+  | right_bad {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : b % r i ≠ 0) :
+      Step a b (.right i,r) 1 (.reject,r)
+  | loop {w} (r : Registers w) : Step a b (.reject,r) 0 (.reject,r)
+
+/-- Finite computations, with their total remainder cost. -/
+inductive Trace (a b : ℕ) {w : ℕ} : State w → ℕ → State w → Prop
+  | refl (s) : Trace a b s 0 s
+  | cons {s t u c k} (hs : Step a b s c t) (ht : Trace a b t k u) :
+      Trace a b s (c+k) u
+
+/-- A convergent computation on `(a, b)` with `w` work registers returns `z` with `c`
+remainder calls. -/
+def Executes (w a b c z : ℕ) : Prop :=
+  (b=0 ∧ c=0 ∧ z=a) ∨
+  (0 < b ∧ ∃ r i, Trace a b (.run,inputs w a b) c (.done i,r) ∧ r i=z)
+
+/-- Every convergent computation returns the gcd, whatever the choices. -/
+theorem executes_correct {w a b c z} (h : Executes w a b c z) : z = Nat.gcd a b := by
+  sorry
+
+/-- With at least two work registers, every input has a convergent computation. -/
+theorem executes_total {w} (hw : 2 ≤ w) (a b : ℕ) :
+    ∃ c, Executes w a b c (Nat.gcd a b) := by
+  sorry
+
+/-- **Arbitrarily small coefficients.** For every `ε > 0` there are `p > 0` and `B ≥ 0` such
+that the fixed program with `4^p + 5` work registers has, on every input `1 ≤ b ≤ a`, a
+convergent computation returning `gcd(a, b)` with at most `ε log₂ a + B` remainder calls. -/
+theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :
+    ∃ p : ℕ, 0 < p ∧ ∃ B : ℝ, 0 ≤ B ∧ ∀ a b : ℕ, 1 ≤ b → b ≤ a →
+      ∃ c, Executes (Fixed.width p) a b c (Nat.gcd a b) ∧
+        (c:ℝ) ≤ ε*Real.logb 2 a+B := by
+  sorry
+
+end TailSource
+
 end ShortGCD

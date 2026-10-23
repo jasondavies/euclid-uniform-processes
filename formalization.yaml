@@ -106,8 +106,9 @@ status:
     program with 4^p + 7 registers and no recursion stack whose cost is
     (3/p + o(1)) log₂ a, both as a register program and, written one function per line, as
     a tail-recursive program on the book's recursive machine
-    (TailSource.arbitrarily_small_coefficient, TailRecursive.arbitrarily_small_coefficient);
-    it is not part of the compared statements.
+    (TailSource.arbitrarily_small_coefficient, TailRecursive.arbitrarily_small_coefficient).
+    The register-program form is compared (correctness, totality and the ε log₂ a + B
+    bound); the tail-recursive form is checked by Lean's kernel only.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []
@@ -242,5 +243,23 @@ alignment:
       module: "ShortGCD.LowerBounds"
       status: proved
       note: "The o(N²) count, with the same constant 40 as the paper's counting bound."
+    - source: "Paper, program theorem (correctness)"
+      lean: "ShortGCD.TailSource.executes_correct"
+      module: "ShortGCD.TailSource"
+      status: proved
+      note: "Every convergent computation of the register program returns gcd(a, b)."
+    - source: "Paper, program theorem (totality)"
+      lean: "ShortGCD.TailSource.executes_total"
+      module: "ShortGCD.TailSource"
+      status: proved
+      note: "With at least two work registers, every input has a convergent computation."
+    - source: "Paper, program theorem (arbitrarily small coefficients)"
+      lean: "ShortGCD.TailSource.arbitrarily_small_coefficient"
+      module: "ShortGCD.TailSource"
+      status: proved
+      note: >-
+        For every ε > 0, one fixed register program with 4^p + 5 work registers and two
+        read-only input registers, and no stack, has cost at most ε log₂ a + B on all
+        1 ≤ b ≤ a. The paper's lim sup form (coefficient 3/p) is TailProgram.Fixed.limsup_profile_le.
 
 acknowledgements: "Lean 4 and mathlib."
