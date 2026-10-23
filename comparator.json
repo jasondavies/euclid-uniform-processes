@@ -18,7 +18,10 @@
     "ShortGCD.TailSource.executes_correct",
     "ShortGCD.TailSource.executes_total",
     "ShortGCD.TailSource.arbitrarily_small_coefficient",
-    "ShortGCD.ClosureDepth.no_logarithmic_sequences"
+    "ShortGCD.ClosureDepth.no_logarithmic_sequences",
+    "ShortGCD.Book.callsCoprimeness_eq",
+    "ShortGCD.Book.callsRemGcd_eq",
+    "ShortGCD.Book.callsGcd_eq"
   ],
   "definition_names": [],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]

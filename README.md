@@ -240,7 +240,7 @@ All modules are in [ShortGCD/](ShortGCD/). `A → B` means B imports A, and a ch
 `A → B → C` means B imports A and C imports B; `A, B → C` means C imports both A and B.
 Derivation, Prefix, Arithmetic and CoprimeCertificate import only Mathlib. The root
 [ShortGCD.lean](ShortGCD.lean) imports Asymptotic, Certificates, Conjecture,
-SharpCertificates, AlmostAll, LowerBounds, ClosureDepth and TailRecursive. Every file uses Lean's
+SharpCertificates, AlmostAll, LowerBounds, ClosureDepth, TailRecursive and BookCertificates. Every file uses Lean's
 module system (`module`, `public import`), as Palomar requires.
 
 ```
@@ -264,6 +264,9 @@ Both strands meet
 
 The closure-depth question
   Asymptotic → ClosureDepth
+
+The book's certificates
+  Conjecture → BookCertificates
 
 The program family
   Derivation → TailProgram → TailEuclid
@@ -296,17 +299,18 @@ machine) imports only Mathlib.
 The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
 Lean-verified results. It is registered as
 [PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1), which records the verification of commit
-`40279dd` for the first thirteen compared theorems; the three program-family theorems
-and the closure-depth theorem were added afterwards.
+`40279dd` for the first thirteen compared theorems; the program-family, closure-depth
+and book-certificate theorems were added afterwards.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
   defines every notion the theorems use (derivations, G, certificates, the three
-  intrinsic complexities, the register program and the closure stages), and states the
-  seventeen compared theorems with `sorry`: the two upper bounds, the five refutations,
-  six theorems showing that the complexities are not trivially small (certificates
-  exist, and four lower bounds), three for the program family (every convergent
-  computation returns the gcd, every input has one, and the ε log₂ a + Bε bound), and the
-  answer to the closure-depth question.
+  intrinsic complexities, the register program, the closure stages and the book's own
+  certificate definitions), and states the twenty compared theorems with `sorry`: the two
+  upper bounds, the five refutations, six theorems showing that the complexities are not
+  trivially small (certificates exist, and four lower bounds), three for the program
+  family (every convergent computation returns the gcd, every input has one, and the
+  ε log₂ a + Bε bound), the answer to the closure-depth question, and three showing that
+  the book's intrinsic complexities equal the fact-based ones.
 - **[Solution.lean](Solution.lean)** imports `ShortGCD`, where each of these declarations
   is defined and proved under the same name.
 - **[comparator.json](comparator.json)** lists the compared theorems and permitted axioms;
@@ -336,8 +340,11 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
   (4F.1) is cited in the manuscript; the abstract theory of uniform processes is not
   re-formalised here. The refutations need no such theory, because they are stated
   about intrinsic complexities defined directly from certificates, represented by their
-  facts; the paper's fact-representation lemma relates this to the book's finite partial
-  structures and is not itself formalised. The paper also cites
+  facts. That representation is checked against the book: `ShortGCD.Book` states the
+  book's definitions (finite partial substructures with partial operations, generation,
+  homomorphisms on the universe, certification and the calls(rem) norm) and proves that
+  its intrinsic complexities equal the fact-based ones (`Book.callsCoprimeness_eq`,
+  `Book.callsRemGcd_eq`, `Book.callsGcd_eq`; all three are compared). The paper also cites
   the known lower bounds (van den Dries–Moschovakis); they are not formalised either.
 - **Conventions.** Coprimeness in the refutations is the book's relation, which requires
   positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses

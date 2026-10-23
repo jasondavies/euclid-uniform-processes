@@ -69,6 +69,14 @@ import ShortGCD
 #print axioms ShortGCD.ClosureDepth.depth_le
 #print axioms ShortGCD.ClosureDepth.depth_bound
 #print axioms ShortGCD.ClosureDepth.no_logarithmic_sequences
+-- The book's certificates and intrinsic complexities (the fact-representation lemma).
+#print axioms ShortGCD.Book.toCert_certifiesGcd
+#print axioms ShortGCD.Book.ofCert_certifiesGcd
+#print axioms ShortGCD.Book.toCert_certifiesCoprimeness
+#print axioms ShortGCD.Book.ofCert_certifiesCoprimeness
+#print axioms ShortGCD.Book.callsCoprimeness_eq
+#print axioms ShortGCD.Book.callsRemGcd_eq
+#print axioms ShortGCD.Book.callsGcd_eq
 -- The almost-all lower bound.
 #print axioms ShortGCD.AlmostAll.within_iff_D_le
 #print axioms ShortGCD.AlmostAll.le_of_within_regular
