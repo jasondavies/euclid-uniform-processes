@@ -757,8 +757,10 @@ $\mathrm{run}$ with $\rem(x_i,x_j)$ in place of $x_l$, and one for each
 candidate, verifying $x_i$. Lean checks that its evaluations, and its computations on a
 specialisation of the book's recursive machine, correspond exactly to the
 computations of the register program, with the same remainder cost
-(Appendix~\ref{app:lean}). So Theorem~\ref{thm:registers} holds for the
-book's recursive programs as well.
+(Appendix~\ref{app:lean}), and that the machine's stacks stay bounded: at
+most $\max(4^p+11,17)$ entries in all, on every input and however long the
+computation runs. So Theorem~\ref{thm:registers} holds for the book's
+recursive programs as well, with no growing recursion stack.
 
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
@@ -957,18 +959,15 @@ substitution in machine states, not extra program data.
 
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a
-broader investigation initiated by the human author, an AI system identified
-the principal result. The author then instructed it to formalise the result in
-Lean and to prepare this manuscript. The AI systems developed the result and
-its presentation, including the mathematical exposition, the formalisation,
-and the organisation and writing of the text; the human author wrote no part
-of the manuscript. The research, the Lean development and the manuscript were
-produced with GPT-6-Astra (OpenAI), used through Codex. Claude Opus~5.5
-(Anthropic), used through Claude Code, carried out review and editing passes
-and packaged the formalisation for the Palomar registry, which included
-writing \texttt{Challenge.lean}, the lower-bound module and a proof change
-needed by the independent kernels. GPT-6-Astra, through Codex, later revised
-the exposition and expanded the computational checks.
+broader investigation initiated by the human author, an AI system,
+GPT-6-Astra, identified the principal result. The author then directed AI
+systems to formalise the results in Lean and to prepare this manuscript. The
+AI systems developed the results and their presentation, including the
+mathematical exposition, the formalisation, and the organisation and writing
+of the text; the human author wrote no part of the manuscript. The systems
+were GPT-6-Astra (OpenAI), used through Codex, and Claude Opus~5.5
+(Anthropic), used through Claude Code. Both contributed to the Lean
+formalisation and to the review and revision of the manuscript.
 
 The Lean development gives a machine-checkable version of the main claims.
 Lean's kernel checks the proofs, including the mathlib results they use,

@@ -119,9 +119,9 @@ automation:
       framework: "Codex"
       tool_setup: >-
         Identified the principal result during a broader investigation initiated by the
-        author, then wrote the Lean development, the paper and the documentation under the
-        author's direction. Lean's kernel and the axiom audit are the check on the formal
-        proofs.
+        author. Under the author's direction, wrote and revised the Lean development, the
+        paper and the documentation, and reviewed them. Lean's kernel and the axiom audit
+        are the check on the formal proofs.
       cost:
         wall_time: "not tracked"
         spend_usd: "not tracked"
@@ -131,11 +131,8 @@ automation:
       models: ["Claude Opus 5.5 (Anthropic)"]
       framework: "Claude Code"
       tool_setup: >-
-        Used mainly for review: readability, citation and statement-fidelity reviews of the
-        paper and the formalization, with the author deciding which changes to make. It
-        also prepared this Palomar packaging: the port to Lean's module system,
-        Challenge.lean and Solution.lean, the ShortGCD.LowerBounds module, and a proof
-        change in uniform_bit_bound so that the independent kernels accept it.
+        Under the author's direction, wrote and revised parts of the Lean development, the
+        paper and the documentation, reviewed them, and prepared the Palomar packaging.
       cost:
         wall_time: "not tracked"
         spend_usd: "not tracked"
@@ -144,13 +141,13 @@ automation:
   spend_usd: "not tracked"
   notes: >-
     The work was produced entirely by AI systems. During a broader investigation initiated
-    by the human author, GPT-6-Astra identified the principal result; the author then
-    directed it to formalize the result in Lean and to write the manuscript. The author
-    wrote no part of the text or the Lean code. Claude was used for review, editing passes
-    and the Palomar packaging. GPT-6-Astra, via Codex, later revised the manuscript's
-    exposition and expanded the computational checks. Correctness of the formal results
-    rests on Lean's kernel and the independent kernels run by Palomar; the paper carries
-    the same disclosure.
+    by the human author, GPT-6-Astra identified the principal result. The author then
+    directed GPT-6-Astra (via Codex) and Claude Opus 5.5 (via Claude Code) to formalize the
+    results in Lean and to write the manuscript; both contributed to the formalization and
+    to the review and revision of the manuscript. The author wrote no part of the text or
+    the Lean code. Correctness of the formal results rests on Lean's kernel; the statements
+    compared by Palomar's comparator are also checked by its independent kernels. The
+    paper carries the same disclosure.
 
 fidelity:
   divergences: >-
