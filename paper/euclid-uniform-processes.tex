@@ -32,11 +32,11 @@ of gcd and coprimeness by the same order, refuting Moschovakis's conjectured
 logarithmic lower bounds for uniform processes; by his best-uniform-process
 theorem, a single uniform process attains this bound.
 The Main Conjecture for algorithms remains open. We also prove an
-$\Omega(\log\log a)$ lower bound for almost all coprime pairs and give a
-family of finite nondeterministic gcd programs with arbitrarily small
-logarithmic cost coefficients, which need only a fixed number of registers
-and no recursion. The bounds and the refutations are
-formalised in Lean~4; the best-uniform-process theorem is cited.
+$\Omega(\log\log a)$ lower bound for almost all coprime pairs and give,
+for each $\varepsilon>0$, a nondeterministic gcd program with a fixed number
+of registers and no recursion that makes at most $\varepsilon\log a+O(1)$
+remainder calls. The main bounds and the refutations are formalised in
+Lean~4; the best-uniform-process theorem is cited.
 \end{abstract}
 
 \noindent\textbf{AI transparency statement.} This paper was produced entirely
@@ -111,11 +111,10 @@ of van den Dries and Moschovakis on the closure depth of the gcd
 
 We also prove that $D(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$
 coprime pairs $2\leq b<a\leq N$ (Proposition~\ref{prop:loglog}).
-Finally, fixing the prefix length gives finite nondeterministic programs
-with arbitrarily small logarithmic coefficients, uniformly over all inputs
-(Theorem~\ref{thm:programs}). Their program size grows as the requested
-coefficient decreases. They need no recursion: register programs with a
-fixed number of registers suffice (Theorem~\ref{thm:registers}).
+Finally, fixing the prefix length gives, for each $\varepsilon>0$, a
+nondeterministic register program, with no recursion, whose cost is at most
+$\varepsilon\log a+B$ on all inputs (Theorem~\ref{thm:registers}). The
+number of registers grows as $\varepsilon$ decreases.
 
 \paragraph{Related work.}
 The known intrinsic lower bounds give $\Omega(\log\log a)$ on special
@@ -672,16 +671,23 @@ such computation on each input and require every convergent computation to
 return the gcd. These are the conventions of
 \cite[(2E-2), (2E-5)]{moschovakis2019}.
 
-\begin{theorem}\label{thm:programs}
-For each integer $p\geq1$, there is a finite nondeterministic recursive program
-$P_p$ over $\mathcal N_0$ computing the gcd such that
+A \emph{register program} keeps its values in a fixed number of registers
+and executes assignments $x_l:=E$, branches on a test $E$, and a halt
+returning $E$, where each $E$ is a term in the registers; the
+nondeterministic version allows several commands at a line
+\cite[\S\S2E--2F]{moschovakis2019}. It is an iterator, so it uses no
+recursion stack, and in pointed structures register programs compute
+exactly the tail-recursive functions \cite[Proposition~2F.1]{moschovakis2019}.
+
+\begin{theorem}\label{thm:registers}
+For each integer $p\geq1$, there is a finite nondeterministic register
+program $P_p$ over $\mathcal N_0$ with $4^p+7$ registers that computes the
+gcd and satisfies
 \[
-\limsup_{a\to\infty}\ \max_{1\leq b\leq a}
-\frac{c_{P_p}(a,b)}{\log a}\leq\frac3p.
+\limsup_{a\to\infty}\ \max_{1\leq b\leq a}\frac{c_{P_p}(a,b)}{\log a}\leq\frac3p.
 \]
-Its generator, defined below, has $W=4^p+5$ individual parameters, and no
-internal function has larger arity. Consequently, for every $\varepsilon>0$ there are a fixed
-program $P$ and a constant $B\geq0$ such that
+Consequently, for every $\varepsilon>0$ there are a fixed register program
+$P$ and a constant $B\geq0$ such that
 \[
 \forall a\geq b\geq1,\qquad c_P(a,b)\leq\varepsilon\log a+B.
 \]
@@ -691,157 +697,37 @@ The program depends on $\varepsilon$ but not on the inputs. The Main
 Conjecture lets its coefficient $r$ depend on the program, so the family is
 consistent with it; no single sublogarithmic program is obtained.
 
-\paragraph{The program.}
-Fix $W\geq3$ and write $\vec x=(x_0,\ldots,x_{W-1})$ and
-$\vec x[i\leftarrow E]$ for the tuple with its $i$th expression replaced by
-$E$. The generator can return a parameter, replace one by a remainder,
-run a recursive subcomputation while retaining the caller's other values,
-or copy parameters into new positions. These four actions are expressed
-by the finite alternatives
-\begin{align*}
-\operatorname{choose}(\vec x)&=x_i &&(0\leq i<W),\tag{C}\\
-\operatorname{gen}(\vec x)&=\operatorname{choose}(\vec x),\tag{G1}\\
-\operatorname{gen}(\vec x)&=\operatorname{gen}
-  (\vec x[i\leftarrow\rem(\operatorname{choose}(\vec x),
-                               \operatorname{choose}(\vec x))])
-  &&(0\leq i<W),\tag{G2}\\
-\operatorname{gen}(\vec x)&=\operatorname{gen}
-  (\vec x[i\leftarrow\operatorname{gen}(\vec x)]) &&(0\leq i<W),\tag{G3}\\
-\operatorname{gen}(\vec x)&=\operatorname{gen}
-  (\operatorname{choose}(\vec x),\ldots,\operatorname{choose}(\vec x)).\tag{G4}
-\end{align*}
-There are $W$ independent selector calls in (G4). Tuple notation and
-indices are syntax abbreviations: after fixing $W$, each line expands into
-ordinary first-order terms with fixed arities. No tuple, index, numeric
-constant, or update operation is supplied as runtime data or a primitive.
-The nested generator in (G3) is evaluated once; its caller's
-other parameters remain available when it returns. The recursion stack can
-grow, so $W$ is an arity bound, not a total storage bound.
-
-Add $\operatorname{loop}(z)=\operatorname{loop}(z)$ and define
-$\operatorname{accept}(a,b,g)$ by nested zero-test conditionals: if $g=0$,
-loop; otherwise test $\rem(a,g)=0$ and then $\rem(b,g)=0$, returning $g$ if
-both tests succeed and looping otherwise. The head is
-\[
-P_W(a,b)=\text{if }\eq_0(b)\text{ then }a\text{ else }
-\operatorname{accept}(a,b,\operatorname{gen}(a,b,a,\ldots,a)).
-\]
-The four internal symbols have arities $W,W,3,1$ (for $\operatorname{choose}$,
-$\operatorname{gen}$, $\operatorname{accept}$, $\operatorname{loop}$). Every common divisor of
-the generator's parameters divides its output, by induction on a finite
-evaluation. Thus a candidate is divisible by $\gcd(a,b)$; successful
-verification proves the reverse divisibility. Every convergent computation
-therefore returns the gcd. There is always a convergent computation following
-Euclid, using parameter selection and copying to retain the current pair.
-For $b>0$, final verification costs exactly two remainder calls.
-
-This syntax is a finite recursive program in the sense of
-\cite[\S\S2A, 2E]{moschovakis2019}; Appendix~\ref{app:lean} records the Lean
-check that its evaluation trees correspond, with equal remainder cost, to
-convergent computations of a specialisation of the book's recursive machine.
-
-\begin{proof}[Proof of Theorem~\ref{thm:programs}]
-We follow the construction of Section~\ref{sec:construction}: store the
-prefix, contract, then recurse twice through nested generator calls.
-Take $P_p=P_W$ with $W=4^p+5$; that is, set $k=2^p$, $h=k^2+1$ (the prefix
-length, as in Corollary~\ref{cor:six} but now with $p$ fixed), and $W=h+4$.
-Store $r_0,\ldots,r_h$ in $h+1$
-parameters, reserving three parameters for the modulus and two scratch
-residues. Lemmas~\ref{lem:gap} and~\ref{lem:prefix} give a contraction by a
-factor greater than $k$ in at most three remainder calls, preserving the
-prefix. The program can choose precisely the operands of each contraction.
-
-The \emph{generator cost} of $(a,b)$ is the minimum number of remainder
-calls in an evaluation of $\operatorname{gen}$ that returns $\gcd(a,b)$ from
-$(a,b,a,\ldots,a)$. Let $T_W(n)$ be its maximum over $a,b\leq2^n$. Euclid
-gives $T_W(n)=O(n)$. To \emph{route} to $x,y$ means to apply (G4) to pass to
-the tuple $(x,y,x,\ldots,x)$, at no remainder cost. Copying parameters gives
-symmetry. Multiplying every value by $g=\gcd(a,b)$ turns a run on
-$(a/g,b/g)$ that returns $1$ into a run on $(a,b)$ that returns $g$, with the
-same remainder count. It therefore suffices to analyse coprime inputs.
-
-Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$. Use the early threshold
-$N^\alpha$ and the target modulus $N^\beta$, where $N=2^n$. If no prefix
-remainder is at most $N^\alpha$, then $r_h>N^\alpha$ and
-$2a/r_h<2N^{1-\alpha}<N^\beta$ for all sufficiently large $n$.
-There are at least $k+1$ distinct prefix residues modulo every modulus used
-before stopping, since $h>k^2$. At most $\lceil n/p\rceil$ contractions
-produce a positive $m\leq N^\beta$.
-
-In the early case, route directly to the smaller consecutive Euclidean pair.
-Otherwise form $u=a\bmod m$ and $v=b\bmod m$ in the scratch positions. A nested
-generator call, with its parameters routed to copies of $m,u$, returns
-$d=\gcd(m,u)$ while its caller retains $v$. Replace the modulus parameter
-by $d$ and route to copies of $d,v$ for the second gcd computation. The
-result is $\gcd(m,a,b)=1$. All these routes and nested calls are available
-in the same fixed program. Thus, eventually in $n$,
-\[
-T_W(n)\leq\max\left\{
- T_W(\lceil\alpha n\rceil)+h+1,\quad
- 2T_W(\lceil\beta n\rceil)+h+3\lceil n/p\rceil+2
-\right\}.
-\]
-Set $\Lambda_W=\limsup_{n\to\infty}T_W(n)/n$, finite and nonnegative by Euclid.
-Since $h$ is fixed, division by $n$ and passage to upper limits gives
-\[
-\Lambda_W\leq\max\{\alpha \Lambda_W,\ 2\beta \Lambda_W+3/p\}.
-\]
-As $\alpha<1$ and $\Lambda_W\geq0$, this implies $(1-2\beta)\Lambda_W\leq3/p$.
-The program is independent of $\beta$, so letting $\beta\downarrow0$ gives $\Lambda_W\leq3/p$.
-Take $n=\lceil\log a\rceil$ and add the two verification calls. Finally,
-choose $p>3/\varepsilon$ and absorb the finitely many smaller inputs in $B$.
-\end{proof}
-
-\paragraph{Bounded memory.}
-The nested calls in the proof are not needed. A \emph{register program}
-keeps its values in a fixed number of registers and executes assignments
-$x_l:=E$, branches on a test $E$, and a halt returning $E$, where each $E$ is
-a term in the registers; the nondeterministic version allows several
-commands at a line \cite[\S\S2E--2F]{moschovakis2019}. It is an iterator, so
-it uses no recursion stack, and in pointed structures register programs
-compute exactly the tail-recursive functions
-\cite[Proposition~2F.1]{moschovakis2019}. Its cost $c_P$ counts remainder
-evaluations as above.
-
-\begin{theorem}\label{thm:registers}
-For each integer $p\geq1$, there is a finite nondeterministic register
-program over $\mathcal N_0$ with $4^p+7$ registers that computes the gcd on
-inputs $a\geq b\geq1$ and satisfies the bound of
-Theorem~\ref{thm:programs}:
-\[
-\limsup_{a\to\infty}\ \max_{1\leq b\leq a}\frac{c_P(a,b)}{\log a}\leq\frac3p.
-\]
-\end{theorem}
-
 \begin{proof}
 Put $k=2^p$, $h=k^2+1$ and $W=h+6$, and start the registers
 $x_0,\ldots,x_{W-1}$ at $(a,b,a,b,a,\ldots,a)$. At its main line the program
 may perform any assignment $x_l:=\rem(x_i,x_j)$ with $i,j,l\geq2$, or pass to
 verification with a candidate $x_i$, $i\geq2$. Verification halts with $x_i$
 if $x_i\neq0$, $\rem(x_0,x_i)=0$ and $\rem(x_1,x_i)=0$, and loops otherwise.
-The inputs $x_0,x_1$ are never overwritten. The proof below describes
-computations that move values between registers; no copying command is
-needed, since a computation can leave each value in place and write each new
-remainder to a register whose value is no longer used, recording the roles of
-the registers in its choice of commands. Every register value is
-divisible by $\gcd(a,b)$, so every convergent computation returns the gcd,
-and Euclid's algorithm gives one.
+The inputs $x_0,x_1$ are never overwritten. Every register value is
+divisible by $\gcd(a,b)$, so a candidate that passes verification is the
+gcd, and Euclid's algorithm gives a convergent computation. The computations
+below move values between registers for readability; copying is never needed
+(Appendix~\ref{app:lean}).
 
-As before, scaling reduces the analysis to coprime pairs. Let $S(n)$ be the
-largest, over coprime $1\leq b\leq a\leq2^n$, of the least number of
-remainder calls that, starting from any state with $a,b$ in two working
-registers, place $1$ in a working register. Fix $0<\beta<1/2$, put
-$\alpha=1-\beta/2$ and $N=2^n$. Compute the Euclidean remainders
-$r_0=a,r_1=b,r_2,\ldots$ in working registers, stopping at $r_h$ or at the
-first $r_j\leq N^\alpha$. In the latter case one further remainder gives the
-coprime pair $r_j,r_{j+1}$, bounded by $N^\alpha$, at total cost at most
-$h$; continue with that pair. Otherwise $r_h>N^\alpha$, and as in the
-proof of Theorem~\ref{thm:programs}, at most $\lceil n/p\rceil$
-contractions, using a modulus register and two scratch registers, produce a
-positive $m\leq N^\beta$. Then put $u=a\bmod m$ and $v=b\bmod m$, and run
-Euclid's algorithm in place on $m,u$ and then on the result $d$ and $v$.
-Each run takes at most $2\log m+3$ calls, and the result is
-$\gcd(d,v)=\gcd(m,a,b)=1$. Thus, eventually in $n$,
+Multiplying every value by $g=\gcd(a,b)$ turns a computation on
+$(a/g,b/g)$ into one on $(a,b)$ with the same remainder count, so it
+suffices to treat coprime pairs. Let $S(n)$ be the largest, over coprime
+$1\leq b\leq a\leq2^n$, of the least number of remainder calls that,
+starting from any state with $a,b$ in two working registers, place $1$ in a
+working register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
+
+Compute the Euclidean remainders $r_0=a,r_1=b,r_2,\ldots$ in working
+registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$. In the
+latter case one further remainder gives the coprime pair $r_j,r_{j+1}$,
+bounded by $N^\alpha$, at total cost at most $h$; continue with that pair.
+Otherwise $r_h>N^\alpha$. As in the proof of Corollary~\ref{cor:six}, now
+with $p$ fixed, the prefix lemma applies to every modulus above $N^\beta$
+for large $n$, the prefix occupies at least $k+1$ residue classes, and at
+most $\lceil n/p\rceil$ contractions, using a modulus register and two
+scratch registers, produce a positive $m\leq N^\beta$. Then put
+$u=a\bmod m$ and $v=b\bmod m$, and run Euclid's algorithm in place on $m,u$
+and then on the result $d$ and $v$. Each run takes at most $2\log m+3$
+calls, and the result is $\gcd(d,v)=\gcd(m,a,b)=1$. Thus, eventually in $n$,
 \[
 S(n)\leq\max\left\{S(\lceil\alpha n\rceil)+h,\quad
  h+3\lceil n/p\rceil+4\beta n+7\right\}.
@@ -850,11 +736,23 @@ Euclid gives $S(n)=O(n)$. Passing to upper limits,
 $\Lambda=\limsup_{n\to\infty}S(n)/n$ satisfies
 $\Lambda\leq\max\{\alpha\Lambda,\ 3/p+4\beta\}$, and since $\alpha<1$,
 $\Lambda\leq3/p+4\beta$. The program does not depend on $\beta$, so
-$\Lambda\leq3/p$. Adding the two verification calls proves the bound.
+$\Lambda\leq3/p$. Take $n=\lceil\log a\rceil$ and add the two verification
+calls. Finally, choose $p>3/\varepsilon$ and absorb the finitely many
+smaller inputs in $B$.
 \end{proof}
-Here the completion uses Euclid's algorithm, whose cost $O(\beta n)$ is
-negligible as $\beta\to0$; the recursive completion of
-Section~\ref{sec:construction} is needed only when the prefix length grows.
+
+\paragraph{Recursive programs.}
+With the prefix length fixed, Euclid's algorithm completes the computation
+at cost $O(\beta n)$, negligible as $\beta\to0$; the recursive completion
+of Section~\ref{sec:construction} is needed only when the prefix length
+grows. Lean also checks a recursive form of the same family: a finite
+nondeterministic recursive program over $\mathcal N_0$ in the sense of
+\cite[\S\S2A, 2E]{moschovakis2019}, whose generator has $4^p+5$ parameters
+and finishes with two nested gcd computations, together with an exact-cost
+correspondence between its evaluations and convergent computations of a
+specialisation of the book's recursive machine (Appendix~\ref{app:lean}).
+It satisfies the same bound, so Theorem~\ref{thm:registers} holds for the
+book's recursive programs as well.
 
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
@@ -864,30 +762,27 @@ $O(\log a/\log\log a)$ on all positive pairs. Closing this gap is open;
 unlike Bshouty's bound in his model, our upper bound is not known to be
 optimal.
 
-\paragraph{From a growing prefix to one program.}
-The remaining obstacle in turning the construction into a sublogarithmic
-program is reusable access to a prefix whose length grows with the input.
-Selecting a close pair of residues costs nothing in a derivation, whereas
-computing all prefix residues would take about $h$ calls per contraction.
-The programs of Section~\ref{sec:programs} select operands nondeterministically
-from a fixed number of registers. Can one fixed first-order recursive
-program retain and repeatedly access a growing prefix at the same
-remainder cost? Proposition~2E.1 of the book \cite[\S2E]{moschovakis2019}
-converts each certificate into a computation of some program, not of one
-program for all certificates.
-
-\paragraph{Memory, not recursion.}
-By Theorem~\ref{thm:registers}, $W$ registers give coefficient $3/p$ with
-$W=4^p+7$, roughly $6/\log W$. So no bound $c\log a$ with $c$ independent
-of the number of registers holds, even for nondeterministic register
-programs. Does every nondeterministic register program with $W$ registers
-make at least $c\log a/\log W$ remainder calls on infinitely many inputs,
-for an absolute $c>0$? Such a bound cannot rest on how quickly values
-shrink, since $\rem(m+1,m)=1$. Pratt's algorithm is itself a
-nondeterministic register program \cite[Theorem~2E.2]{moschovakis2019};
-compare also the book's question whether recursion reduces to tail
-recursion in the pointed Euclidean structure
-\cite[Problem~x2G.6]{moschovakis2019}.
+\paragraph{One program.}
+The remaining obstacle to a single sublogarithmic program is reusable
+access to a prefix whose length grows with the input. Selecting a close pair
+of residues costs nothing in a derivation, whereas computing all prefix
+residues would take about $h$ calls per contraction. By
+Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$,
+roughly $6/\log W$, so no bound $c\log a$ with $c$ independent of the number
+of registers holds for nondeterministic register programs. A register
+program cannot hold a growing prefix at all; a recursive program can hold
+one only on its stack, where a callee cannot read it. Does every
+nondeterministic register program with $W$ registers make at least
+$c\log a/\log W$ remainder calls on infinitely many inputs, for an absolute
+$c>0$? Can one fixed recursive program retain and repeatedly access a
+growing prefix at the same remainder cost? A lower bound cannot rest on how
+quickly values shrink, since $\rem(m+1,m)=1$, and Proposition~2E.1 of the
+book \cite[\S2E]{moschovakis2019} converts each certificate into a
+computation of some program, not of one program for all certificates.
+Pratt's algorithm is itself a nondeterministic register program
+\cite[Theorem~2E.2]{moschovakis2019}; compare also the book's question
+whether recursion reduces to tail recursion in the pointed Euclidean
+structure \cite[Problem~x2G.6]{moschovakis2019}.
 
 \paragraph{Stronger lower-bound methods.}
 The limit established in Section~\ref{sec:certificates} leaves room for
@@ -932,8 +827,9 @@ removed by successive contractions roughly double (16, 31, 64, 125 and 252
 at 512 bits), so few contractions are needed. These samples illustrate the construction; the
 asymptotic claim rests on the proof. The
 accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and exhaustively tests the prefix
-lemma over a finite range. For Section~\ref{sec:programs}, a separate compiler
-and interpreter replay successful choices in finite first-order programs,
+lemma over a finite range. For the recursive programs of
+Section~\ref{sec:programs}, a separate compiler and interpreter replay
+successful choices in finite first-order programs,
 evaluating arguments right to left as the book's machine does. The
 \texttt{README.md} records commands, test ranges, seeds, and results.
 The Python interpreter is not formally verified; unrestricted arithmetic
@@ -993,19 +889,15 @@ Corollary~\ref{cor:refute} &
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
 \lean{AlmostAll.tendsto_card_within_loglog},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
-Theorem~\ref{thm:programs}: cost &
-\lean{RegisterProgram.maxCost_step}, \lean{RegisterProgram.Fixed.limsup_profile_le}\\
-Theorem~\ref{thm:programs}: syntax &
-\lean{RegisterProgram.Syntax.eval_head_correct},
-\lean{RegisterProgram.Syntax.eval_head_exists},
-\lean{RegisterProgram.Syntax.arbitrarily_small_program}\\
-Operational correspondence &
-\lean{RegisterProgram.Syntax.Machine.eval_iff_steps},
-\lean{RegisterProgram.Syntax.Machine.arbitrarily_small_program}\\
 Theorem~\ref{thm:registers} &
 \lean{TailProgram.maxCost_step}, \lean{TailProgram.Fixed.limsup_profile_le},
-\lean{TailSource.executes_iff}, \lean{TailSource.executes_correct},
+\lean{TailSource.run_trace_relabel}, \lean{TailSource.executes_correct},
 \lean{TailSource.arbitrarily_small_coefficient}\\
+Recursive programs (Section~\ref{sec:programs}) &
+\lean{RegisterProgram.Fixed.limsup_profile_le},
+\lean{RegisterProgram.Syntax.eval_head_correct},
+\lean{RegisterProgram.Syntax.Machine.eval_iff_steps},
+\lean{RegisterProgram.Syntax.Machine.arbitrarily_small_program}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1026,32 +918,32 @@ stated constant $40$ and the exceptional-set limit for every fixed
 $\varepsilon>0$, with threshold $(1-\varepsilon)\log\log N$.
 
 \paragraph{Programs and machine computations.}
-Generator runs translate into evaluations of finite first-order syntax
-with exactly the same remainder count, including final verification.
-Every terminating evaluation is correct, and a successful evaluation exists
-on every input. Lean also proves exact-cost equivalence with a specialisation
-of the book's two-stack machine: arguments are evaluated right to left,
-zero tests and branches are separate transitions, and only remainder
-transitions are charged \cite[Table~1, pp.~75--76]{moschovakis2019}.
-The forward proof embeds each argument evaluation in its calling context;
-the reverse proof decomposes a convergent computation into its argument
-and body evaluations. Closures represent substitution in machine states,
-not extra program data. This checks the language and program family used
-here; the repository README describes the Python compiler and interpreter
-and their relation to the Lean syntax.
-
-The \lean{RegisterProgram} declarations concern the generator of
-Theorem~\ref{thm:programs}, whose nested calls use a stack. For
-Theorem~\ref{thm:registers}, Lean defines the register program itself
+For Theorem~\ref{thm:registers}, Lean defines the register program itself
 (\lean{TailSource.Step}): finitely many lines, work registers, two input
 registers that no command writes, and no stack. Each command is an
 assignment $x_l:=\rem(x_i,x_j)$ or a branch or halt on a single register,
 and each remainder evaluation is charged once, including the two
 verification calls. Every convergent execution returns the gcd, and one
 exists on every input. The cost proofs use a generator that may also
-relabel all registers at once; \lean{TailSource.run_trace_relabel} replays
-such runs by single-register commands at the same cost, so no copying is
-needed.
+relabel all registers at once. \lean{TailSource.run_trace_relabel} replays
+such runs by single-register commands at the same cost and with no extra
+registers: it tracks the relabelling in the proof, and writes each new
+remainder to a register no other value occupies, which exists by
+pigeonhole whenever two names share a register.
+
+The recursive programs (the \lean{RegisterProgram} declarations) are
+finite first-order syntax whose generator keeps the caller's values on a
+stack during nested calls. Generator runs translate into evaluations of
+this syntax with exactly the same remainder count, including final
+verification; every terminating evaluation is correct, and a successful
+evaluation exists on every input. Lean also proves exact-cost equivalence
+with a specialisation of the book's two-stack machine: arguments are
+evaluated right to left, zero tests and branches are separate transitions,
+and only remainder transitions are charged
+\cite[Table~1, pp.~75--76]{moschovakis2019}. Closures represent
+substitution in machine states, not extra program data. The repository
+README gives the program text and describes the Python compiler and
+interpreter.
 
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a

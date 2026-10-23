@@ -387,11 +387,43 @@ x₀, …, x_{W−1} of its generator function; `--width 9` below is p = 1), has
 remainder cost at most (3/p + o(1)) log₂ a. Cost is the minimum number of remainder calls
 over successful computations; every terminating computation is correct. Thus, for every
 ε > 0, there is a fixed program with cost at most ε log₂ a + Bε on all positive inputs
-a ≥ b. The paper proves this in the section "Fixed programs with arbitrarily small
-coefficients". **This does not give one sublogarithmic program**: the program
+a ≥ b. **This does not give one sublogarithmic program**: the program
 depends on ε, and the Main Conjecture allows its lower-bound coefficient to depend on the
 program. The remaining difficulty is reusing a growing Euclidean prefix in one fixed
 first-order program.
+
+The paper's main program theorem is the stronger
+[bounded-memory form](#bounded-memory-program-family), which needs no recursion; the paper
+describes this recursive form briefly, in the section "Fixed programs with arbitrarily
+small coefficients", and its full text is below. Write x⃗ = (x₀, …, x_{W−1}) and
+x⃗[i ← E] for the tuple with its i-th expression replaced by E. The generator can return
+a parameter, replace one by a remainder, run a recursive subcomputation while retaining
+the caller's other values, or copy parameters into new positions:
+
+$$
+\begin{aligned}
+\mathrm{choose}(\vec x) &= x_i \quad (0 \le i < W) &&\text{(C)}\\
+\mathrm{gen}(\vec x) &= \mathrm{choose}(\vec x) &&\text{(G1)}\\
+\mathrm{gen}(\vec x) &= \mathrm{gen}(\vec x[i \leftarrow \mathrm{rem}(\mathrm{choose}(\vec x), \mathrm{choose}(\vec x))]) \quad (0 \le i < W) &&\text{(G2)}\\
+\mathrm{gen}(\vec x) &= \mathrm{gen}(\vec x[i \leftarrow \mathrm{gen}(\vec x)]) \quad (0 \le i < W) &&\text{(G3)}\\
+\mathrm{gen}(\vec x) &= \mathrm{gen}(\mathrm{choose}(\vec x), \ldots, \mathrm{choose}(\vec x)) &&\text{(G4)}
+\end{aligned}
+$$
+
+There are W independent selector calls in (G4). Tuple notation and indices are syntax
+abbreviations: after fixing W, each line expands into ordinary first-order terms with
+fixed arities. The nested generator in (G3) is evaluated once, and its caller's other
+parameters remain available when it returns; the recursion stack can grow, so W bounds
+arity, not storage. With loop(z) = loop(z) and accept(a, b, g) defined by zero-test
+conditionals (loop if g = 0; otherwise test rem(a, g) = 0 and then rem(b, g) = 0,
+returning g if both succeed and looping otherwise), the head is
+
+$$P_W(a, b) = \text{if } \mathrm{eq}_0(b) \text{ then } a \text{ else } \mathrm{accept}(a, b, \mathrm{gen}(a, b, a, \ldots, a)).$$
+
+The four internal symbols have arities W, W, 3 and 1. The cost analysis follows the
+bounded-memory proof, except that the two final gcd computations are nested generator
+calls rather than Euclidean loops, giving the recurrence
+T_W(n) ≤ max{T_W(⌈αn⌉) + h + 1, 2T_W(⌈βn⌉) + h + 3⌈n/p⌉ + 2}.
 
 The bound is checked in Lean, including finite first-order syntax and call-by-value
 evaluation. Lean also checks an exact-cost correspondence with an explicit
@@ -488,8 +520,8 @@ The program family needs no recursion stack. For each p ≥ 1, a nondeterministi
 register program with 4ᵖ + 5 work registers and two read-only input registers
 (4ᵖ + 7 in all) has worst-case remainder cost at most (3/p + o(1)) log₂ a, uniformly in
 b ≤ a. Every convergent computation returns the gcd, and every input has one. The paper
-proves this as the bounded-memory theorem in the section "Fixed programs with
-arbitrarily small coefficients".
+proves this as its program theorem, in the section "Fixed programs with arbitrarily
+small coefficients".
 
 The construction keeps the fixed prefix and the contractions. Once the modulus m is
 small, it computes a mod m and b mod m and finishes with two Euclidean loops in place,
