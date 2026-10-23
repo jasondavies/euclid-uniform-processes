@@ -113,7 +113,8 @@ coprime pairs $2\leq b<a\leq N$ (Proposition~\ref{prop:loglog}).
 Finally, fixing the prefix length gives finite nondeterministic programs
 with arbitrarily small logarithmic coefficients, uniformly over all inputs
 (Theorem~\ref{thm:programs}). Their program size grows as the requested
-coefficient decreases.
+coefficient decreases. They need no recursion: register programs with a
+fixed number of registers suffice (Theorem~\ref{thm:registers}).
 
 \paragraph{Related work.}
 The known intrinsic lower bounds give $\Omega(\log\log a)$ on special
@@ -790,6 +791,66 @@ Take $n=\lceil\log a\rceil$ and add the two verification calls. Finally,
 choose $p>3/\varepsilon$ and absorb the finitely many smaller inputs in $B$.
 \end{proof}
 
+\paragraph{Bounded memory.}
+The nested calls in the proof are not needed. A \emph{register program}
+keeps its values in a fixed number of registers and executes assignments
+$x_l:=E$, branches on a test $E$, and a halt returning $E$, where each $E$ is
+a term in the registers; the nondeterministic version allows several
+commands at a line \cite[\S\S2E--2F]{moschovakis2019}. It is an iterator, so
+it uses no recursion stack, and in pointed structures register programs
+compute exactly the tail-recursive functions
+\cite[Proposition~2F.1]{moschovakis2019}. Its cost $c_P$ counts remainder
+evaluations as above.
+
+\begin{theorem}\label{thm:registers}
+For each integer $p\geq1$, there is a finite nondeterministic register
+program over $\mathcal N_0$ with $4^p+7$ registers that computes the gcd on
+inputs $a\geq b\geq1$ and satisfies the bound of
+Theorem~\ref{thm:programs}:
+\[
+\limsup_{a\to\infty}\ \max_{1\leq b\leq a}\frac{c_P(a,b)}{\log a}\leq\frac3p.
+\]
+\end{theorem}
+
+\begin{proof}
+Put $k=2^p$, $h=k^2+1$ and $W=h+6$, and start the registers
+$x_0,\ldots,x_{W-1}$ at $(a,b,a,b,a,\ldots,a)$. At its main line the program
+may perform any assignment $x_l:=\rem(x_i,x_j)$ or $x_l:=x_i$ with $l\geq2$,
+or pass to verification with candidate $x_i$. Verification halts with $x_i$
+if $x_i\neq0$, $\rem(x_0,x_i)=0$ and $\rem(x_1,x_i)=0$, and loops otherwise.
+The inputs $x_0,x_1$ are never overwritten. Every register value is
+divisible by $\gcd(a,b)$, so every convergent computation returns the gcd,
+and Euclid's algorithm gives one.
+
+As before, scaling reduces the analysis to coprime pairs. Let $S(n)$ be the
+largest, over coprime $1\leq b\leq a\leq2^n$, of the least number of
+remainder calls that, starting from any state with $a,b$ in two working
+registers, place $1$ in a working register. Fix $0<\beta<1/2$, put
+$\alpha=1-\beta/2$ and $N=2^n$. Compute the Euclidean remainders
+$r_0=a,r_1=b,r_2,\ldots$ in working registers, stopping at $r_h$ or at the
+first $r_j\leq N^\alpha$. In the latter case one further remainder gives the
+coprime pair $r_j,r_{j+1}$, bounded by $N^\alpha$, at total cost at most
+$h$; continue with that pair. Otherwise $r_h>N^\alpha$, and as in the
+proof of Theorem~\ref{thm:programs}, at most $\lceil n/p\rceil$
+contractions, using a modulus register and two scratch registers, produce a
+positive $m\leq N^\beta$. Then put $u=a\bmod m$ and $v=b\bmod m$, and run
+Euclid's algorithm in place on $m,u$ and then on the result $d$ and $v$.
+Each run takes at most $2\log m+3$ calls, and the result is
+$\gcd(d,v)=\gcd(m,a,b)=1$. Thus, eventually in $n$,
+\[
+S(n)\leq\max\left\{S(\lceil\alpha n\rceil)+h,\quad
+ h+3\lceil n/p\rceil+4\beta n+7\right\}.
+\]
+Euclid gives $S(n)=O(n)$. Passing to upper limits,
+$\Lambda=\limsup_{n\to\infty}S(n)/n$ satisfies
+$\Lambda\leq\max\{\alpha\Lambda,\ 3/p+4\beta\}$, and since $\alpha<1$,
+$\Lambda\leq3/p+4\beta$. The program does not depend on $\beta$, so
+$\Lambda\leq3/p$. Adding the two verification calls proves the bound.
+\end{proof}
+Here the completion uses Euclid's algorithm, whose cost $O(\beta n)$ is
+negligible as $\beta\to0$; the recursive completion of
+Section~\ref{sec:construction} is needed only when the prefix length grows.
+
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
 The intrinsic complexity of coprimeness in $\mathcal N_\varepsilon$ is at
@@ -804,11 +865,24 @@ program is reusable access to a prefix whose length grows with the input.
 Selecting a close pair of residues costs nothing in a derivation, whereas
 computing all prefix residues would take about $h$ calls per contraction.
 The programs of Section~\ref{sec:programs} select operands nondeterministically
-from a fixed number of parameters. Can one fixed first-order recursive
+from a fixed number of registers. Can one fixed first-order recursive
 program retain and repeatedly access a growing prefix at the same
 remainder cost? Proposition~2E.1 of the book \cite[\S2E]{moschovakis2019}
 converts each certificate into a computation of some program, not of one
 program for all certificates.
+
+\paragraph{Memory, not recursion.}
+By Theorem~\ref{thm:registers}, $W$ registers give coefficient $3/p$ with
+$W=4^p+7$, roughly $6/\log W$. So no bound $c\log a$ with $c$ independent
+of the number of registers holds, even for nondeterministic register
+programs. Does every nondeterministic register program with $W$ registers
+make at least $c\log a/\log W$ remainder calls on infinitely many inputs,
+for an absolute $c>0$? Such a bound cannot rest on how quickly values
+shrink, since $\rem(m+1,m)=1$. Pratt's algorithm is itself a
+nondeterministic register program \cite[Theorem~2E.2]{moschovakis2019};
+compare also the book's question whether recursion reduces to tail
+recursion in the pointed Euclidean structure
+\cite[Problem~x2G.6]{moschovakis2019}.
 
 \paragraph{Stronger lower-bound methods.}
 The limit established in Section~\ref{sec:certificates} leaves room for
@@ -874,8 +948,9 @@ The general theory of uniform processes, including Theorem~4F.1 used in
 Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
 not formalised. The certificate bounds and conjecture refutations are
 formalised independently of that theory, with certificates represented by
-their facts as in Lemma~\ref{lem:fact-representation}; that lemma and
-Corollary~\ref{cor:closure-depth} are proved here, not formalised.
+their facts as in Lemma~\ref{lem:fact-representation}; that lemma,
+Corollary~\ref{cor:closure-depth} and Theorem~\ref{thm:registers} are
+proved here, not yet formalised.
 
 The development is also packaged for the Palomar registry:
 \texttt{Challenge.lean} imports only mathlib and states the main theorems

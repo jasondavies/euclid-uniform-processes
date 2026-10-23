@@ -116,6 +116,9 @@ optimal among its peers:
 - **Program family.** For every ε > 0 there is a fixed finite nondeterministic recursive
   gcd program, using only rem and eq0, with cost at most ε log₂ a + Bε on all positive
   inputs a ≥ b; see [Nondeterministic program family](#nondeterministic-program-family).
+  The paper also shows that no recursion is needed: a nondeterministic register program
+  with 4^p + 7 registers achieves the same coefficient 3/p. This bounded-memory form is
+  proved in the paper and not yet formalised.
 - **The homomorphism-test barrier.** The Homomorphism Test applied to all generated
   primitive operation diagrams cannot prove a logarithmic lower bound: every input has a
   certificate with o(log a) remainder facts. This leaves open arguments combining
@@ -318,7 +321,8 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
   re-formalised here. The refutations need no such theory, because they are stated
   about intrinsic complexities defined directly from certificates, represented by their
   facts; the paper's fact-representation lemma relates this to the book's finite partial
-  structures and is not itself formalised. The paper also cites
+  structures and is not itself formalised. The register-program form of the program
+  family (in §7 of the paper) is not yet formalised either. The paper also cites
   the known lower bounds (van den Dries–Moschovakis); they are not formalised either.
 - **Conventions.** Coprimeness in the refutations is the book's relation, which requires
   positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses
