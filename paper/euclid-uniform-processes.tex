@@ -54,7 +54,9 @@ $\gcd(x,y)$ there is an $r>0$ such that $\alpha$ makes more than $r\log x$
 remainder calls on infinitely many pairs $x>y\geq1$
 \cite[p.~2]{moschovakis2019}. We refute its formulations for uniform
 processes, the book's more general model (Section~\ref{sec:certificates});
-for algorithms it remains open.
+for algorithms it remains open. Here ``uniform process'' is Moschovakis's
+technical notion; the existence of one such process does not imply an
+implementation by one finite recursive program.
 Throughout, ``the book'' means Moschovakis's monograph
 \cite{moschovakis2019}, and logarithms are to base $2$.
 
@@ -69,9 +71,6 @@ $D(a,b)=G(a,b)$ for coprime inputs. Thus $G(a,0)=0$ and $D(a,1)=0$.
 Arithmetic used in the proofs, such as subtraction, sorting or comparison,
 only selects instructions; it is never itself an instruction. Thus $G$
 measures the length of a derivation, not the work of finding one.
-Here ``uniform process'' is Moschovakis's technical notion; the existence
-of one such process does not imply an implementation by one finite
-recursive program.
 
 \begin{theorem}\label{thm:main}
 There is a constant $C$ such that for all integers $a\geq4$ and $0\leq b\leq a$,
@@ -519,10 +518,11 @@ The gcd process can also be taken over $\mathcal N_0$.
 \end{corollary}
 \begin{proof}
 Theorem~\ref{thm:main}, Proposition~\ref{prop:certificates} and
-Remark~\ref{rem:noncoprime} give the cost bound. Every input has a
-certificate: symmetry covers reversed inputs, and a zero-test fact
-suffices when either input is zero. Thus the same process is defined on
-all of $\mathbb N^2$ by Theorem~4F.1.
+Remark~\ref{rem:noncoprime} bound the intrinsic complexities, and by
+Theorem~4F.1 one process attains them at every input. Every input has a
+certificate (symmetry covers reversed inputs, and a zero-test fact
+suffices when either input is zero), so this process is defined on all of
+$\mathbb N^2$.
 \end{proof}
 The corollary rules out the possibility raised after Corollary~6C.7 of the
 book that the Main Conjecture holds for all uniform processes of
@@ -748,8 +748,9 @@ smaller inputs in $B$.
 \end{proof}
 
 \paragraph{Recursive programs.}
-With fixed prefix length, ordinary Euclid finishes at cost $O(\beta n)$;
-letting $\beta$ tend to zero gives the stated coefficient. Writing one
+With the prefix length fixed, Euclid's algorithm can replace the recursive
+completion of Section~\ref{sec:construction}, since its cost $O(\beta n)$
+vanishes as $\beta\to0$. Writing one
 function per line yields a finite nondeterministic tail-recursive program
 with the same remainder cost \cite[\S\S2A, 2C, 2E]{moschovakis2019}.
 Lean verifies this correspondence with the book's recursive machine and
@@ -858,8 +859,8 @@ with every definition visible and deliberate \texttt{sorry} placeholders.
 \texttt{Solution.lean} imports the proved library, independently of these placeholders.
 Palomar's comparator checks that the proved statements are exactly those of
 \texttt{Challenge.lean} and replays the proofs through Lean's kernel and
-independent kernels. The README lists all sixteen compared theorems;
-Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
+independent kernels. \texttt{comparator.json} lists all sixteen compared
+theorems; Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
 Version~1 of the registry entry \cite{palomar2026}
 records this verification of the first thirteen, for commit
 \texttt{40279dd}; the three program statements were added afterwards.
@@ -888,6 +889,8 @@ Corollary~\ref{cor:refute} &
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:registers} &
+\lean{TailProgram.Fixed.eventually_accepts_bound}, \lean{TailSource.executes_iff},
+\lean{TailSource.total_registers},
 \lean{TailSource.executes_correct}${}^\dagger$,
 \lean{TailSource.executes_total}${}^\dagger$,
 \lean{TailSource.arbitrarily_small_coefficient}${}^\dagger$\\
