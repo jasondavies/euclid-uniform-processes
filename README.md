@@ -99,11 +99,10 @@ optimal among its peers:
 
   where L(x, y) = 2 log max(x, y), with L(0, 0) = 0, and Eucl is the Euclidean
   algorithm. We prove that for every K > 0 the second inequality holds on only finitely
-  many pairs. This holds both
-  for gcd certificates without eq1 facts (𝒜 = (ℕ, rem, eq0)) and for certificates in Nε.
-  The book's form, with a set D on which the complexity is unbounded (condition (4F-4)),
-  is refuted as well. These statements omit the first inequality, which only weakens the
-  statement being refuted.
+  many pairs, both for gcd certificates without eq1 facts (𝒜 = (ℕ, rem, eq0)) and for
+  certificates in Nε. The book's form, with a set D on which the complexity is unbounded
+  (condition (4F-4)), is refuted as well. These statements omit the first inequality,
+  which only weakens the statement being refuted.
 - **The possibility raised after Corollary 6C.7 (p. 188)**, that the Main Conjecture
   "holds for all uniform processes of Nε". Ruling this out also uses the book's
   best-uniform-process theorem (4F.1), which turns a small intrinsic complexity into a
