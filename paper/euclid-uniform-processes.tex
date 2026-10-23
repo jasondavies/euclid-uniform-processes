@@ -26,7 +26,7 @@
 \begin{abstract}
 Reusing a stored Euclidean prefix, we derive $\gcd(a,b)$ from $a,b$ with
 $O(\log a/\log\log a)$ applications of the remainder function alone,
-uniformly for $a>b\geq1$; Euclid's algorithm needs order $\log a$ in the
+uniformly in $b\leq a$; Euclid's algorithm needs order $\log a$ in the
 worst case. These derivations bound the intrinsic complexity
 of gcd and coprimeness by the same order, refuting Moschovakis's conjectured
 logarithmic lower bounds for uniform processes; by his best-uniform-process
@@ -59,7 +59,7 @@ for algorithms it remains open. Uniform processes are the book's abstract
 model of computation from given primitives: every deterministic or
 nondeterministic recursive program induces one
 \cite[\S4A, Proposition~4A.1]{moschovakis2019}, but a uniform process need
-not be implemented by any finite program. Logarithms are to base $2$.
+not be implemented by any finite program.
 
 \paragraph{Derivations.}
 A \emph{derivation} from $a,b$ is a finite list that starts with $a,b$ and in
@@ -67,18 +67,17 @@ which each further entry is $\rem(x,y)$ for earlier entries $x,y$ with $y>0$.
 Each further entry is one \emph{instruction}, that is, one remainder call.
 Entries already in the list are \emph{available} and may be reused; no
 constants and no other operations are supplied. Let $G(a,b)$ be the least
-number of instructions in a derivation containing $\gcd(a,b)$, and let
-$D(a,b)=G(a,b)$ for coprime inputs. Thus $G(a,0)=0$ and $D(a,1)=0$.
-Arithmetic used in the proofs, such as subtraction, sorting or comparison,
-only selects instructions; it is never itself an instruction. So $G$
-measures the length of a derivation, not the work of finding one.
+number of instructions in a derivation containing $\gcd(a,b)$. Thus
+$G(a,0)=G(a,1)=0$. Arithmetic used in the proofs, such as subtraction,
+sorting or comparison, only selects instructions; it is never itself an
+instruction. So $G$ measures the length of a derivation, not the work of
+finding one. Logarithms are to base $2$.
 
 \begin{theorem}\label{thm:main}
 There is a constant $C$ such that for all integers $a\geq4$ and $0\leq b\leq a$,
 \[
 G(a,b)\leq C\,\frac{\log a}{\log\log a}.
 \]
-In particular this bound holds for $D(a,b)$ when $\gcd(a,b)=1$.
 \end{theorem}
 
 \paragraph{Idea of the proof.}
@@ -110,7 +109,7 @@ same bound on every input. The upper bound also settles an open problem
 of van den Dries and Moschovakis on the closure depth of the gcd
 (Corollary~\ref{cor:closure-depth}).
 
-We also prove that $D(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$
+We also prove that $G(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$
 coprime pairs $2\leq b<a\leq N$ (Proposition~\ref{prop:loglog}).
 Finally, fixing the prefix length gives, for each $\varepsilon>0$, a
 nondeterministic register program with a successful computation costing at
@@ -148,7 +147,7 @@ Every generated value is divisible by $g$. Consequently scaling a derivation,
 or dividing all its values by $g$, preserves its length and the validity of
 every instruction. Hence
 \begin{equation}\label{eq:normalize}
-G(a,b)=D(a/g,b/g).
+G(a,b)=G(a/g,b/g).
 \end{equation}
 Define
 \[
@@ -156,7 +155,7 @@ T(n)=\max_{0\leq b\leq a\leq 2^n,\ a>0}G(a,b).
 \]
 Euclid's remainders form a derivation containing $\gcd(a,b)$, so $G$ and
 $T$ are finite. By \eqref{eq:normalize} it
-suffices to bound $D$; the cases $a=b$, $b=0$ and $b=1$ need no instructions.
+suffices to bound $G$ on coprime pairs; the cases $a=b$, $b=0$ and $b=1$ need no instructions.
 
 \section{Three-call contractions}\label{sec:contractions}
 \begin{lemma}\label{lem:gap}
@@ -244,7 +243,7 @@ We use $N^{3/4}$ as the \emph{early threshold} and $N^{1/3}$ as the
 \emph{target modulus}. Any thresholds $N^\alpha,N^\beta$ with $\alpha<1$,
 $\alpha+\beta>1$ and $2\beta<1$ would do: these make the early recursive
 problem smaller, let the prefix lemma apply above the target, and make the
-two final problems together smaller. We take $\alpha=3/4$ and $\beta=1/3$.
+two final problems together smaller.
 
 \paragraph{Phase (i): the prefix.}
 Starting from $r_1=b$, generate the Euclidean remainders $r_2,r_3,\ldots$,
@@ -273,8 +272,7 @@ There are at most $J$ contractions: if $J$ have occurred then
 $m<N/\kappa^{J}\leq N^{1/3}$. Since
 $\log\kappa=\tfrac14\log n+O(1)$, their cost is $3J=O(n/\log n)$.
 This is the source of the saving: the prefix costs only $O(\sqrt n)$
-instructions, and each contraction reduces $\log m$ by at least
-$\log\kappa=\tfrac14\log n+O(1)$.
+instructions, and every contraction reuses it.
 
 \paragraph{Phase (iii): two recursive derivations.}
 The small $m$ need not be coprime to either input. Generate
@@ -312,11 +310,12 @@ $2f(\lceil n/3\rceil)\leq\tfrac56f(n)$. Both overheads in
 \eqref{eq:recurrence} are at most $c_0f(n)$ for a fixed $c_0$. Choose the
 induction threshold above $16$, where the recurrence holds, and large enough
 that both recursive indices are at least $2$ and strictly less than $n$. Choose
-$C\geq8c_0$, increased to cover the finitely many values below the threshold.
-Strong induction then gives $T(n)\leq Cf(n)$: the two bounds are
-$(7C/8+c_0)f(n)$ and $(5C/6+c_0)f(n)$, both at most $Cf(n)$.
+$C'\geq8c_0$, increased to cover the finitely many values below the threshold.
+Strong induction then gives $T(n)\leq C'f(n)$: the two bounds are
+$(7C'/8+c_0)f(n)$ and $(5C'/6+c_0)f(n)$, both at most $C'f(n)$.
 Finally take $n=\lceil\log a\rceil$. For $a\geq4$, $n\leq2\log a$ and
-$\log n\geq\log\log a\geq1$, so $G(a,b)\leq T(n)\leq2C\log a/\log\log a$.
+$\log n\geq\log\log a\geq1$, so $G(a,b)\leq T(n)\leq2C'\log a/\log\log a$,
+and the theorem holds with $C=2C'$.
 \end{proof}
 
 \subsection{The leading coefficient}
@@ -377,25 +376,24 @@ $S_0=\{0,1,a,b\}$, let $S_{k+1}$ adjoin to $S_k$ all values $x+y$, $x-y$,
 $\operatorname{iq}(x,y)$ (integer quotient) and $\rem(x,y)$ with
 $x,y\in S_k$, and let $g(a,b)$
 be the least $k$ with $\gcd(a,b)\in S_k$ \cite[p.~2:6]{vddm2009}. They ask
-whether there are positive integers $\alpha_n\to\infty$ and $\beta_n$ and a
-$C>0$ with $g(\alpha_n,\beta_n)>C\log\alpha_n$ for all $n$
+whether there are positive integers $a_n\to\infty$ and $b_n$ and a $C>0$
+with $g(a_n,b_n)>C\log a_n$ for all $n$
 \cite[Open Problem, p.~2:11]{vddm2009}.
 
 \begin{corollary}\label{cor:closure-depth}
-For integers $\alpha\geq4$ and $\beta\geq1$,
+For integers $a\geq4$ and $b\geq1$,
 \[
-g(\alpha,\beta)\leq1+G(\alpha,\rem(\beta,\alpha))
- =O\left(\frac{\log\alpha}{\log\log\alpha}\right).
+g(a,b)\leq1+G(a,\rem(b,a))
+ =O\left(\frac{\log a}{\log\log a}\right).
 \]
 Hence no such sequences exist.
 \end{corollary}
 \begin{proof}
-Put $r=\rem(\beta,\alpha)$, so $r\in S_1$, $0\leq r<\alpha$ and
-$\gcd(\alpha,r)=\gcd(\alpha,\beta)$. In a derivation from $\alpha,r$, the
-value of the $k$th instruction lies in $S_{k+1}$, by induction on $k$: its
-operands are $\alpha$, $r$ or earlier values, all in $S_k$. The source's
-remainder agrees with ours at positive divisors. Theorem~\ref{thm:main}
-bounds $G(\alpha,r)$.
+Put $r=\rem(b,a)$, so $r\in S_1$, $0\leq r<a$ and $\gcd(a,r)=\gcd(a,b)$.
+In a derivation from $a,r$, the value of the $k$th instruction lies in
+$S_{k+1}$, by induction on $k$: its operands are $a$, $r$ or earlier values,
+all in $S_k$. (Their remainder agrees with ours whenever the divisor is
+positive.) Theorem~\ref{thm:main} bounds $G(a,r)$.
 \end{proof}
 
 \section{Certificates and uniform processes}\label{sec:certificates}
@@ -415,11 +413,12 @@ Coprimeness is the relation
 $x\coprime y\iff x,y\geq1\wedge\gcd(x,y)=1$
 \cite[\S1A]{moschovakis2019}.
 
-A derivation records finitely many remainder equations. These form a
-partial structure generated by the inputs. A \emph{certificate} for $f$ at $\vec x$ in a structure
-$\mathcal A$ is such a finite generated partial substructure, possibly with
-test facts, on which every homomorphism into $\mathcal A$ respects $f$ at
-$\vec x$. In other words, any assignment of values preserving the recorded
+A \emph{certificate} for $f$ at $\vec x$ in a structure $\mathcal A$ is a
+finite partial substructure $\mathcal U$ of $\mathcal A$, generated by
+$\vec x$ and containing $f(\vec x)$ when $f$ is a function, such that every
+homomorphism $\pi:\mathcal U\to\mathcal A$ satisfies
+$f(\pi\vec x)=\pi(f(\vec x))$. For example, the remainder equations of a
+derivation form such a substructure. In other words, any assignment of values preserving the recorded
 operations and tests must preserve the answer. The \emph{intrinsic
 remainder-call complexity} $\calls_{\rem}(\mathcal A,f,\vec x)$ is the least
 number of remainder facts in a certificate
@@ -457,7 +456,7 @@ most once.
 
 \begin{proposition}\label{prop:certificates}
 For coprime $a,b\geq1$,
-$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)=D(a,b)$. For
+$\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)=G(a,b)$. For
 $(a,b)\neq(0,0)$,
 \[
 G(a,b)\leq\calls_{\rem}(\mathcal N_0,\gcd,a,b)\leq G(a,b)+2,
@@ -468,8 +467,8 @@ and the same bounds hold for $\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$.
 A derivation of $1$, together with $\eq_1(1)=\mathrm{tt}$,
 $\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$, certifies $\coprime$: under
 any homomorphism the input images are positive, and each of their common
-divisors divides every transported generated value, hence divides the image
-$1$. Conversely, if a certificate has no positive $\eq_1$ fact, then
+divisors divides every transported generated value, hence divides
+$\pi(1)$, which is $1$ because the fact $\eq_1(1)=\mathrm{tt}$ is preserved. Conversely, if a certificate has no positive $\eq_1$ fact, then
 $x\mapsto2x$ preserves its remainder facts, zero tests and negative
 one-tests, but not coprimeness. So every certificate contains $1$, and
 Lemma~\ref{lem:fact-representation} gives a derivation of $1$ with at
@@ -503,29 +502,6 @@ additive constant, Corollary~\ref{cor:six} holds for all three complexities
 of Corollary~\ref{cor:refute} below on positive inputs.
 \end{enumerate}
 \end{remark}
-
-\paragraph{A single uniform process.}
-The book's Theorem~4F.1 states that, whenever every input has a certificate,
-one uniform process attains the intrinsic complexity at every input
-\cite[pp.~149--150]{moschovakis2019}.
-
-\begin{corollary}\label{cor:uniform}
-For each of gcd and coprimeness, there is a single uniform process of
-$\mathcal N_\varepsilon$ computing it on $\mathbb N^2$ with
-$O(\log a/\log\log a)$ remainder calls, uniformly for $a\geq b\geq1$.
-The gcd process can also be taken over $\mathcal N_0$.
-\end{corollary}
-\begin{proof}
-Theorem~\ref{thm:main}, Proposition~\ref{prop:certificates} and
-Remark~\ref{rem:noncoprime} bound the intrinsic complexities, and by
-Theorem~4F.1 one process attains them at every input. Every input has a
-certificate (symmetry covers reversed inputs, and a zero-test fact
-suffices when either input is zero), so this process is defined on all of
-$\mathbb N^2$.
-\end{proof}
-The corollary rules out the possibility raised after Corollary~6C.7 of the
-book that the Main Conjecture holds for all uniform processes of
-$\mathcal N_\varepsilon$ \cite[p.~188]{moschovakis2019}.
 
 \paragraph{The conjectures refuted.}
 Moschovakis's 2012 notes state:
@@ -561,7 +537,7 @@ The intrinsic complexities
 \calls_{\rem}(\mathcal N_0,\gcd,a,b),\qquad
 \calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)
 \]
-are $O(\log a/\log\log a)$, uniformly for $a\geq b\geq1$. Consequently Conjecture~3.4 of
+are $O(\log a/\log\log a)$, uniformly in $1\leq b\leq a$. Consequently Conjecture~3.4 of
 \cite{moschovakis2012} is false, and so is the version (4F-5) of the Main
 Conjecture with $\mathcal A=\mathcal N_0$ or $\mathcal A=\mathcal N_\varepsilon$:
 for every $r>0$ only finitely many pairs $a\geq b\geq1$ satisfy
@@ -569,9 +545,35 @@ $\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$, and for every
 $K>0$ only finitely many pairs $(x,y)\in\mathbb N^2$ satisfy
 $L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$.
 \end{corollary}
-The bounds used for Corollary~\ref{cor:uniform} prove this corollary, since
-$\log a/\log\log a=o(\log a)$. For (4F-5), symmetry covers $x<y$;
+\begin{proof}
+By Theorem~\ref{thm:main}, Proposition~\ref{prop:certificates} and
+Remark~\ref{rem:noncoprime}, each complexity is at most $G(a,b)+2$ on
+positive inputs, which gives the first assertion; the refutations follow
+since $\log a/\log\log a=o(\log a)$. For (4F-5), symmetry covers $x<y$, and
 pairs with a zero entry need no remainder facts.
+\end{proof}
+
+\paragraph{A single uniform process.}
+The book's Theorem~4F.1 states that, whenever every input has a certificate,
+one uniform process attains the intrinsic complexity at every input
+\cite[pp.~149--150]{moschovakis2019}.
+
+\begin{corollary}\label{cor:uniform}
+For each of gcd and coprimeness, there is a single uniform process of
+$\mathcal N_\varepsilon$ computing it on $\mathbb N^2$ with
+$O(\log a/\log\log a)$ remainder calls, uniformly in $1\leq b\leq a$.
+The gcd process can also be taken over $\mathcal N_0$.
+\end{corollary}
+\begin{proof}
+Corollary~\ref{cor:refute} bounds the intrinsic complexities, and by
+Theorem~4F.1 one process attains them at every input. Every input has a
+certificate (symmetry covers reversed inputs, and a zero-test fact
+suffices when either input is zero), so this process is defined on all of
+$\mathbb N^2$.
+\end{proof}
+The corollary rules out the possibility raised after Corollary~6C.7 of the
+book that the Main Conjecture holds for all uniform processes of
+$\mathcal N_\varepsilon$ \cite[p.~188]{moschovakis2019}.
 
 \paragraph{The limit of the homomorphism method.}\label{par:method}
 The Homomorphism Test proves lower bounds on intrinsic complexity by
@@ -597,8 +599,8 @@ $\log\log a$ calls, except on a sparse set of pairs.
 \begin{proposition}\label{prop:loglog}
 For integers $d\geq1$ and $N\geq3$, at most
 $40(2+\ln N)N^{2-2^{-d}}$ coprime pairs $2\leq b<a\leq N$ satisfy
-$D(a,b)\leq d$. Hence, for each fixed $\varepsilon>0$, all but $o(N^2)$ of
-these pairs satisfy $D(a,b)>(1-\varepsilon)\log\log N$.
+$G(a,b)\leq d$. Hence, for each fixed $\varepsilon>0$, all but $o(N^2)$ of
+these pairs satisfy $G(a,b)>(1-\varepsilon)\log\log N$.
 \end{proposition}
 
 \begin{proof}
@@ -643,7 +645,7 @@ the number of irregular pairs is at most
 using $Q\leq N$, $B\geq1$, and the harmonic-sum bound; an empty sum is zero.
 
 Now split into dyadic ranges $X/2<a\leq X$, and take
-$B=X^{2^{-d}}/2$. If $B\geq1$, a regular pair with $D\leq d$ would have
+$B=X^{2^{-d}}/2$. If $B\geq1$, a regular pair with $G\leq d$ would have
 $a\leq X/2$, so all such pairs in the range are irregular. Their number is
 at most $8(2+\ln X)X^{2-2^{-d}}$.
 When $B<1$, the same bound follows from the trivial bound $X^2$, since
@@ -655,6 +657,8 @@ $X=N/2^j\geq3$, and bounding their logarithmic factors by $2+\ln N$, gives
  =\frac{8}{1-2^{-s}}(2+\ln N)N^s
  \leq40(2+\ln N)N^s.
 \]
+(The factor is below $13$; we state $40$, the constant proved in Lean,
+which bounds each pair separately; see Appendix~\ref{app:lean}.)
 For the second assertion, take
 $d=\lfloor\log\ln N-2\log\ln\ln N\rfloor$ for sufficiently large $N$.
 Then $N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the exceptional set has
@@ -712,9 +716,9 @@ below move values between registers for readability; copying is never needed
 Multiplying every value by $g=\gcd(a,b)$ turns a computation on
 $(a/g,b/g)$ into one on $(a,b)$ with the same remainder count, so it
 suffices to treat coprime pairs. Let $S(n)$ be the largest, over coprime
-$1\leq b\leq a\leq2^n$, of the least number of remainder calls that,
-starting from any state with $a,b$ in two working registers, place $1$ in a
-working register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
+$1\leq b\leq a\leq2^n$, of the least number of remainder calls by which
+main-line moves of $P_p$, starting from any state with $a,b$ in two working
+registers, place $1$ in a working register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
 
 Compute the Euclidean remainders $r_0=a,r_1=b,r_2,\ldots$ in working
 registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$.
@@ -757,17 +761,17 @@ Thus Theorem~\ref{thm:registers} holds for the book's recursive programs as well
 
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
-The intrinsic complexity of coprimeness in $\mathcal N_\varepsilon$ is at
-least $\Omega(\log\log a)$ on almost all coprime pairs and at most
-$O(\log a/\log\log a)$ on all positive pairs. Closing this gap is open;
+The intrinsic complexity of coprimeness in $\mathcal N_\varepsilon$ is
+$\Omega(\log\log a)$ on almost all coprime pairs and $O(\log a/\log\log a)$
+on all positive pairs. Closing this gap is open;
 unlike Bshouty's bound in his model, our upper bound is not known to be
 optimal.
 
 \paragraph{One program.}
 For this construction, the obstacle to one sublogarithmic program is reusable
-access to a prefix whose length grows with the input. Selecting a close pair
-of residues costs nothing in a derivation, whereas computing all prefix
-residues would take about $h$ calls per contraction. By
+access to a prefix whose length grows with the input. A nondeterministic
+program can guess the close pair, but it must hold all $h+1$ prefix values;
+regenerating them would cost about $h$ calls per contraction. By
 Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$,
 roughly $6/\log W$, so no bound $c\log a$ with $c$ independent of the number
 of registers holds for nondeterministic register programs. A register
@@ -783,9 +787,9 @@ Euclidean structure \cite[Problem~x2G.6]{moschovakis2019}.
 Recursion permits unbounded saved state, but does not directly provide
 reusable access to an arbitrarily long prefix. Can one fixed recursive
 program retain and repeatedly access a growing prefix at the same remainder
-cost? Proposition~2E.1 of the book \cite[\S2E]{moschovakis2019} converts
-each certificate into a computation of some program, not of one program for
-all certificates.
+cost? Every certificate becomes a computation of some program
+\cite[Proposition~2E.1]{moschovakis2019}, but not of one program for all
+certificates.
 
 \paragraph{Stronger lower-bound methods.}
 The limit established in Section~\ref{sec:certificates} leaves room for
@@ -879,10 +883,10 @@ Proposition~\ref{prop:certificates} &
 \lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
 \lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
 Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
-Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
 Corollary~\ref{cor:refute} &
 \lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
 \lean{not_main_conjecture_4F5_Neps}${}^\dagger$\\
+Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:registers} &
