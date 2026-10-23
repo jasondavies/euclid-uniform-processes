@@ -5,6 +5,10 @@ constant factor, in the number of remainder operations, among all algorithms (th
 Conjecture* of Moschovakis's 2019 book) and even all *uniform processes* (Moschovakis's
 abstract model of computation). The terms below are defined under [Notation](#notation).
 
+**AI transparency.** This work was produced entirely by AI systems, including the main
+result, the Lean formalization and the manuscript; the human author initiated the
+research and directed the AI systems. The paper ends with a full declaration.
+
 **Proved.** gcd(a, b) has a remainder-only derivation with
 (6 + o(1)) log₂ a / log₂ log₂ a remainder calls, uniformly in 0 ≤ b ≤ a (Euclid needs
 about 1.44 log₂ a in the worst case). Hence the intrinsic calls(rem)-complexity of gcd

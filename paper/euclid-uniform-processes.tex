@@ -35,6 +35,12 @@ logarithmic cost coefficients. The arithmetic and program bounds are
 formalized in Lean~4.
 \end{abstract}
 
+\noindent\textbf{AI transparency statement.} This paper was produced entirely
+by artificial intelligence, including the identification of the main result,
+its formalization in Lean, and the writing of the manuscript. The human author
+initiated the broader research and directed the AI systems, but did not write
+the text. Details are given at the end of the paper.
+
 \section{Introduction}\label{sec:intro}
 Van den Dries and Moschovakis asked whether the Euclidean algorithm is optimal
 among its peers, the algorithms that compute the gcd from the remainder
@@ -879,6 +885,27 @@ and body evaluations. Closures represent substitution in machine states,
 not extra program data. This checks the language and program family used
 here; the expanded note \texttt{research/nondeterministic-prefix.tex}
 gives the operational details and the Python compiler and interpreter.
+
+\section*{Declaration of AI-generated research and authorship}
+This manuscript is the product of an AI-driven research process. During a
+broader investigation initiated by the human author, an AI system identified
+the principal result. The author then instructed it to formalize the result in
+Lean and to prepare this manuscript. The AI systems developed the result and
+its presentation, including the mathematical exposition, the formalization,
+and the organization and writing of the text; the human author wrote no part
+of the manuscript. The research, the Lean development and the manuscript were
+produced with gpt-6-astra. Claude Opus~5.5 (Anthropic), used through Claude
+Code, carried out review and editing passes and packaged the formalization for
+the Palomar registry.
+
+The Lean development gives a machine-checkable version of the main claims,
+subject to its trusted foundations (Lean's kernel, mathlib, and the axioms
+listed in Appendix~\ref{app:lean}) and to the correspondence between its
+definitions and the book's notions discussed there.
+
+This declaration distinguishes the provenance of the work from conventional
+AI-assisted writing. The human author accepts responsibility for the
+submission and for the accuracy of this disclosure.
 
 \begin{thebibliography}{9}
 \bibitem{bshouty1989}

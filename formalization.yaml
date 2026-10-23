@@ -124,10 +124,12 @@ automation:
       prompting_notes: "n/a"
   spend_usd: "not tracked"
   notes: >-
-    The author directed the work and reviewed the statements; AI agents wrote most of the
-    Lean code and drafts of the text. Correctness of the formal results rests on Lean's
-    kernel; the correspondence between the Lean statements and the book's conjectures was
-    checked by the author.
+    The work was produced entirely by AI systems. During a broader investigation initiated
+    by the human author, gpt-6-astra identified the principal result; the author then
+    directed it to formalize the result in Lean and to write the manuscript. The author
+    wrote no part of the text or the Lean code. Claude was used for review, editing passes
+    and the Palomar packaging. Correctness of the formal results rests on Lean's kernel and
+    the independent kernels run by Palomar; the paper carries the same disclosure.
 
 fidelity:
   divergences: >-
@@ -146,9 +148,9 @@ review:
   reviewers:
     - "none"
   notes: >-
-    The author audited Challenge.lean against the book's and the notes' statements. The
-    paper received several rounds of AI-assisted internal review. No independent expert
-    review has taken place.
+    The statements in Challenge.lean were compared with the book's and the notes'
+    formulations in several rounds of AI review, and the paper received several rounds of
+    AI review. No independent human expert review has taken place.
 
 alignment:
   namespace: "ShortGCD"
