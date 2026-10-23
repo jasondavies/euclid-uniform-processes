@@ -16,7 +16,8 @@ of `run` is in tail position. `accept` and `loop` perform and reject the final v
 
 `executes_iff_eval` proves that evaluations of the head correspond exactly, with the same
 value and remainder cost, to executions of the register program, and `executes_iff_steps`
-transfers this to the book's recursive machine. Neither direction uses the cost proofs'
+transfers this to the Lean model of the book's recursive machine (`Recursive.Machine`, a
+specialisation of its Table 1). Neither direction uses the cost proofs'
 relabelling generator. `program_tailRecursive` certifies syntactically that the head
 and every body have only tail-position internal calls.
 -/
@@ -395,7 +396,7 @@ theorem executes_iff_eval (w a b c z : ℕ) :
 def start (w a b : ℕ) : Machine.State (arity w) := ⟨[.eval (.mk ![a,b] (head w))], []⟩
 def halt (w z : ℕ) : Machine.State (arity w) := ⟨[], [.nat z]⟩
 
-/-- The same correspondence for the book's recursive machine. -/
+/-- The same correspondence for the Lean model of the book's recursive machine. -/
 theorem executes_iff_steps (w a b c z : ℕ) :
     Executes w a b c z ↔ Machine.Steps (bodies w) (start w a b) c (halt w z) :=
   (executes_iff_eval w a b c z).trans Machine.eval_iff_steps
@@ -444,7 +445,7 @@ lemma head_size (w : ℕ) : (head w).size = w+6 := by
   simp [head, Recursive.Expr.size, arity]
   omega
 
-/-- **No recursion stack.** Every state reachable by the book's recursive machine from the
+/-- **No recursion stack.** Every state reachable by the machine model from the
 head has at most `max (w + 6) 17` entries on its control and value stacks together,
 independently of the inputs and of the length of the computation. Each closure environment
 holds the arguments of one function: `w + 2` for `run`, `3` for `accept` and `1` for `loop`. -/
@@ -455,7 +456,7 @@ theorem stacks_bounded {w a b k} {t : Machine.State (arity w)}
     (bodies_size w) h
 
 /-- **Arbitrarily small coefficients for recursive programs**: for every `ε > 0` there are
-`p > 0` and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the book's recursive machine running the
+`p > 0` and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the machine model running the
 fixed tail-recursive program for width `4^p + 5` halts with output `gcd(a, b)` at remainder
 cost at most `ε log₂ a + B`. -/
 theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :

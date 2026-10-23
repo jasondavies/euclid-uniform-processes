@@ -30,8 +30,8 @@ method, the standard tool for such lower bounds, cannot prove a logarithmic one.
 combine for free, so it does not give a program with this cost, and no single program with
 o(log a) remainder calls is known.
 
-**Also proved.** The known Ω(log log a) lower bound, previously proved for specific hard
-pairs, holds for almost all coprime pairs. For each ε > 0 there is a fixed
+**Also proved.** For remainder-only derivations, the known Ω(log log a) lower bound,
+previously proved for specific hard pairs, holds for almost all coprime pairs. For each ε > 0 there is a fixed
 nondeterministic gcd program, with a fixed number of registers and no recursion, with cost
 at most ε log₂ a + Bε; the program depends on ε.
 
@@ -112,8 +112,9 @@ optimal among its peers:
 ### Further results
 
 - **Almost-all lower bound.** For every ε > 0, among coprime pairs b < a ≤ N, all but
-  o(N²) have D(a, b) > (1 − ε) log₂ log₂ N. So the known Ω(log log a) lower bound,
-  previously proved for specific hard pairs, holds for almost all coprime pairs.
+  o(N²) have D(a, b) > (1 − ε) log₂ log₂ N. So, for remainder-only derivations, the known
+  Ω(log log a) lower bound, previously proved for specific hard pairs, holds for almost
+  all coprime pairs.
 - **Program family.** For every ε > 0 there is a fixed nondeterministic gcd program,
   using only rem and eq0, with a fixed number of registers and no recursion, whose cost
   is at most ε log₂ a + Bε on all positive inputs a ≥ b. Written one function per line, it
@@ -408,7 +409,7 @@ modulus m is small, it computes a mod m and b mod m and finishes with two Euclid
 loops in place. The size thresholds appear only in the proof; the program does not
 compute them.
 
-Lean checks the result in two of the book's models of computation.
+Lean checks the result in Lean models of two of the book's models of computation.
 
 - **Register programs** (§2F, with the nondeterminism of §2E): `TailSource.Step` has a
   finite control line and the work registers; the two input registers are never
@@ -485,7 +486,7 @@ manuscript, and make no claim of exhaustive coverage or priority.
 | Exact-cost equivalence between evaluation and the two-stack machine, for every program | `Recursive.Machine.eval_iff_steps` |
 | The same for the tail-recursive program's machine computations | `TailRecursive.executes_iff_steps` |
 | Every halting machine computation returns the gcd; one exists on every input | `TailRecursive.steps_correct`, `TailRecursive.steps_total` |
-| The ε log₂ a + Bε bound on the book's recursive machine | `TailRecursive.arbitrarily_small_coefficient` |
+| The ε log₂ a + Bε bound on the Lean model of the book's recursive machine | `TailRecursive.arbitrarily_small_coefficient` |
 
 These declarations are in the main [axiom audit](validation/Axioms.lean), with output
 recorded in [axioms.txt](validation/axioms.txt). `TailSource.executes_correct`,
