@@ -189,6 +189,8 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | --- | --- |
 | For every ε > 0: G(a, b) ≤ (6 + ε) log₂ a / log₂ log₂ a for all b ≤ a, once a is large enough | `uniform_real_bound_six` |
 | For every ε > 0: `callsCoprimeness`, `callsGcd` and `callsRemGcd` are at most (6 + ε) log₂ a / log₂ log₂ a for all 1 ≤ b ≤ a, once a is large enough | `uniform_intrinsic_bound_six` |
+| Consecutive pairs in a coprime Euclidean prefix are distinct modulo every m > 2a/r_h | `prefix_pairs_distinct` |
+| If the h consecutive residue pairs are distinct, the number t of individual residues satisfies h ≤ t² | `residue_card_sq` |
 | The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 6 | `Sharp.limsup_profile_le_six` |
 | For every fixed K and every C > 6: sizeCost(a) + K ≤ C · log₂ a / log₂ log₂ a once a is large enough | `eventually_sizeCost_add_le_six` |
 | For one real constant C: G(a, b) ≤ C · log₂ a / log₂ log₂ a for every a ≥ 4 and b ≤ a | `uniform_real_bound` |
@@ -359,7 +361,8 @@ python3 scripts/check_prefix_lemma.py
   manuscript's table (about 15 seconds). With seed 20261016 and base size 256 bits, it
   samples 25 coprime pairs at each of 512, 2048 and 8192 bits (a uniform of that bit
   length, then b uniform in [2, a − 1] until coprime) and adds the first Fibonacci pair
-  of each size. Every derivation is replayed, and the worked contraction from (44, 17) is
+  of each size: (F_k, F_{k−1}) with k = 738, 2951 and 11801, respectively.
+  Every derivation is replayed, and the worked contraction from (44, 17) is
   checked. The Euclidean count stops when the gcd first appears. Results, with input
   hashes and individual counts, are in
   [validation/benchmark_certificates.json](validation/benchmark_certificates.json).

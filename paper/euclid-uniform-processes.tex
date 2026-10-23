@@ -33,10 +33,10 @@ logarithmic lower bounds for uniform processes; by his best-uniform-process
 theorem, a single uniform process attains this bound.
 The Main Conjecture for algorithms remains open. We also prove an
 $\Omega(\log\log a)$ lower bound for almost all coprime pairs and give,
-for each $\varepsilon>0$, a nondeterministic gcd program with a fixed number
-of registers and no recursion that makes at most $\varepsilon\log a+O(1)$
-remainder calls. The main bounds and the refutations are formalised in
-Lean~4; the best-uniform-process theorem is cited.
+for each $\varepsilon>0$, a nondeterministic register program computing gcd
+that, on every input $a\geq b\geq1$, has a successful computation using at
+most $\varepsilon\log a+O(1)$ remainder calls. The main bounds and the
+refutations are formalised in Lean~4; the best-uniform-process theorem is cited.
 \end{abstract}
 
 \noindent\textbf{AI transparency statement.} This paper was produced entirely
@@ -69,6 +69,9 @@ $D(a,b)=G(a,b)$ for coprime inputs. Thus $G(a,0)=0$ and $D(a,1)=0$.
 Arithmetic used in the proofs, such as subtraction, sorting or comparison,
 only selects instructions; it is never itself an instruction. Thus $G$
 measures the length of a derivation, not the work of finding one.
+Here ``uniform process'' is Moschovakis's technical notion; the existence
+of one such process does not imply an implementation by one finite
+recursive program.
 
 \begin{theorem}\label{thm:main}
 There is a constant $C$ such that for all integers $a\geq4$ and $0\leq b\leq a$,
@@ -79,6 +82,9 @@ In particular this bound holds for $D(a,b)$ when $\gcd(a,b)=1$.
 \end{theorem}
 
 \paragraph{Idea of the proof.}
+The key is to reuse a short Euclidean prefix across many contractions.
+Either the prefix already reaches a substantially smaller pair, or it
+supplies many distinct residues modulo every sufficiently large modulus.
 For sufficiently large $n$, let $a>b$ be coprime with $a\leq N=2^n$.
 Store a Euclidean prefix
 $r_0=a,r_1=b,\ldots,r_h$, where $h=\lceil\sqrt n\rceil$.
@@ -112,8 +118,9 @@ of van den Dries and Moschovakis on the closure depth of the gcd
 We also prove that $D(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$
 coprime pairs $2\leq b<a\leq N$ (Proposition~\ref{prop:loglog}).
 Finally, fixing the prefix length gives, for each $\varepsilon>0$, a
-nondeterministic register program, with no recursion, whose cost is at most
-$\varepsilon\log a+B$ on all inputs (Theorem~\ref{thm:registers}). The
+nondeterministic register program with a successful computation costing at
+most $\varepsilon\log a+B$ on each input $a\geq b\geq1$
+(Theorem~\ref{thm:registers}). The
 number of registers grows as $\varepsilon$ decreases.
 
 \paragraph{Related work.}
@@ -423,8 +430,8 @@ remainder-call complexity} $\calls_{\rem}(\mathcal A,f,\vec x)$ is the least
 number of remainder facts in a certificate
 \cite[\S\S1D, 4C--4E]{moschovakis2019}.
 
-The Lean development represents a certificate by its facts. The following
-lemma justifies this, and supplies the derivations used below.
+Finite generated partial substructures can equivalently be represented by
+their operation and test facts.
 
 \begin{lemma}[Fact representation]\label{lem:fact-representation}
 Let $F$ be a finite set of true remainder and test facts in which every
@@ -500,12 +507,9 @@ Corollary~\ref{cor:refute} below on positive inputs.
 \end{remark}
 
 \paragraph{A single uniform process.}
-Proposition~\ref{prop:certificates}, Remark~\ref{rem:noncoprime}, and
-Theorem~\ref{thm:main} bound each intrinsic complexity by
-$O(\log a/\log\log a)$, uniformly for $a\geq b\geq1$.
 The book's Theorem~4F.1 states that, whenever every input has a certificate,
 one uniform process attains the intrinsic complexity at every input
-\cite[pp.~149--150]{moschovakis2019}. Hence:
+\cite[pp.~149--150]{moschovakis2019}.
 
 \begin{corollary}\label{cor:uniform}
 For each of gcd and coprimeness, there is a single uniform process of
@@ -514,10 +518,11 @@ $O(\log a/\log\log a)$ remainder calls, uniformly for $a\geq b\geq1$.
 The gcd process can also be taken over $\mathcal N_0$.
 \end{corollary}
 \begin{proof}
-The certificate bounds give the cost assertion by Theorem~4F.1. Every input
-has a certificate: symmetry covers reversed inputs, and a zero-test fact
+Theorem~\ref{thm:main}, Proposition~\ref{prop:certificates} and
+Remark~\ref{rem:noncoprime} give the cost bound. Every input has a
+certificate: symmetry covers reversed inputs, and a zero-test fact
 suffices when either input is zero. Thus the same process is defined on
-all of $\mathbb N^2$.
+all of $\mathbb N^2$ by Theorem~4F.1.
 \end{proof}
 The corollary rules out the possibility raised after Corollary~6C.7 of the
 book that the Main Conjecture holds for all uniform processes of
@@ -565,11 +570,9 @@ $\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$, and for every
 $K>0$ only finitely many pairs $(x,y)\in\mathbb N^2$ satisfy
 $L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y)$.
 \end{corollary}
-The corollary follows from Theorem~\ref{thm:main} and
-Proposition~\ref{prop:certificates}; for noncoprime pairs, the bound on the
-coprimeness complexity comes from Remark~\ref{rem:noncoprime}. For (4F-5),
-pairs with $x<y$ or a zero entry are handled as in the proof of
-Corollary~\ref{cor:uniform}; the latter need no remainder facts.
+The same certificate bounds prove the corollary, since
+$\log a/\log\log a=o(\log a)$. For (4F-5), symmetry covers $x<y$;
+pairs with a zero entry need no remainder facts.
 
 \paragraph{The limit of the homomorphism method.}\label{par:method}
 The Homomorphism Test proves lower bounds on intrinsic complexity by
@@ -745,22 +748,13 @@ smaller inputs in $B$.
 \end{proof}
 
 \paragraph{Recursive programs.}
-With the prefix length fixed, Euclid's algorithm completes the computation
-at cost $O(\beta n)$, negligible as $\beta\to0$; the recursive completion
-of Section~\ref{sec:construction} is needed only when the prefix length
-grows. Writing one function per line turns the register program into a
-finite nondeterministic tail-recursive program in the sense of
-\cite[\S\S2A, 2E]{moschovakis2019}, as in the book's reduction of iteration
-to tail recursion \cite[\S2C]{moschovakis2019}: a function $\mathrm{run}$
-of all the registers, with one body for each assignment, calling
-$\mathrm{run}$ with $\rem(x_i,x_j)$ in place of $x_l$, and one for each
-candidate, verifying $x_i$. Lean checks that its evaluations, and its computations on a
-specialisation of the book's recursive machine, correspond exactly to the
-computations of the register program, with the same remainder cost
-(Appendix~\ref{app:lean}), and that the machine's stacks stay bounded: at
-most $\max(4^p+11,17)$ entries in all, on every input and however long the
-computation runs. So Theorem~\ref{thm:registers} holds for the book's
-recursive programs as well, with no growing recursion stack.
+With fixed prefix length, ordinary Euclid finishes at cost $O(\beta n)$;
+letting $\beta$ tend to zero gives the stated coefficient. Writing one
+function per line yields a finite nondeterministic tail-recursive program
+with the same remainder cost \cite[\S\S2A, 2C, 2E]{moschovakis2019}.
+Lean verifies this correspondence with the book's recursive machine and
+proves an input-independent bound on its stacks (Appendix~\ref{app:lean}).
+Thus Theorem~\ref{thm:registers} holds for the book's recursive programs as well.
 
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
@@ -771,19 +765,21 @@ unlike Bshouty's bound in his model, our upper bound is not known to be
 optimal.
 
 \paragraph{One program.}
-The remaining obstacle to a single sublogarithmic program is reusable
+For this construction, the obstacle to one sublogarithmic program is reusable
 access to a prefix whose length grows with the input. Selecting a close pair
 of residues costs nothing in a derivation, whereas computing all prefix
 residues would take about $h$ calls per contraction. By
 Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$,
 roughly $6/\log W$, so no bound $c\log a$ with $c$ independent of the number
 of registers holds for nondeterministic register programs. A register
-program has only a fixed number of slots for prefix values. Recursion
-permits unbounded saved state, but does not directly provide reusable
-access to an arbitrarily long prefix. Does every
-nondeterministic register program with $W$ registers make at least
+program has only a fixed number of slots for prefix values. Does every
+nondeterministic register program computing gcd with $W$ registers make at least
 $c\log a/\log W$ remainder calls on infinitely many inputs, for an absolute
-$c>0$? Can one fixed recursive program retain and repeatedly access a
+$c>0$?
+
+Recursion permits unbounded saved state, but does not directly provide
+reusable access to an arbitrarily long prefix. Can one fixed recursive
+program retain and repeatedly access a
 growing prefix at the same remainder cost? A lower bound cannot rest on how
 quickly values shrink, since $\rem(m+1,m)=1$, and Proposition~2E.1 of the
 book \cite[\S2E]{moschovakis2019} converts each certificate into a
@@ -802,20 +798,19 @@ for deterministic uniform processes remains open
 \cite[\S4H and p.~188]{moschovakis2019}.
 
 \section{Computational checks}\label{sec:checks}
-The Python planner \nolinkurl{remainder_only_certificate.py}, in the
-repository \url{https://github.com/jasondavies/euclid-uniform-processes},
+The Python planner in the accompanying
+repository\footnote{\url{https://github.com/jasondavies/euclid-uniform-processes}}
 chooses instructions offline with unrestricted arithmetic, using the
 parameters of Section~\ref{sec:construction}; below a base size (256 bits by
 default) it uses Euclid's algorithm. An independent replay then checks
 operand availability, nonzero divisors, every remainder equation and the
 final gcd.
 
-The script \nolinkurl{scripts/benchmark_certificates.py} uses seed
-$20261016$ to sample $25$ coprime pairs at each size: $a$ is uniform among
+The benchmark samples $25$ coprime pairs at each size: $a$ is uniform among
 integers of that bit length, and $b$ is drawn uniformly from
 $\{2,\ldots,a-1\}$ until $\gcd(a,b)=1$. It also runs the successive
 Fibonacci pair $(F_k,F_{k-1})$ with $F_k$ the first Fibonacci number of
-that bit length ($k=738$, $2951$, $11801$). The table gives remainder calls;
+that bit length. The table gives remainder calls;
 the Euclidean count stops when $1$ first appears.
 \begin{center}
 \small
@@ -830,14 +825,13 @@ Input bits & Construction & Euclid & Construction & Euclid\\\midrule
 \end{tabular}
 \end{center}
 All $78$ derivations and the example of Section~\ref{sec:contractions} pass
-replay, and \nolinkurl{validation/benchmark_certificates.json} records the
-individual counts. On the Fibonacci pairs, Euclid's worst case, the bits
+replay. On the Fibonacci pairs, Euclid's worst case, the bits
 removed by successive contractions roughly double (16, 31, 64, 125 and 252
 at 512 bits), so few contractions are needed. These samples illustrate the construction; the
 asymptotic claim rests on the proof. The
 accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and exhaustively tests the prefix
-lemma over a finite range. The \texttt{README.md} records commands, test
-ranges, seeds, and results. The Python checks are not formally verified;
+lemma over a finite range. The repository README gives scripts, commands,
+test ranges, seeds and individual results. The Python checks are not formally verified;
 the unrestricted arithmetic used to plan instructions is outside the
 derivations.
 
@@ -864,8 +858,9 @@ with every definition visible and deliberate \texttt{sorry} placeholders.
 \texttt{Solution.lean} imports the proved library, independently of these placeholders.
 Palomar's comparator checks that the proved statements are exactly those of
 \texttt{Challenge.lean} and replays the proofs through Lean's kernel and
-independent kernels. The sixteen compared theorems are marked ${}^\dagger$ in
-Table~\ref{tab:lean}. Version~1 of the registry entry \cite{palomar2026}
+independent kernels. The README lists all sixteen compared theorems;
+Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
+Version~1 of the registry entry \cite{palomar2026}
 records this verification of the first thirteen, for commit
 \texttt{40279dd}; the three program statements were added afterwards.
 
@@ -876,35 +871,30 @@ records this verification of the first thirteen, for commit
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.67\textwidth}@{}}
 \toprule
 Paper & Lean declaration(s)\\\midrule
-Theorem~\ref{thm:main} & \lean{uniform_real_bound}, \lean{sizeCost_isBigO}\\
+Theorem~\ref{thm:main} & \lean{uniform_real_bound}\\
 Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
 Lemma~\ref{lem:gap} & \lean{small_remainder}\\
-Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}, \lean{residue_card_sq}\\
+Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}\\
 Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}${}^\dagger$, \lean{uniform_intrinsic_bound_six}${}^\dagger$\\
 Proposition~\ref{prop:certificates} &
-\lean{callsRem_eq_D}, \lean{G_eq_D}, \lean{callsCoprimeness_eq_callsRem},
-\lean{gcd_certificate_lower}, \lean{callsGcd_le}, \lean{callsRemGcd_le_callsGcd},
+\lean{callsGcd_le},
 \lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
 \lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
 Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
 Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
 Corollary~\ref{cor:refute} &
 \lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
-\lean{not_main_conjecture_4F5_Neps}${}^\dagger$; literal versions
-\lean{not_conjecture_3_4_literal}${}^\dagger$,
-\lean{not_main_conjecture_4F5_literal}${}^\dagger$\\
+\lean{not_main_conjecture_4F5_Neps}${}^\dagger$\\
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
-\lean{AlmostAll.tendsto_card_within_loglog},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:registers} &
-\lean{TailProgram.maxCost_step}, \lean{TailProgram.Fixed.limsup_profile_le},
-\lean{TailSource.run_trace_relabel}, \lean{TailSource.executes_correct}${}^\dagger$,
+\lean{TailSource.executes_correct}${}^\dagger$,
 \lean{TailSource.executes_total}${}^\dagger$,
 \lean{TailSource.arbitrarily_small_coefficient}${}^\dagger$\\
 Recursive programs (Section~\ref{sec:programs}) &
 \lean{TailRecursive.program_tailRecursive},
 \lean{TailRecursive.stacks_bounded},
-\lean{TailRecursive.executes_iff_eval}, \lean{Recursive.Machine.eval_iff_steps},
+\lean{TailRecursive.executes_iff_steps},
 \lean{TailRecursive.arbitrarily_small_coefficient}\\
 \bottomrule
 \end{tabular}
@@ -949,7 +939,8 @@ and conditional guards contain no internal calls. Consequently
 (\lean{TailRecursive.stacks_bounded}) the machine's control and value stacks
 never hold more than $\max(w+6,17)$ entries in all, for $w$ work registers,
 on any input and however long the computation runs; each closure
-environment has at most $w+2$ entries.
+environment has at most $w+2$ entries. Here $w=4^p+5$, so the stack bound
+for Theorem~\ref{thm:registers} is $\max(4^p+11,17)$.
 \lean{TailRecursive.executes_iff_eval} matches its evaluations exactly, in
 value and remainder cost, with executions of the register program. For
 every program in the language, \lean{Recursive.Machine.eval_iff_steps}
