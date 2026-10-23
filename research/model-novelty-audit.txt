@@ -103,7 +103,8 @@ https://www.math.ucla.edu/~ynm/lectures/aricplace/c-aric.pdf
    successful runs and costs (RegisterProgram.Run.scale).
 
 7. Two syntactic presentations.
-   Lean inlines setters. The Python compiler and expanded research note use
+   Lean inlines setters. The Python compiler (and an expanded research note,
+   since removed from the repository) use
    set_i(x,z) = gen(x[i <- z]), of arity W+1. These setters have one body and
    add no external calls. Call-by-value evaluates z once before the setter
    body; after inlining, it is evaluated once in its generator argument
