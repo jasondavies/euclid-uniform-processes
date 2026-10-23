@@ -263,5 +263,12 @@ alignment:
         For every ε > 0, one fixed register program with 4^p + 5 work registers and two
         read-only input registers, and no stack, has cost at most ε log₂ a + B on all
         1 ≤ b ≤ a. The paper's lim sup form (coefficient 3/p) is TailProgram.Fixed.limsup_profile_le.
+    - source: "van den Dries and Moschovakis 2009, Open Problem (p. 2:11); paper, closure-depth corollary"
+      lean: "ShortGCD.ClosureDepth.no_logarithmic_sequences"
+      module: "ShortGCD.ClosureDepth"
+      status: proved
+      note: >-
+        No positive integers αₙ → ∞, βₙ and C > 0 have g(αₙ, βₙ) > C log₂ αₙ for all n, with
+        g the closure depth defined as in the source (iq(a, 0) = a, rem(a, 0) = a).
 
 acknowledgements: "Lean 4 and mathlib."

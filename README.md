@@ -134,7 +134,8 @@ optimal among its peers:
   uniformly in b, so no such sequence exists. This is formalised with the source's
   definitions of iq, rem and the stages, including their conventions at zero divisors
   (`ClosureDepth.depth_le`, `ClosureDepth.depth_bound`,
-  `ClosureDepth.no_logarithmic_sequences`).
+  `ClosureDepth.no_logarithmic_sequences`, which is also compared against
+  [Challenge.lean](Challenge.lean)).
 
 ### What remains open
 
@@ -295,15 +296,16 @@ The repository is laid out for the [Palomar registry](https://palomar-registry.o
 Lean-verified results. It is registered as
 [PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1), which records the verification of commit
 `40279dd` for the first thirteen compared theorems; the three program-family theorems
-were added afterwards.
+and the closure-depth theorem were added afterwards.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
   defines every notion the theorems use (derivations, G, certificates, the three
-  intrinsic complexities and the register program), and states the sixteen compared
-  theorems with `sorry`: the two upper bounds, the five refutations, six theorems showing
-  that the complexities are not trivially small (certificates exist, and four lower
-  bounds), and three for the program family (every convergent computation returns the
-  gcd, every input has one, and the ε log₂ a + Bε bound).
+  intrinsic complexities, the register program and the closure stages), and states the
+  seventeen compared theorems with `sorry`: the two upper bounds, the five refutations,
+  six theorems showing that the complexities are not trivially small (certificates
+  exist, and four lower bounds), three for the program family (every convergent
+  computation returns the gcd, every input has one, and the ε log₂ a + Bε bound), and the
+  answer to the closure-depth question.
 - **[Solution.lean](Solution.lean)** imports `ShortGCD`, where each of these declarations
   is defined and proved under the same name.
 - **[comparator.json](comparator.json)** lists the compared theorems and permitted axioms;

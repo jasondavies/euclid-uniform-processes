@@ -862,11 +862,12 @@ with every definition visible and deliberate \texttt{sorry} placeholders.
 \texttt{Solution.lean} imports the proved library, independently of these placeholders.
 Palomar's comparator checks that the proved statements are exactly those of
 \texttt{Challenge.lean} and replays the proofs through Lean's kernel and
-independent kernels. \texttt{comparator.json} lists all sixteen compared
+independent kernels. \texttt{comparator.json} lists all seventeen compared
 theorems; Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
 Version~1 of the registry entry \cite{palomar2026}
 records this verification of the first thirteen, for commit
-\texttt{40279dd}; the three program statements were added afterwards.
+\texttt{40279dd}; the three program statements and the closure-depth
+statement were added afterwards.
 
 \begin{table}[htbp]
 \centering\small
@@ -890,7 +891,7 @@ Corollary~\ref{cor:refute} &
 \lean{not_main_conjecture_4F5_Neps}${}^\dagger$\\
 Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
 Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le},
-\lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}\\
+\lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}${}^\dagger$\\
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:registers} &

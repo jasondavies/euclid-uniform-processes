@@ -17,7 +17,8 @@
     "ShortGCD.tendsto_card_callsCoprimeness_loglog",
     "ShortGCD.TailSource.executes_correct",
     "ShortGCD.TailSource.executes_total",
-    "ShortGCD.TailSource.arbitrarily_small_coefficient"
+    "ShortGCD.TailSource.arbitrarily_small_coefficient",
+    "ShortGCD.ClosureDepth.no_logarithmic_sequences"
   ],
   "definition_names": [],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]

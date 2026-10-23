@@ -330,4 +330,40 @@ theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :
 
 end TailSource
 
+/-! ## Closure depth
+
+Van den Dries and Moschovakis, *Arithmetic complexity* (ACM TOCL 10(1), 2009), measure the
+parallel depth of the gcd (p. 2:6), with the conventions of p. 2:4: `iq(a, b) = ⌊a / b⌋`,
+`rem(a, b) = a - b·iq(a, b)`, `iq(a, 0) = a` and `rem(a, 0) = a`. Starting from
+`S₀ = {0, 1, a, b}`, each stage adjoins `x + y`, `x - y`, `iq(x, y)` and `rem(x, y)` for all
+`x, y` in the previous stage, and `g(a, b)` is the least stage containing `gcd(a, b)`. They
+ask (Open Problem, p. 2:11) whether there are positive integers `αₙ → ∞` and `βₙ` and a
+`C > 0` with `g(αₙ, βₙ) > C log αₙ` for all `n`. The theorem below says there are none. -/
+
+namespace ClosureDepth
+
+/-- Integer quotient `⌊a / b⌋`, with `iq(a, 0) = a`. -/
+def iq (a b : ℤ) : ℤ := if b = 0 then a else ⌊(a : ℚ) / b⌋
+
+/-- Remainder `a - b·iq(a, b)`; in particular `rem(a, 0) = a`. -/
+def rem (a b : ℤ) : ℤ := a - b * iq a b
+
+/-- The closure stages `S_k(a, b)`. -/
+def stage (a b : ℤ) : ℕ → Set ℤ
+  | 0 => {0, 1, a, b}
+  | k+1 => stage a b k ∪ {z | ∃ x ∈ stage a b k, ∃ y ∈ stage a b k,
+      z = x + y ∨ z = x - y ∨ z = iq x y ∨ z = rem x y}
+
+/-- The closure depth `g(a, b)`: the least stage containing `gcd(a, b)`. -/
+noncomputable def depth (a b : ℤ) : ℕ := sInf {k | (Int.gcd a b : ℤ) ∈ stage a b k}
+
+/-- **Answer to the Open Problem.** There are no positive integers `αₙ → ∞`, `βₙ` and
+`C > 0` with `g(αₙ, βₙ) > C log₂ αₙ` for all `n`. -/
+theorem no_logarithmic_sequences :
+    ¬ ∃ (α β : ℕ → ℕ) (C : ℝ), 0 < C ∧ Tendsto α atTop atTop ∧
+      (∀ n, 0 < α n ∧ 0 < β n) ∧ ∀ n, C * Real.logb 2 (α n) < depth (α n) (β n) := by
+  sorry
+
+end ClosureDepth
+
 end ShortGCD
