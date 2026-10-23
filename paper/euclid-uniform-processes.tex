@@ -20,7 +20,7 @@
 \emergencystretch=2em
 \title{The Euclidean algorithm is not optimal among uniform processes}
 \author{Jason Davies\thanks{\href{mailto:jason@jasondavies.com}{\nolinkurl{jason@jasondavies.com}}}}
-\date{October 16, 2026}
+\date{October 23, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -38,7 +38,7 @@ formalized in Lean~4.
 \section{Introduction}\label{sec:intro}
 Van den Dries and Moschovakis asked whether the Euclidean algorithm is optimal
 among its peers, the algorithms that compute the gcd from the remainder
-function \cite{vddm2004}. Moschovakis's Main Conjecture asserts that for every
+function \cite[p.~390]{vddm2004}. Moschovakis's Main Conjecture asserts that for every
 algorithm $\alpha$ from $\rem,\eq_0$ computing $\gcd(x,y)$ there is an $r>0$
 such that $\alpha$ makes more than $r\log x$ remainder calls on infinitely many
 pairs $x>y\geq1$ \cite[p.~2]{moschovakis2019}; here $\eq_0$ is the zero test.
@@ -85,7 +85,7 @@ Tuning the prefix length sharpens the upper coefficient to $6+o(1)$
 \paragraph{Consequences and further results.}
 Uniform processes are the book's abstract model of computation from given
 primitives; every deterministic or nondeterministic recursive program
-induces one. Section~\ref{sec:certificates} converts the derivations into
+induces one \cite[\S4A, Proposition~4A.1]{moschovakis2019}. Section~\ref{sec:certificates} converts the derivations into
 small certificates and uses the book's best-uniform-process theorem to
 obtain a single process with the same asymptotic bound on every input.
 This refutes Conjecture~3.4 of \cite{moschovakis2012} and version (4F-5) of
@@ -102,17 +102,19 @@ coefficient decreases.
 \paragraph{Related work.}
 The known intrinsic lower bound is $\Omega(\log\log a)$ on special families
 of coprime pairs \cite{vddm2004,vddm2009},
-\cite[Theorem~6C.5]{moschovakis2019}. Pratt's nondeterministic algorithm
+\cite[Theorem~6C.5]{moschovakis2019}. Pratt's nondeterministic algorithm,
+from his unpublished manuscript and presented in the book
+\cite[Theorem~2E.2 and Problems~x2E.17--x2E.19]{moschovakis2019},
 matches this order on successive Fibonacci numbers
-\cite[Theorem~2E.2 and Corollary~6C.7]{moschovakis2019}.
+\cite[Corollary~6C.7]{moschovakis2019}.
 Our almost-all bound establishes the same order on a set of full density
 among coprime pairs; our program family gives an all-input upper bound.
 
 In a different model, Bshouty obtained the optimal bound
 $\Theta(\log N/\log\log N)$ for gcd on inputs in $[0,N]$ using a random
 access machine with linear operations, shifts and indirect addressing.
-His construction reads precomputed blocks of the binary gcd algorithm from
-a table \cite[Theorems~i and~ii]{bshouty1989}. Here the saving comes from
+His construction reads precomputed blocks of the binary gcd algorithm
+\cite{stein1967}, \cite[\S4.5.2]{knuth1997} from a table \cite[Theorems~i and~ii]{bshouty1989}. Here the saving comes from
 reusing a Euclidean prefix with remainder as the only instruction.
 
 \paragraph{Organization.}
@@ -362,9 +364,10 @@ when its second argument is nonzero, in the structures
 \mathcal N_0=(\mathbb N,\rem,\eq_0),\qquad
 \mathcal N_\varepsilon=(\mathbb N,\rem,\eq_0,\eq_1).
 \]
-The latter is the book's Euclidean structure; our $\mathcal N_0$ should not
-be confused with its richer $\mathbf N_0$
-\cite[(1C-10), pp.~24, 142--143]{moschovakis2019}.
+The latter is the book's Euclidean structure $\mathbf N_\varepsilon$
+\cite[(1C-10), p.~24]{moschovakis2019}; our $\mathcal N_0$ should not
+be confused with the book's $\mathbf N_0$, which has no remainder operation
+\cite[p.~171]{moschovakis2019}.
 Coprimeness is the relation
 $x\coprime y\iff x,y\geq1\wedge\gcd(x,y)=1$
 \cite[\S1A]{moschovakis2019}.
@@ -431,7 +434,7 @@ certificate certifies noncoprimeness, so the sublogarithmic remainder-call
 bound holds for both truth values of coprimeness as well as for the gcd. The
 overhead is a fixed additive constant and does not change the leading
 coefficient, so Corollary~\ref{cor:six} holds for all three complexities of
-Corollary~\ref{cor:refute} on positive inputs.
+Corollary~\ref{cor:refute} below on positive inputs.
 \end{remark}
 
 \paragraph{A single uniform process.}
@@ -445,7 +448,7 @@ consequence.
 
 \begin{corollary}\label{cor:uniform}
 For each of gcd and coprimeness, there is a single uniform process of
-$\mathcal N_\varepsilon$ computing that function on $\mathbb N^2$ with
+$\mathcal N_\varepsilon$ computing it on $\mathbb N^2$ with
 $O(\log a/\log\log a)$ remainder calls, uniformly for $a\geq b\geq1$.
 The gcd process can also be taken over $\mathcal N_0$.
 \end{corollary}
@@ -456,14 +459,14 @@ suffices when either input is zero. Thus the same process is defined on
 all of $\mathbb N^2$.
 \end{proof}
 The certificate bounds are formalized here; Theorem~4F.1 is cited.
-The corollary settles the possibility raised after Corollary~6C.7 of the
+The corollary rules out the possibility raised after Corollary~6C.7 of the
 book that the Main Conjecture holds for all uniform processes of
 $\mathcal N_\varepsilon$ \cite[p.~188]{moschovakis2019}.
 
 \paragraph{The conjectures refuted.}
 Moschovakis's 2012 notes state:
 \begin{quote}
-\textbf{Conjecture 3.4} \cite{moschovakis2012}. There is a rational number
+\textbf{Conjecture 3.4} \cite[p.~19]{moschovakis2012}. There is a rational number
 $r>0$ such that for infinitely many $a\geq b\geq1$,
 $\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)\geq r\log a$.
 \end{quote}
@@ -472,14 +475,14 @@ The book formulates one precise version of the Main Conjecture
 and a $K>0$ such that
 \[
 (x,y)\in\mathcal D\ \Longrightarrow\
-\calls_{\rem}(\varepsilon,x,y)\leq L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y),
+\calls_{\rem}(\mathrm{Eucl},x,y)\leq L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y),
 \tag{4F-5}
 \]
-where $L(x,y)=2\log\max(x,y)$, $\mathcal A$ is the structure ($\mathcal N_0$
-or $\mathcal N_\varepsilon$). Here $\varepsilon$ denotes the Euclidean
-algorithm, as in the book, and $\calls_{\rem}(\varepsilon,x,y)$ counts its
-remainder calls on $(x,y)$. Elsewhere, apart from the subscript of
-$\mathcal N_\varepsilon$, $\varepsilon$ denotes a small positive real.
+where $L(x,y)=2\log\max(x,y)$ and $\calls_{\rem}(\mathrm{Eucl},x,y)$ counts
+the remainder calls of the Euclidean algorithm $\mathrm{Eucl}$ (the book writes
+$\varepsilon$) on $(x,y)$. The book states (4F-5) for the Euclidean algorithm
+in $\mathbf N_\varepsilon$, so its $\mathcal A$ is $\mathcal N_\varepsilon$;
+we treat both $\mathcal A=\mathcal N_\varepsilon$ and $\mathcal A=\mathcal N_0$.
 The book adds that $\mathcal D$ then satisfies its conditions (4F-3) and
 (4F-4). Condition (4F-4) makes the intrinsic complexity unbounded on
 $\mathcal D$, so the intended $\mathcal D$ is infinite; for finite $\mathcal D$
@@ -531,7 +534,7 @@ derivation.
 For integers $d\geq1$ and $N\geq3$, at most
 $40(2+\ln N)N^{2-2^{-d}}$ coprime pairs $2\leq b<a\leq N$ satisfy
 $D(a,b)\leq d$. Hence $D(a,b)\geq(1-o(1))\log\log N$ for all but
-$o(N^2)$ coprime pairs below $N$.
+$o(N^2)$ of these pairs.
 \end{proposition}
 
 \begin{proof}
@@ -732,7 +735,8 @@ The intrinsic complexity of coprimeness in $\mathcal N_\varepsilon$ is at
 least $\Omega(\log\log a)$ on almost all coprime pairs and at most
 $O(\log a/\log\log a)$ on all positive pairs. Closing this gap is open.
 In particular, the upper bound is not known to be optimal for
-remainder-only derivations, as the corresponding bound is in Bshouty's model.
+remainder-only derivations, whereas Bshouty's corresponding bound is optimal
+in his model.
 
 \paragraph{From a growing prefix to one program.}
 The remaining obstacle in turning the construction into a sublogarithmic
@@ -743,20 +747,21 @@ The programs of Section~\ref{sec:programs} select operands nondeterministically
 from a fixed number of parameters. Can one fixed first-order recursive
 program retain and repeatedly access a growing prefix at the same
 remainder cost? The book's Proposition~2E.1 converts each certificate into
-a computation of some program; it does not supply one program for all
-certificates \cite[\S2E]{moschovakis2019}.
+a computation of some program \cite[Proposition~2E.1]{moschovakis2019}; it
+does not supply one program for all certificates.
 
 \paragraph{Stronger lower-bound methods.}
 The limit established in Section~\ref{sec:certificates} leaves room for
 arguments combining homomorphisms with additional restrictions on
 computations. In particular, the conjecture of a logarithmic lower bound
 for deterministic uniform processes remains open
-\cite[Conjecture~3.9]{moschovakis2012},
+\cite[Conjecture~3.9, p.~23]{moschovakis2012},
 \cite[\S4H and p.~188]{moschovakis2019}.
 
 \section{Computational checks}\label{sec:checks}
 The offline Python planner \nolinkurl{remainder_only_certificate.py} in the
-accompanying repository uses the parameters of Section~\ref{sec:construction}
+accompanying repository
+\url{https://github.com/jasondavies/euclid-uniform-processes} uses the parameters of Section~\ref{sec:construction}
 and unrestricted arithmetic to choose instructions. An independent replay then
 checks operand availability, nonzero divisors, every remainder equation and
 the final gcd. Below a base size
@@ -783,19 +788,31 @@ used to plan choices is outside the programs.
 
 \appendix
 \section{Formal verification}\label{app:lean}
-The development uses Lean 4.35.0 with mathlib at its v4.35.0 tag.
-It contains no proof placeholders or added axioms; the main-result audit
+The development uses Lean~4.35.0 \cite{deMouraUllrich2021} with mathlib
+\cite{mathlib2020} at its v4.35.0 tag; the pinned mathlib commit is
+\texttt{56a005855ea17e0b0958f73ec801ae140b0a1679}.
+The development contains no proof placeholders or added axioms; the main-result audit
 reports only \texttt{propext}, \texttt{Classical.choice}, and
 \texttt{Quot.sound}. Table~\ref{tab:lean} gives the main declarations;
-the repository README gives the complete map and reproduction commands.
+the README of the repository
+\url{https://github.com/jasondavies/euclid-uniform-processes} gives the
+complete map and reproduction commands.
 The general theory of uniform processes, including Theorem~4F.1 used in
 Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
 not formalized. The certificate bounds and conjecture refutations are
 formalized independently of that theory.
 
+The development is also packaged for the Palomar registry:
+\texttt{Challenge.lean} imports only mathlib and states the main theorems
+with every definition visible, and \texttt{Solution.lean} proves them.
+Palomar's comparator checks that the proved statements are exactly those of
+\texttt{Challenge.lean} and replays the proofs through Lean's kernel and
+independent kernels. The eleven compared theorems are marked ${}^\dagger$ in
+Table~\ref{tab:lean}.
+
 \begin{table}[htbp]
 \centering\small
-\caption{Main results and Lean declarations, all in the namespace \texttt{ShortGCD}.}
+\caption{Main results and Lean declarations, all in the namespace \texttt{ShortGCD}. Names marked ${}^\dagger$ are compared against \texttt{Challenge.lean}.}
 \label{tab:lean}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.67\textwidth}@{}}
 \toprule
@@ -804,18 +821,22 @@ Theorem~\ref{thm:main} & \lean{uniform_real_bound}, \lean{sizeCost_isBigO}\\
 Normalization \eqref{eq:normalize} & \lean{G_normalize}\\
 Lemma~\ref{lem:gap} & \lean{small_remainder}\\
 Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}, \lean{residue_card_sq}\\
-Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}, \lean{uniform_intrinsic_bound_six}\\
+Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}${}^\dagger$, \lean{uniform_intrinsic_bound_six}${}^\dagger$\\
 Proposition~\ref{prop:certificates} &
 \lean{callsRem_eq_D}, \lean{G_eq_D}, \lean{callsCoprimeness_eq_callsRem},
-\lean{gcd_certificate_lower}, \lean{callsGcd_le}, \lean{callsRemGcd_le_callsGcd}\\
+\lean{gcd_certificate_lower}, \lean{callsGcd_le}, \lean{callsRemGcd_le_callsGcd},
+\lean{G_le_callsRemGcd}${}^\dagger$,
+\lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
 Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}\\
 Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalized here\\
 Corollary~\ref{cor:refute} &
-\lean{not_conjecture_3_4}, \lean{not_main_conjecture_4F5},
-\lean{not_main_conjecture_4F5_Neps}; literal versions
-\lean{not_conjecture_3_4_literal}, \lean{not_main_conjecture_4F5_literal}\\
+\lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
+\lean{not_main_conjecture_4F5_Neps}${}^\dagger$; literal versions
+\lean{not_conjecture_3_4_literal}${}^\dagger$,
+\lean{not_main_conjecture_4F5_literal}${}^\dagger$\\
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
-\lean{AlmostAll.tendsto_card_within_loglog}\\
+\lean{AlmostAll.tendsto_card_within_loglog},
+\lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:programs}: cost &
 \lean{RegisterProgram.maxCost_step}, \lean{RegisterProgram.Fixed.limsup_profile_le}\\
 Theorem~\ref{thm:programs}: syntax &
@@ -859,19 +880,51 @@ not extra program data. This checks the language and program family used
 here; the expanded note \texttt{research/nondeterministic-prefix.tex}
 gives the operational details and the Python compiler and interpreter.
 
-\begin{thebibliography}{5}
+\begin{thebibliography}{9}
 \bibitem{bshouty1989}
 Nader H. Bshouty.
 \emph{Euclidean GCD algorithm is not optimal}.
-Research Report 89/376/38, Department of Computer Science, University of
-Calgary, 1989.
-\href{https://doi.org/10.11575/PRISM/30475}{doi:10.11575/PRISM/30475}.
+Research Report 1989-376-38, Department of Computer Science, University of
+Calgary, December 1989.
+\href{https://doi.org/10.11575/PRISM/30475}{doi:10.11575/\allowbreak PRISM/30475}.
+
+\bibitem{deMouraUllrich2021}
+Leonardo de Moura and Sebastian Ullrich.
+The Lean~4 theorem prover and programming language.
+In \emph{Automated Deduction -- CADE~28}, Lecture Notes in Computer Science,
+vol.~12699, pp.~625--635. Springer, 2021.
+\href{https://doi.org/10.1007/978-3-030-79876-5_37}{doi:10.1007/978-3-030-79876-5\_37}.
+
+\bibitem{knuth1997}
+Donald E. Knuth.
+\emph{The Art of Computer Programming, Vol.~2: Seminumerical Algorithms}, 3rd
+ed. Addison-Wesley, Reading, MA, 1997.
+
+\bibitem{mathlib2020}
+The mathlib Community.
+The Lean mathematical library.
+In \emph{Proceedings of the 9th ACM SIGPLAN International Conference on
+Certified Programs and Proofs (CPP 2020)}, pp.~367--381. ACM, 2020.
+\href{https://doi.org/10.1145/3372885.3373824}{doi:10.1145/3372885.3373824}.
 
 \bibitem{moschovakis2012}
 Yiannis N. Moschovakis.
 \emph{Absolute lower bounds for uniform processes}.
-Draft notes, January 25, 2012.
+Unpublished lecture notes (first draft), January 25, 2012.
 \url{https://www.math.ucla.edu/~ynm/nadalb.pdf}.
+
+\bibitem{moschovakis2019}
+Yiannis N. Moschovakis.
+\emph{Abstract Recursion and Intrinsic Complexity}.
+Lecture Notes in Logic, vol.~48. Cambridge University Press and Association
+for Symbolic Logic, 2019.
+\href{https://doi.org/10.1017/9781108234238}{doi:10.1017/9781108234238}.
+
+\bibitem{stein1967}
+J. Stein.
+Computational problems associated with Racah algebra.
+\emph{Journal of Computational Physics} 1(3):397--405, 1967.
+\href{https://doi.org/10.1016/0021-9991(67)90047-2}{doi:10.1016/0021-9991(67)90047-2}.
 
 \bibitem{vddm2004}
 Lou van den Dries and Yiannis N. Moschovakis.
@@ -882,14 +935,7 @@ Is the Euclidean algorithm optimal among its peers?
 \bibitem{vddm2009}
 Lou van den Dries and Yiannis N. Moschovakis.
 Arithmetic complexity.
-\emph{ACM Transactions on Computational Logic} 10(1), Article~2, 2009.
+\emph{ACM Transactions on Computational Logic} 10(1), Article~2, 49~pp., 2009.
 \href{https://doi.org/10.1145/1459010.1459012}{doi:10.1145/1459010.1459012}.
-
-\bibitem{moschovakis2019}
-Yiannis N. Moschovakis.
-\emph{Abstract Recursion and Intrinsic Complexity}.
-Lecture Notes in Logic, vol.~48. Cambridge University Press and Association
-for Symbolic Logic, 2019.
-\href{https://doi.org/10.1017/9781108234238}{doi:10.1017/9781108234238}.
 \end{thebibliography}
 \end{document}
