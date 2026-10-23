@@ -1,5 +1,9 @@
-import ShortGCD.SharpBound
-import ShortGCD.Conjecture
+module
+
+public import ShortGCD.SharpBound
+public import ShortGCD.Conjecture
+
+@[expose] public section
 
 /-! # Leading constant six for intrinsic remainder-call complexity
 

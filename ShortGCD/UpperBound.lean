@@ -1,5 +1,9 @@
-import ShortGCD.FiniteBound
-import ShortGCD.Arithmetic
+module
+
+public import ShortGCD.FiniteBound
+public import ShortGCD.Arithmetic
+
+@[expose] public section
 
 /-! # The uniform bound in integer form
 
@@ -15,9 +19,13 @@ namespace ShortGCD
 `n`. It covers all gcd inputs, not only coprime pairs. -/
 theorem uniform_bit_bound :
     ∃ C : ℕ, 0 < C ∧ ∀ n, sizeCost (2^n) * Nat.log 2 n ≤ C*n := by
-  let B := (Finset.range (2^32)).sup (fun n => sizeCost (2^n)*Nat.log 2 n)
-  let C := max 4096 B
-  have hC : 4096 ≤ C := le_max_left _ _
+  -- `B` and `C` are introduced opaquely: unfolding the supremum over `2^32` values would
+  -- make kernel checking needlessly expensive.
+  obtain ⟨B, hB⟩ : ∃ B, ∀ n < 2^32, sizeCost (2^n)*Nat.log 2 n ≤ B :=
+    ⟨(Finset.range (2^32)).sup (fun n => sizeCost (2^n)*Nat.log 2 n),
+      fun n hn => Finset.le_sup (f := fun n => sizeCost (2^n)*Nat.log 2 n)
+        (Finset.mem_range.mpr hn)⟩
+  obtain ⟨C, hC, hBC⟩ : ∃ C, 4096 ≤ C ∧ B ≤ C := ⟨max 4096 B, le_max_left _ _, le_max_right _ _⟩
   refine ⟨C,by omega,?_⟩
   intro n
   induction n using Nat.strong_induction_on with
@@ -43,9 +51,7 @@ theorem uniform_bit_bound :
     · by_cases hn : n = 0
       · simp [hn]
       have hnsmall : n < 2^32 := Nat.lt_pow_of_log_lt (by omega) (by omega)
-      have hb : sizeCost (2^n)*Nat.log 2 n ≤ B := Finset.le_sup (f := fun n => sizeCost (2^n)*Nat.log 2 n)
-        (s := Finset.range (2^32)) (Finset.mem_range.mpr hnsmall)
-      exact (hb.trans (le_max_right _ _)).trans (Nat.le_mul_of_pos_right _ (by omega))
+      exact ((hB n hnsmall).trans hBC).trans (Nat.le_mul_of_pos_right _ (by omega))
 
 theorem uniform_size_input_bound : ∃ C : ℕ, 0 < C ∧ ∀ a,
     sizeCost a * Nat.log 2 (Nat.clog 2 a) ≤ C * Nat.clog 2 a := by

@@ -1,0 +1,19 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "ShortGCD.uniform_real_bound_six",
+    "ShortGCD.uniform_intrinsic_bound_six",
+    "ShortGCD.not_conjecture_3_4",
+    "ShortGCD.not_conjecture_3_4_literal",
+    "ShortGCD.not_main_conjecture_4F5",
+    "ShortGCD.not_main_conjecture_4F5_Neps",
+    "ShortGCD.not_main_conjecture_4F5_literal",
+    "ShortGCD.G_le_callsRemGcd",
+    "ShortGCD.G_le_callsGcd",
+    "ShortGCD.callsCoprimeness_eq_G",
+    "ShortGCD.tendsto_card_callsCoprimeness_loglog"
+  ],
+  "definition_names": [],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]
+}

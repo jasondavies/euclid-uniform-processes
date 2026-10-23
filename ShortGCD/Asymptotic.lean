@@ -1,4 +1,8 @@
-import ShortGCD.UpperBound
+module
+
+public import ShortGCD.UpperBound
+
+@[expose] public section
 
 /-! # The uniform bound with real logarithms
 

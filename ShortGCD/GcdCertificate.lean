@@ -1,4 +1,8 @@
-import ShortGCD.RemainderList
+module
+
+public import ShortGCD.RemainderList
+
+@[expose] public section
 
 /-!
 # The gcd version

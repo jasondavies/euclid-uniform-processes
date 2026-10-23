@@ -1,5 +1,9 @@
-import ShortGCD.Contraction
-import ShortGCD.Normalization
+module
+
+public import ShortGCD.Contraction
+public import ShortGCD.Normalization
+
+@[expose] public section
 
 /-! # The Euclidean remainder sequence
 

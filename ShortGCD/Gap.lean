@@ -1,4 +1,8 @@
-import ShortGCD.Derivation
+module
+
+public import ShortGCD.Derivation
+
+@[expose] public section
 
 /-! # The small-gap lemma
 

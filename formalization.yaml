@@ -1,0 +1,212 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "The Euclidean algorithm is not optimal among uniform processes"
+  description: >-
+    For every coprime pair a > b ≥ 1 there is a straight-line derivation of gcd(a, b) that
+    uses only the remainder operation on available values and makes at most
+    (6 + o(1)) log₂ a / log₂ log₂ a remainder calls, uniformly in b ≤ a; Euclid's algorithm
+    needs about 1.44 log₂ a calls in the worst case. The proof stores a prefix of the
+    Euclidean remainder sequence, shows that its consecutive pairs stay distinct modulo
+    every sufficiently large modulus, and uses close residues to shrink the modulus by three
+    remainder calls at a time. Consequently the intrinsic calls(rem)-complexities of the gcd
+    and of coprimeness, in the sense of Moschovakis's Abstract Recursion and Intrinsic
+    Complexity, are O(log a / log log a). This refutes Conjecture 3.4 of Moschovakis's 2012
+    notes "Absolute lower bounds for uniform processes" and the version (4F-5) of the Main
+    Conjecture in the book, both for the structure (ℕ, rem, eq0) and for
+    Nε = (ℕ, rem, eq0, eq1). The Main Conjecture for algorithms (deterministic or
+    nondeterministic recursive programs) is not addressed and remains open. Lower bounds
+    are also formalized: every gcd certificate needs at least as many remainder facts as the
+    shortest derivation, and the coprimeness complexity is at least (1 − ε) log₂ log₂ N on
+    all but o(N²) coprime pairs below N.
+  authors:
+    - "Jason Davies"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Jason Davies"
+
+classification:
+  arxiv: ["math.LO", "cs.CC"]
+  msc2020: ["03D15", "68Q17", "11A05", "11Y16"]
+
+sources:
+  - title: "Sublogarithmic remainder-only gcd derivations and the refutation of the uniform-process conjectures (J. Davies, The Euclidean algorithm is not optimal among uniform processes)"
+    type: original-proof
+    relationship: other
+    authors:
+      - "Jason Davies"
+    location: "paper/euclid-uniform-processes.tex in this repository"
+    note: >-
+      The upper bound, the leading coefficient 6, the refutations and the almost-all lower
+      bound are first presented in the accompanying paper and in this formalization.
+  - title: "Abstract Recursion and Intrinsic Complexity"
+    authors:
+      - "Yiannis N. Moschovakis"
+    id: "doi:10.1017/9781108234238"
+    type: book
+    location: "Lecture Notes in Logic 48, Cambridge University Press / Association for Symbolic Logic, 2019"
+    relationship: background
+    note: >-
+      Source of the framework (uniform processes, certificates, intrinsic complexity, the
+      Homomorphism Test), of the Main Conjecture, of its precise version (4F-5) on p. 151,
+      and of Theorem 4F.1 (best uniform processes), which is cited and not formalized.
+    author_endorsement: not-contacted
+  - title: "Absolute lower bounds for uniform processes"
+    authors:
+      - "Yiannis N. Moschovakis"
+    type: lecture notes
+    id: "https://www.math.ucla.edu/~ynm/nadalb.pdf"
+    location: "Unpublished lecture notes (first draft), January 25, 2012; Conjecture 3.4 on p. 19"
+    relationship: background
+    note: "States Conjecture 3.4, refuted by not_conjecture_3_4 and not_conjecture_3_4_literal."
+    author_endorsement: not-contacted
+  - title: "Is the Euclidean algorithm optimal among its peers?"
+    authors:
+      - "Lou van den Dries"
+      - "Yiannis N. Moschovakis"
+    id: "doi:10.2178/bsl/1102022663"
+    type: article
+    location: "Bulletin of Symbolic Logic 10(3) (2004), 390–418"
+    relationship: background
+    note: "Origin of the optimality conjecture and of the Ω(log log a) lower bound for coprimeness."
+    author_endorsement: not-contacted
+
+related_formalizations: []
+
+status:
+  scope: >-
+    Formalized: the upper bound G(a, b) ≤ (6 + ε) log₂ a / log₂ log₂ a for large a and all
+    b ≤ a, where G is the least number of remainder calls in a straight-line derivation of
+    gcd(a, b); the same bound for the three intrinsic complexities defined from certificates
+    (coprimeness in Nε, gcd in (ℕ, rem, eq0), gcd in Nε); the refutations of Conjecture 3.4
+    (real r and pairs, and the literal rational-r reading) and of (4F-5) (infinitely many
+    pairs, in both structures, and the literal reading with a set on which the complexity is
+    unbounded); and the lower bounds G ≤ the gcd complexities, coprimeness complexity = G
+    on positive coprime inputs, and the almost-all (1 − ε) log₂ log₂ N bound. The
+    refutations of (4F-5) omit the book's first inequality calls(rem)(ε, x, y) ≤ L(x, y),
+    which only weakens the statement refuted. Not formalized: the consequence for the
+    question after Corollary 6C.7 (p. 188), which also uses the book's Theorem 4F.1, and
+    the general theory of uniform processes; certificates are formalized directly as finite
+    sets of facts. The library also proves a family of fixed nondeterministic programs with
+    cost (3/p + o(1)) log₂ a; it is not part of the compared statements.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+
+automation:
+  methods:
+    - method: agent
+      models: ["gpt-6-astra"]
+      framework: "n/a"
+      tool_setup: >-
+        AI-assisted development: an AI coding agent drafted and revised Lean proofs, the
+        paper and the documentation under the author's direction, with Lean's kernel and the
+        axiom audit as the check on the formal proofs.
+      cost:
+        wall_time: "not tracked"
+        spend_usd: "not tracked"
+        hardware: "local machine"
+      prompting_notes: "n/a"
+    - method: agent
+      models: ["Claude Opus 5.5 (Anthropic)"]
+      framework: "Claude Code"
+      tool_setup: >-
+        Used mainly for review: readability, citation and statement-fidelity reviews of the
+        paper and the formalization, with the author deciding which changes to make. It
+        also prepared this Palomar packaging: the port to Lean's module system,
+        Challenge.lean and Solution.lean, the ShortGCD.LowerBounds module, and a proof
+        change in uniform_bit_bound so that the independent kernels accept it.
+      cost:
+        wall_time: "not tracked"
+        spend_usd: "not tracked"
+        hardware: "local machine"
+      prompting_notes: "n/a"
+  spend_usd: "not tracked"
+  notes: >-
+    The author directed the work and reviewed the statements; AI agents wrote most of the
+    Lean code and drafts of the text. Correctness of the formal results rests on Lean's
+    kernel; the correspondence between the Lean statements and the book's conjectures was
+    checked by the author.
+
+fidelity:
+  divergences: >-
+    The book's (4F-5) asks for a set D satisfying (4F-3) and (4F-4) and two inequalities;
+    the formal refutation drops the first inequality and (4F-3), keeping (4F-4) in the
+    literal version, so the refuted statement is weaker than the book's. Conjecture 3.4 is
+    refuted both for real r with infinitely many pairs and in its literal form (rational r,
+    infinitely many a). Certificates are finite sets of remainder, eq0 and eq1 facts that are
+    true in ℕ and generated by the inputs, with the Homomorphism Test as the defining
+    condition: a finite partial substructure is represented by the finite set of its facts,
+    and only the remainder facts are counted, as in calls(rem). Logarithms are base 2, which changes only
+    constants.
+
+review:
+  status: "self-assessed; not yet reviewed by an expert in the area"
+  reviewers:
+    - "none"
+  notes: >-
+    The author audited Challenge.lean against the book's and the notes' statements. The
+    paper received several rounds of AI-assisted internal review. No independent expert
+    review has taken place.
+
+alignment:
+  namespace: "ShortGCD"
+  statements:
+    - source: "Paper, main theorem and its leading-coefficient corollary"
+      lean: "ShortGCD.uniform_real_bound_six"
+      module: "ShortGCD.SharpBound"
+      status: proved
+      note: "G(a, b) ≤ (6 + ε) log₂ a / log₂ log₂ a for all large a and every b ≤ a."
+    - source: "Paper, refutation corollary and certificates proposition"
+      lean: "ShortGCD.uniform_intrinsic_bound_six"
+      module: "ShortGCD.SharpCertificates"
+      status: proved
+      note: "The same bound for the three intrinsic complexities, for 0 < b ≤ a."
+    - source: "Moschovakis 2012, Conjecture 3.4"
+      lean: "ShortGCD.not_conjecture_3_4"
+      module: "ShortGCD.Conjecture"
+      status: proved
+      note: "Real r > 0, infinitely many pairs a ≥ b ≥ 1."
+    - source: "Moschovakis 2012, Conjecture 3.4 (literal reading)"
+      lean: "ShortGCD.not_conjecture_3_4_literal"
+      module: "ShortGCD.Conjecture"
+      status: proved
+      note: "Rational r > 0, infinitely many values of a."
+    - source: "Moschovakis 2019, (4F-5), structure (ℕ, rem, eq0)"
+      lean: "ShortGCD.not_main_conjecture_4F5"
+      module: "ShortGCD.Conjecture"
+      status: adapted
+      note: "First inequality of (4F-5) dropped; D taken to be any infinite set of pairs."
+    - source: "Moschovakis 2019, (4F-5), structure Nε"
+      lean: "ShortGCD.not_main_conjecture_4F5_Neps"
+      module: "ShortGCD.Conjecture"
+      status: adapted
+      note: "As above, with certificates that may use eq1 facts."
+    - source: "Moschovakis 2019, (4F-5) with (4F-4)"
+      lean: "ShortGCD.not_main_conjecture_4F5_literal"
+      module: "ShortGCD.Conjecture"
+      status: adapted
+      note: "D any set on which the complexity is unbounded (condition (4F-4)); first inequality dropped."
+    - source: "Paper, certificates proposition (lower bound)"
+      lean: "ShortGCD.G_le_callsRemGcd"
+      module: "ShortGCD.LowerBounds"
+      status: proved
+      note: "Every gcd certificate in Nε has at least G(a, b) remainder facts."
+    - source: "Paper, certificates proposition (lower bound)"
+      lean: "ShortGCD.G_le_callsGcd"
+      module: "ShortGCD.LowerBounds"
+      status: proved
+      note: "The same for certificates without eq1 facts."
+    - source: "Paper, certificates proposition"
+      lean: "ShortGCD.callsCoprimeness_eq_G"
+      module: "ShortGCD.LowerBounds"
+      status: proved
+      note: "Coprimeness complexity equals G(a, b) on positive coprime inputs."
+    - source: "Paper, almost-all lower bound"
+      lean: "ShortGCD.tendsto_card_callsCoprimeness_loglog"
+      module: "ShortGCD.LowerBounds"
+      status: proved
+      note: "The o(N²) count; the Lean proof uses the constant 40 where the paper's proof uses 16."
+
+acknowledgements: "Lean 4 and mathlib."

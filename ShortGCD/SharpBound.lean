@@ -1,4 +1,8 @@
-import ShortGCD.Asymptotic
+module
+
+public import ShortGCD.Asymptotic
+
+@[expose] public section
 
 /-! # The leading constant in the uniform bound
 

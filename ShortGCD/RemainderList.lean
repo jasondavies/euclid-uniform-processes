@@ -1,4 +1,8 @@
-import ShortGCD.CoprimeCertificate
+module
+
+public import ShortGCD.CoprimeCertificate
+
+@[expose] public section
 
 /-!
 # Remainder derivations

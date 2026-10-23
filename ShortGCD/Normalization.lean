@@ -1,4 +1,8 @@
-import ShortGCD.Composition
+module
+
+public import ShortGCD.Composition
+
+@[expose] public section
 
 /-! # Normalization and the worst-case cost `sizeCost`
 

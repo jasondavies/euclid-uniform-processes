@@ -1,4 +1,8 @@
-import ShortGCD.RegisterSyntax
+module
+
+public import ShortGCD.RegisterSyntax
+
+@[expose] public section
 
 /-! # The two-stack recursive machine for the fixed finite programs
 

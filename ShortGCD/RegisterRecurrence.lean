@@ -1,4 +1,8 @@
-import ShortGCD.RegisterCost
+module
+
+public import ShortGCD.RegisterCost
+
+@[expose] public section
 
 /-! # The fixed-width recurrence
 

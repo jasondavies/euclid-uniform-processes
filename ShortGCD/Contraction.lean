@@ -1,6 +1,10 @@
-import ShortGCD.Gap
-import ShortGCD.Composition
-import ShortGCD.Prefix
+module
+
+public import ShortGCD.Gap
+public import ShortGCD.Composition
+public import ShortGCD.Prefix
+
+@[expose] public section
 
 /-! # Contraction with a reservoir
 

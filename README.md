@@ -176,6 +176,9 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | Every generated gcd certificate has at least G(a, b) remainder facts | `gcd_certificate_lower` |
 | At most 40 (2 + ln N) N^(2 − 2^(−d)) pairs 2 ≤ b < a ≤ N have a derivation of 1 of length at most d | `AlmostAll.card_within_le` |
 | For every ε > 0, D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs b < a ≤ N | `AlmostAll.tendsto_card_within_loglog` |
+| Both gcd complexities are at least G(a, b) | `G_le_callsRemGcd`, `G_le_callsGcd` |
+| On positive coprime inputs, `callsCoprimeness` equals G(a, b) | `callsCoprimeness_eq_G` |
+| For every ε > 0, `callsCoprimeness` > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs 2 ≤ b < a ≤ N | `tendsto_card_callsCoprimeness_loglog` |
 
 </details>
 
@@ -188,7 +191,8 @@ All modules are in [ShortGCD/](ShortGCD/). `A → B` means B imports A, and a ch
 `A → B → C` means B imports A and C imports B; `A, B → C` means C imports both A and B.
 Derivation, Prefix, Arithmetic and CoprimeCertificate import only Mathlib. The root
 [ShortGCD.lean](ShortGCD.lean) imports Asymptotic, Certificates, Conjecture,
-SharpCertificates, RegisterSmallStep and AlmostAll.
+SharpCertificates, RegisterSmallStep, AlmostAll and LowerBounds. Every file uses Lean's
+module system (`module`, `public import`), as Palomar requires.
 
 ```
 Certificates and the reduction
@@ -207,6 +211,7 @@ The upper bound
 Both strands meet
   Asymptotic, GcdCertificate → Certificates → Conjecture
   SharpBound, Conjecture → SharpCertificates
+  Conjecture, AlmostAll → LowerBounds
 
 The program family
   Derivation → RegisterProgram
@@ -226,13 +231,44 @@ The program family
   an upper-limit argument gives 6, and rounding limits preserve it for general inputs.
 - **The conjectures.** Conjecture turns the bounds into the refutations;
   SharpCertificates combines the refined bound with the certificate reductions.
+- **Non-vacuity.** LowerBounds shows that the refuted complexities are not small for
+  trivial reasons: they are at least G, and the coprimeness complexity is
+  Ω(log log N) on almost all coprime pairs.
 
 </details>
+
+### Palomar packaging
+
+The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
+Lean-verified results.
+
+- **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
+  defines every notion the theorems use (derivations, G, certificates and the three
+  intrinsic complexities), and states the eleven compared theorems with `sorry`: the
+  upper bounds, the five refutations and four lower bounds.
+- **[Solution.lean](Solution.lean)** imports `ShortGCD`, where each of these declarations
+  is defined and proved under the same name.
+- **[comparator.json](comparator.json)** lists the compared theorems and permitted axioms;
+  **[formalization.yaml](formalization.yaml)** records the metadata, provenance, scope,
+  fidelity notes and AI involvement.
+
+`lake comparator` checks that each proved statement is exactly the one in Challenge.lean
+and replays the proofs through Lean's kernel and the independent kernels NanoDa and
+con-ron; all three accept. To run it locally (Linux, needs `bwrap`; the packages in
+`.lake/packages` must be real directories, not symlinks into another checkout):
+
+```sh
+./scripts/palomar/verify-comparator.sh
+python3 scripts/palomar/check-lean-sources.py
+```
+
+The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
+[template repository](https://github.com/PalomarRegistry/PalomarTemplate).
 
 ### Soundness and scope
 
 - **No added assumptions.** The development has no `sorry`/`admit` placeholders and adds
-  no axioms. The recorded axiom audit ([axioms.txt](validation/axioms.txt)) uses only
+  no axioms; the only `sorry`s are the deliberate holes in Challenge.lean. The recorded axiom audit ([axioms.txt](validation/axioms.txt)) uses only
   `propext`, `Classical.choice` and `Quot.sound`.
 - **What is cited, not formalized.** The book's general best-uniform-process theorem
   (4F.1) is cited in the manuscript; the abstract theory of uniform processes is not
@@ -378,9 +414,13 @@ python3 -O research/rebuilding_program.py
 ## Repository layout
 
 - [ShortGCD/](ShortGCD/) and [ShortGCD.lean](ShortGCD.lean): the Lean development.
+- [Challenge.lean](Challenge.lean), [Solution.lean](Solution.lean),
+  [comparator.json](comparator.json), [formalization.yaml](formalization.yaml): the
+  Palomar submission surface.
 - [paper/](paper/): the manuscript.
 - [research/](research/): exploratory notes, their Lean files, scripts and results.
-- [scripts/](scripts/): finite checks for the main results.
+- [scripts/](scripts/): finite checks for the main results, and Palomar's checks in
+  [scripts/palomar/](scripts/palomar/).
 - [validation/](validation/): axiom audit, build log and check results.
 - [remainder_only_certificate.py](remainder_only_certificate.py): the numerical examples
   in the manuscript.

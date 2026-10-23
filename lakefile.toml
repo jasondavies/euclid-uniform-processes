@@ -1,6 +1,6 @@
 name = "euclid_uniform_processes"
 version = "0.1.0"
-defaultTargets = ["ShortGCD"]
+defaultTargets = ["ShortGCD", "Challenge", "Solution"]
 
 [[require]]
 name = "mathlib"
@@ -9,3 +9,11 @@ rev = "v4.35.0"
 
 [[lean_lib]]
 name = "ShortGCD"
+
+[[lean_lib]]
+name = "Challenge"
+roots = ["Challenge"]
+
+[[lean_lib]]
+name = "Solution"
+roots = ["Solution"]

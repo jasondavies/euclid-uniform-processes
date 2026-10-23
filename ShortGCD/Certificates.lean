@@ -1,5 +1,9 @@
-import ShortGCD.Asymptotic
-import ShortGCD.GcdCertificate
+module
+
+public import ShortGCD.Asymptotic
+public import ShortGCD.GcdCertificate
+
+@[expose] public section
 
 /-! # From derivations to certificates
 

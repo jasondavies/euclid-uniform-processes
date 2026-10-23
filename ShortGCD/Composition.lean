@@ -1,4 +1,8 @@
-import ShortGCD.Derivation
+module
+
+public import ShortGCD.Derivation
+
+@[expose] public section
 
 /-! # Composing derivations and the gcd complexity `G`
 
@@ -41,17 +45,14 @@ theorem gcd_generatable (a b : ℕ) : ∃ k, Generates {a,b} k (Nat.gcd a b) := 
     exact hd.then_generate (hk.enlarge (by intro z hz; simp at hz ⊢; tauto))
 
 /-- The least number of remainder calls generating the gcd. -/
-noncomputable def G (a b : ℕ) : ℕ := by
-  classical
-  exact Nat.find (gcd_generatable a b)
+noncomputable def G (a b : ℕ) : ℕ :=
+  sInf {k | Generates {a,b} k (Nat.gcd a b)}
 
-theorem generates_G (a b : ℕ) : Generates {a,b} (G a b) (Nat.gcd a b) := by
-  classical
-  exact Nat.find_spec (gcd_generatable a b)
+theorem generates_G (a b : ℕ) : Generates {a,b} (G a b) (Nat.gcd a b) :=
+  Nat.sInf_mem (gcd_generatable a b)
 
-theorem G_le {a b k} (h : Generates {a,b} k (Nat.gcd a b)) : G a b ≤ k := by
-  classical
-  exact Nat.find_min' (gcd_generatable a b) h
+theorem G_le {a b k} (h : Generates {a,b} k (Nat.gcd a b)) : G a b ≤ k :=
+  Nat.sInf_le h
 
 /-- A size bound for generating gcds; it applies to zero and unordered inputs too. -/
 def GBound (M K : ℕ) : Prop := ∀ a b, a ≤ M → b ≤ M → Generates {a,b} K (Nat.gcd a b)

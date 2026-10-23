@@ -1,4 +1,8 @@
-import ShortGCD.RegisterAsymptotic
+module
+
+public import ShortGCD.RegisterAsymptotic
+
+@[expose] public section
 
 /-! # Finite first-order syntax for the fixed-width program
 

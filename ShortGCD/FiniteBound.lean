@@ -1,4 +1,8 @@
-import ShortGCD.Euclid
+module
+
+public import ShortGCD.Euclid
+
+@[expose] public section
 
 /-! # The finite recurrence for `sizeCost`
 

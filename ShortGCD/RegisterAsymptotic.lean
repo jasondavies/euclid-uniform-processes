@@ -1,5 +1,9 @@
-import ShortGCD.RegisterRecurrence
-import ShortGCD.SharpBound
+module
+
+public import ShortGCD.RegisterRecurrence
+public import ShortGCD.SharpBound
+
+@[expose] public section
 
 /-! # Fixed programs with arbitrarily small coefficients
 

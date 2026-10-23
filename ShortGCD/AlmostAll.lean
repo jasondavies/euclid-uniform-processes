@@ -1,5 +1,9 @@
-import ShortGCD.GcdCertificate
-import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
+module
+
+public import ShortGCD.GcdCertificate
+public import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
+
+@[expose] public section
 
 /-! # An almost-all lower bound for remainder derivations
 

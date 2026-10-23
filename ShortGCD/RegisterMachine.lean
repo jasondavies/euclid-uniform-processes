@@ -1,5 +1,9 @@
-import ShortGCD.RegisterProgram
-import ShortGCD.Euclid
+module
+
+public import ShortGCD.RegisterProgram
+public import ShortGCD.Euclid
+
+@[expose] public section
 
 /-! # Costs of fixed-width generator computations
 

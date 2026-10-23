@@ -1,4 +1,8 @@
-import ShortGCD.Certificates
+module
+
+public import ShortGCD.Certificates
+
+@[expose] public section
 
 /-!
 # The uniform-process conjectures fail

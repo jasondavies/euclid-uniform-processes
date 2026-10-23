@@ -1,4 +1,8 @@
-import ShortGCD.RegisterMachine
+module
+
+public import ShortGCD.RegisterMachine
+
+@[expose] public section
 
 /-! # The stored prefix and register contraction
 

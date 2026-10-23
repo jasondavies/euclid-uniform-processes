@@ -1,4 +1,8 @@
-import ShortGCD.RegisterSmallStep
+module
+
+public import ShortGCD.RegisterSmallStep
+
+@[expose] public section
 
 /-! # Accounting for a fresh prefix at each contraction
 

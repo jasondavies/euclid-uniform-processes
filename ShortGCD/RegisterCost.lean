@@ -1,4 +1,8 @@
-import ShortGCD.RegisterPrefix
+module
+
+public import ShortGCD.RegisterPrefix
+
+@[expose] public section
 
 /-! # Elementary bounds on fixed-width costs
 
