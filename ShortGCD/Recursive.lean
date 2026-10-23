@@ -32,6 +32,26 @@ inductive Expr (ar : F → ℕ) (n : ℕ) where
   | iteZero : Expr ar n → Expr ar n → Expr ar n → Expr ar n
   | app (f : F) : (Fin (ar f) → Expr ar n) → Expr ar n
 
+/-- An expression containing no calls of internal functions. Primitive operations
+and zero-test conditionals are allowed. -/
+def Expr.CallFree {n} : Expr ar n → Prop
+  | .var _ => True
+  | .rem a b => a.CallFree ∧ b.CallFree
+  | .iteZero a b c => a.CallFree ∧ b.CallFree ∧ c.CallFree
+  | .app _ _ => False
+
+/-- Every internal call occurs in tail position. Call arguments, remainder operands
+and conditional guards must be call-free; conditional branches inherit tail position. -/
+def Expr.TailCalls {n} : Expr ar n → Prop
+  | .var _ => True
+  | .rem a b => a.CallFree ∧ b.CallFree
+  | .iteZero a b c => a.CallFree ∧ b.TailCalls ∧ c.TailCalls
+  | .app _ args => ∀ i, (args i).CallFree
+
+/-- The head and every alternative body have only tail-position internal calls. -/
+def IsTailRecursive {n} (B : (f : F) → Set (Expr ar (ar f))) (head : Expr ar n) : Prop :=
+  head.TailCalls ∧ ∀ f body, body ∈ B f → body.TailCalls
+
 /-- Call-by-value evaluation with bodies `B`. All arguments are evaluated before a body is
 entered, and the cost is the number of remainder calls. -/
 inductive Eval (B : (f : F) → Set (Expr ar (ar f))) :

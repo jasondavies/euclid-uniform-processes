@@ -408,7 +408,9 @@ Lean checks the result in two of the book's models of computation.
   function per line, as in the book's reduction of iteration to tail recursion (§2C).
   The function run takes the inputs and the work registers; its bodies are
   run(u⃗[d := rem(u_i, u_j)]) for each choice of i, j, d, and accept(a, b, u_i) for each
-  i, and every call of run is in tail position. `TailRecursive.executes_iff_eval`
+  i. `TailRecursive.program_tailRecursive` proves that the head and every body
+  have only tail-position calls: call arguments, remainder operands and conditional
+  guards contain no internal calls. `TailRecursive.executes_iff_eval`
   matches its evaluations exactly, in value and remainder cost, with executions of the
   register program. For every program in the language of `Recursive` (terms with
   variables, remainder, a zero-test conditional and calls of internal symbols, each
@@ -458,6 +460,7 @@ manuscript, and make no claim of exhaustive coverage or priority.
 | A convergent execution exists on every input | `TailSource.executes_total` |
 | The ε log₂ a + Bε bound for the register program, with the program chosen before the inputs | `TailSource.arbitrarily_small_coefficient` |
 | The tail-recursive program is finite | `TailRecursive.bodies_finite` |
+| The head and every alternative body have only tail-position internal calls | `TailRecursive.program_tailRecursive` |
 | Exact-cost equivalence between register-program executions and evaluations of the tail-recursive program | `TailRecursive.executes_iff_eval` |
 | Exact-cost equivalence between evaluation and the two-stack machine, for every program | `Recursive.Machine.eval_iff_steps` |
 | The same for the tail-recursive program's machine computations | `TailRecursive.executes_iff_steps` |

@@ -17,7 +17,8 @@ of `run` is in tail position. `accept` and `loop` perform and reject the final v
 `executes_iff_eval` proves that evaluations of the head correspond exactly, with the same
 value and remainder cost, to executions of the register program, and `executes_iff_steps`
 transfers this to the book's recursive machine. Neither direction uses the cost proofs'
-relabelling generator.
+relabelling generator. `program_tailRecursive` certifies syntactically that the head
+and every body have only tail-position internal calls.
 -/
 
 namespace ShortGCD.TailRecursive
@@ -97,6 +98,39 @@ def initVar (w : ℕ) : Fin (2+w) → Fin 2 :=
 /-- Head: return `a` if `b = 0`; otherwise call `run` on the inputs and their copies. -/
 def head (w : ℕ) : Term w 2 :=
   .iteZero (.var 1) (.var 0) (.app .run (fun x => .var (initVar w x)))
+
+/-- Assignment arguments contain only variables and a primitive remainder. -/
+lemma remArgs_callFree (w : ℕ) (i j d : Fin w) (x : Fin (2+w)) :
+    (remArgs w i j d x).CallFree := by
+  unfold remArgs
+  split <;> simp [Recursive.Expr.CallFree]
+
+/-- Every alternative of `run`, `accept` and `loop` has only tail-position calls. -/
+theorem bodies_tail (w : ℕ) (f : Fn) (body : Term w (arity w f))
+    (hb : body ∈ bodies w f) : body.TailCalls := by
+  cases f with
+  | run =>
+    rcases hb with ⟨⟨i, j, d⟩, rfl⟩ | ⟨i, rfl⟩
+    · exact remArgs_callFree w i j d
+    · change ∀ x : Fin 3, _
+      intro x
+      fin_cases x <;> simp [Recursive.Expr.CallFree]
+  | accept =>
+    have he : body = acceptBody w := hb
+    subst body
+    simp [acceptBody, Recursive.Expr.TailCalls, Recursive.Expr.CallFree]
+  | loop =>
+    have he : body = .app .loop (fun x => .var x) := hb
+    subst body
+    simp [Recursive.Expr.TailCalls, Recursive.Expr.CallFree]
+
+/-- The zero-input head also has only tail-position calls. -/
+theorem head_tail (w : ℕ) : (head w).TailCalls := by
+  simp [head, Recursive.Expr.TailCalls, Recursive.Expr.CallFree]
+
+/-- Syntactic certification of tail recursion for the complete finite program. -/
+theorem program_tailRecursive (w : ℕ) : Recursive.IsTailRecursive (bodies w) (head w) :=
+  ⟨head_tail w, bodies_tail w⟩
 
 lemma params_inputs (w a b : ℕ) :
     (fun x => ![a,b] (initVar w x)) = params a b (inputs w a b) := by

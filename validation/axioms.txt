@@ -44,6 +44,7 @@
 'ShortGCD.TailSource.executes_total' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.TailSource.arbitrarily_small_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.TailRecursive.bodies_finite' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.TailRecursive.program_tailRecursive' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.TailRecursive.executes_iff_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.TailRecursive.executes_iff_steps' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.TailRecursive.steps_correct' depends on axioms: [propext, Classical.choice, Quot.sound]

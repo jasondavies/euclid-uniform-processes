@@ -55,6 +55,7 @@ import ShortGCD
 #print axioms ShortGCD.TailSource.executes_total
 #print axioms ShortGCD.TailSource.arbitrarily_small_coefficient
 #print axioms ShortGCD.TailRecursive.bodies_finite
+#print axioms ShortGCD.TailRecursive.program_tailRecursive
 #print axioms ShortGCD.TailRecursive.executes_iff_eval
 #print axioms ShortGCD.TailRecursive.executes_iff_steps
 #print axioms ShortGCD.TailRecursive.steps_correct
