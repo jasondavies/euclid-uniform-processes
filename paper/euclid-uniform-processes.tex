@@ -26,14 +26,15 @@
 \begin{abstract}
 Reusing a stored Euclidean prefix, we derive $\gcd(a,b)$ from $a,b$ with
 $O(\log a/\log\log a)$ applications of the remainder function alone,
-uniformly for $a>b\geq1$. These derivations yield a single uniform process
-with the same bound, refuting Moschovakis's conjectured logarithmic lower
-bounds for uniform processes.
+uniformly for $a>b\geq1$. These derivations bound the intrinsic complexity
+of gcd and coprimeness by the same order, refuting Moschovakis's conjectured
+logarithmic lower bounds for uniform processes; by his best-uniform-process
+theorem, a single uniform process attains this bound.
 The Main Conjecture for algorithms remains open. We also prove an
 $\Omega(\log\log a)$ lower bound for almost all coprime pairs and give a
 family of finite nondeterministic gcd programs with arbitrarily small
-logarithmic cost coefficients. The arithmetic and program bounds are
-formalized in Lean~4.
+logarithmic cost coefficients. The bounds and the refutations are
+formalized in Lean~4; the best-uniform-process theorem is cited.
 \end{abstract}
 
 \noindent\textbf{AI transparency statement.} This paper was produced entirely
@@ -67,9 +68,9 @@ Arithmetic used in the proofs, such as subtraction, sorting or comparison,
 only selects instructions; it is never itself an instruction.
 
 \begin{theorem}\label{thm:main}
-Uniformly for integers $a>b\geq1$,
+There is a constant $C$ such that for all integers $a\geq4$ and $0\leq b\leq a$,
 \[
-G(a,b)=O\left(\frac{\log a}{\log\log a}\right).
+G(a,b)\leq C\,\frac{\log a}{\log\log a}.
 \]
 In particular this bound holds for $D(a,b)$ when $\gcd(a,b)=1$.
 \end{theorem}
@@ -287,7 +288,8 @@ that both recursive indices are at least $2$ and strictly less than $n$. Choose
 $C\geq8c_0$, increased to cover the finitely many values below the threshold.
 Strong induction then gives $T(n)\leq Cf(n)$: the two bounds are
 $(7C/8+c_0)f(n)$ and $(5C/6+c_0)f(n)$, both at most $Cf(n)$.
-Finally take $n=\lceil\log a\rceil$.
+Finally take $n=\lceil\log a\rceil$. For $a\geq4$, $n\leq2\log a$ and
+$\log n\geq\log\log a\geq1$, so $G(a,b)\leq T(n)\leq2C\log a/\log\log a$.
 \end{proof}
 
 \subsection{The leading coefficient}
