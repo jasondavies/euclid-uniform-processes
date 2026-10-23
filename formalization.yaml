@@ -209,6 +209,6 @@ alignment:
       lean: "ShortGCD.tendsto_card_callsCoprimeness_loglog"
       module: "ShortGCD.LowerBounds"
       status: proved
-      note: "The o(N²) count; the Lean proof uses the constant 40 where the paper's proof uses 16."
+      note: "The o(N²) count, with the same constant 40 as the paper's counting bound."
 
 acknowledgements: "Lean 4 and mathlib."
