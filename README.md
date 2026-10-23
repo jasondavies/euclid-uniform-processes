@@ -389,8 +389,8 @@ inspect them as data. Positive scaling preserves successful register runs and th
 costs (`RegisterProgram.Run.scale`).
 
 The related-work discussion in the paper compares Pratt's program as presented in
-Theorem 2E.2 and Corollary 6C.7 of the book. Pratt's unpublished manuscript was not
-obtained; the literature search does not establish exhaustive coverage or priority.
+Theorem 2E.2 and Corollary 6C.7 of the book. We did not obtain Pratt's unpublished
+manuscript, and make no claim of exhaustive coverage or priority.
 
 </details>
 
