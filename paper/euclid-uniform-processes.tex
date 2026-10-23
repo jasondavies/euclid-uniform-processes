@@ -24,20 +24,15 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Every pair $a>b\geq1$ has a remainder-only derivation of $\gcd(a,b)$ with
-at most $(6+o(1))\log_2 a/\log_2\log_2 a$ remainder calls, uniformly in $b$.
-The construction repeatedly shrinks a modulus in three calls using one
-stored Euclidean prefix. It gives the same asymptotic upper bound on the
-intrinsic complexity of gcd and coprimeness. By Moschovakis's
-best-uniform-process theorem, each function has a single uniform process
-attaining this bound on all inputs. Thus the Euclidean algorithm is not
-optimal among uniform processes, and the homomorphism method cannot give a logarithmic lower bound
-in this model. We also prove an $\Omega(\log\log a)$ lower bound for almost
-all coprime pairs. For each $\varepsilon>0$, a fixed finite nondeterministic
-gcd program has remainder cost at most $\varepsilon\log_2 a+B_\varepsilon$
-on all inputs $a\geq b\geq1$; the program depends on $\varepsilon$.
-The Main Conjecture for algorithms remains open. The new bounds and program
-results are formalized in Lean~4; the general uniform-process theorem is cited.
+We construct remainder-only gcd derivations of length
+$O(\log a/\log\log a)$, uniformly for $a>b\geq1$, by reusing a stored
+Euclidean prefix. These yield a single uniform process with the same bound,
+refuting Moschovakis's conjectured logarithmic bounds on intrinsic complexity.
+The Main Conjecture for algorithms remains open. We also prove an
+$\Omega(\log\log a)$ lower bound for almost all coprime pairs and give a
+family of finite nondeterministic gcd programs with arbitrarily small
+logarithmic cost coefficients. The arithmetic and program bounds are
+formalized in Lean~4.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
