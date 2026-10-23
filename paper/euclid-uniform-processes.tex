@@ -35,12 +35,12 @@ The Main Conjecture for algorithms remains open. We also prove an
 $\Omega(\log\log a)$ lower bound for almost all coprime pairs and give a
 family of finite nondeterministic gcd programs with arbitrarily small
 logarithmic cost coefficients. The bounds and the refutations are
-formalized in Lean~4; the best-uniform-process theorem is cited.
+formalised in Lean~4; the best-uniform-process theorem is cited.
 \end{abstract}
 
 \noindent\textbf{AI transparency statement.} This paper was produced entirely
 by artificial intelligence, including the identification of the main result,
-its formalization in Lean, and the writing of the manuscript. The human author
+its formalisation in Lean, and the writing of the manuscript. The human author
 initiated the broader research and directed the AI systems, but did not write
 the text. Details are given at the end of the paper.
 
@@ -129,7 +129,7 @@ His construction reads precomputed blocks of the binary gcd algorithm
 \cite{stein1967}, \cite[\S4.5.2]{knuth1997} from a table \cite[Theorems~i and~ii]{bshouty1989}. Here the saving comes from
 reusing a Euclidean prefix with remainder as the only instruction.
 
-\section{Normalization}\label{sec:normalization}
+\section{Normalisation}\label{sec:normalization}
 Write $g=\gcd(a,b)>0$. For positive $y$,
 \[
 \rem(gx,gy)=g\rem(x,y).
@@ -218,7 +218,7 @@ modulus.
 
 \section{Construction and recurrence}\label{sec:construction}
 Fix an integer $n>16$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil>4$.
-After normalization, assume $a>b>1$ are coprime and $a\leq N$.
+After normalisation, assume $a>b>1$ are coprime and $a\leq N$.
 We use $N^{3/4}$ as the \emph{early threshold} and $N^{1/3}$ as the
 \emph{target modulus}. Any thresholds $N^\alpha,N^\beta$ with $\alpha<1$,
 $\alpha+\beta>1$ and $2\beta<1$ would do: these make the early recursive
@@ -271,7 +271,7 @@ h+3J+2+2T(\lceil n/3\rceil).
 \end{equation}
 
 \paragraph{The recurrence.}
-The two case estimates \eqref{eq:early} and \eqref{eq:late} and normalization
+The two case estimates \eqref{eq:early} and \eqref{eq:late} and normalisation
 imply
 \begin{equation}\label{eq:recurrence}
 T(n)\leq\max\{T(\lceil3n/4\rceil)+O(\sqrt n),\;
@@ -657,7 +657,7 @@ For $b>0$, final verification costs exactly two remainder calls.
 This syntax is a finite recursive program in the sense of
 \cite[\S\S2A, 2E]{moschovakis2019}; Appendix~\ref{app:lean} records the Lean
 check that its evaluation trees correspond, with equal remainder cost, to
-convergent computations of a specialization of the book's recursive machine.
+convergent computations of a specialisation of the book's recursive machine.
 
 \begin{proof}[Proof of Theorem~\ref{thm:programs}]
 We follow the construction of Section~\ref{sec:construction}: store the
@@ -677,7 +677,7 @@ gives $T_W(n)=O(n)$. To \emph{route} to $x,y$ means to apply (G4) to pass to
 the tuple $(x,y,x,\ldots,x)$, at no remainder cost. Copying parameters gives
 symmetry. Multiplying every value by $g=\gcd(a,b)$ turns a run on
 $(a/g,b/g)$ that returns $1$ into a run on $(a,b)$ that returns $g$, with the
-same remainder count. It therefore suffices to analyze coprime inputs.
+same remainder count. It therefore suffices to analyse coprime inputs.
 
 Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$. Use the early threshold
 $N^\alpha$ and the target modulus $N^\beta$, where $N=2^n$. If no prefix
@@ -778,8 +778,8 @@ the repository README gives the
 complete map and reproduction commands.
 The general theory of uniform processes, including Theorem~4F.1 used in
 Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
-not formalized. The certificate bounds and conjecture refutations are
-formalized independently of that theory.
+not formalised. The certificate bounds and conjecture refutations are
+formalised independently of that theory.
 
 The development is also packaged for the Palomar registry:
 \texttt{Challenge.lean} imports only mathlib and states the main theorems
@@ -798,7 +798,7 @@ Table~\ref{tab:lean}.
 \toprule
 Paper & Lean declaration(s)\\\midrule
 Theorem~\ref{thm:main} & \lean{uniform_real_bound}, \lean{sizeCost_isBigO}\\
-Normalization \eqref{eq:normalize} & \lean{G_normalize}\\
+Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
 Lemma~\ref{lem:gap} & \lean{small_remainder}\\
 Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}, \lean{residue_card_sq}\\
 Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}${}^\dagger$, \lean{uniform_intrinsic_bound_six}${}^\dagger$\\
@@ -808,7 +808,7 @@ Proposition~\ref{prop:certificates} &
 \lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
 \lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
 Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
-Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalized here\\
+Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
 Corollary~\ref{cor:refute} &
 \lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
 \lean{not_main_conjecture_4F5_Neps}${}^\dagger$; literal versions
@@ -849,7 +849,7 @@ $\varepsilon>0$, with threshold $(1-\varepsilon)\log\log N$.
 Generator runs translate into evaluations of finite first-order syntax
 with exactly the same remainder count, including final verification.
 Every terminating evaluation is correct, and a successful evaluation exists
-on every input. Lean also proves exact-cost equivalence with a specialization
+on every input. Lean also proves exact-cost equivalence with a specialisation
 of the book's two-stack machine: arguments are evaluated right to left,
 zero tests and branches are separate transitions, and only remainder
 transitions are charged \cite[Table~1, pp.~75--76]{moschovakis2019}.
@@ -863,14 +863,14 @@ and their relation to the Lean syntax.
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a
 broader investigation initiated by the human author, an AI system identified
-the principal result. The author then instructed it to formalize the result in
+the principal result. The author then instructed it to formalise the result in
 Lean and to prepare this manuscript. The AI systems developed the result and
-its presentation, including the mathematical exposition, the formalization,
-and the organization and writing of the text; the human author wrote no part
+its presentation, including the mathematical exposition, the formalisation,
+and the organisation and writing of the text; the human author wrote no part
 of the manuscript. The research, the Lean development and the manuscript were
 produced with GPT-6-Astra (OpenAI), used through Codex. Claude Opus~5.5
 (Anthropic), used through Claude Code, carried out review and editing passes
-and packaged the formalization for the Palomar registry, which included
+and packaged the formalisation for the Palomar registry, which included
 writing \texttt{Challenge.lean}, the lower-bound module and a proof change
 needed by the independent kernels.
 

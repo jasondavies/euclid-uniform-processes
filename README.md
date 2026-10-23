@@ -40,7 +40,7 @@ result has not yet been reviewed by an expert in the area. The terms are defined
 [Notation](#notation).
 
 **AI transparency.** This work was produced entirely by AI systems, including the main
-result, the Lean formalization and the manuscript; the human author initiated the
+result, the Lean formalisation and the manuscript; the human author initiated the
 research and directed the AI systems. The paper ends with a full declaration.
 
 Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf).
@@ -104,7 +104,7 @@ optimal among its peers:
 - **The possibility raised after Corollary 6C.7 (p. 188)**, that the Main Conjecture
   "holds for all uniform processes of Nε". Ruling this out also uses the book's
   best-uniform-process theorem (4F.1), which turns a small intrinsic complexity into a
-  uniform process with that complexity. Theorem 4F.1 is cited, not formalized.
+  uniform process with that complexity. Theorem 4F.1 is cited, not formalised.
 
 ### Further results
 
@@ -300,11 +300,11 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
   no axioms; the only `sorry`s are the deliberate holes in Challenge.lean. The recorded
   axiom audit ([axioms.txt](validation/axioms.txt)) uses only `propext`,
   `Classical.choice` and `Quot.sound`.
-- **What is cited, not formalized.** The book's general best-uniform-process theorem
+- **What is cited, not formalised.** The book's general best-uniform-process theorem
   (4F.1) is cited in the manuscript; the abstract theory of uniform processes is not
-  re-formalized here. The refutations need no such theory, because they are stated
+  re-formalised here. The refutations need no such theory, because they are stated
   about intrinsic complexities defined directly from certificates. The paper also cites
-  the known lower bounds (van den Dries–Moschovakis); they are not formalized either.
+  the known lower bounds (van den Dries–Moschovakis); they are not formalised either.
 - **Conventions.** Coprimeness in the refutations is the book's relation, which requires
   positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses
   `Nat.Coprime`; `callsCoprimeness_eq_callsRem` connects the two on positive coprime
@@ -362,10 +362,10 @@ first-order program.
 
 The bound is checked in Lean, including finite first-order syntax and call-by-value
 evaluation. Lean also checks an exact-cost correspondence with an explicit
-specialization of the book's two-stack machine (right-to-left argument order, separate
+specialisation of the book's two-stack machine (right-to-left argument order, separate
 zero-test and branch transitions, nonzero cost only on remainder transitions); this
 covers the language and program family used here. The book's theory for arbitrary
-structures and the Python interpreter are not formalized.
+structures and the Python interpreter are not formalised.
 
 <details>
 <summary>Model conventions</summary>
@@ -407,7 +407,7 @@ manuscript, and make no claim of exhaustive coverage or priority.
 | A successful evaluation exists on every input | `RegisterProgram.Syntax.eval_head_exists` |
 | For each p ≥ 1 and C > 3/p: once a is large enough, every b ≤ a has an evaluation returning gcd(a, b) with at most C log₂ a remainder calls | `RegisterProgram.Syntax.eventually_eval_bound` |
 | The ε log₂ a + Bε bound for evaluations, with the program chosen before the inputs | `RegisterProgram.Syntax.arbitrarily_small_program` |
-| Exact-cost equivalence between evaluation trees and a specialized two-stack small-step machine | `RegisterProgram.Syntax.Machine.eval_iff_steps` |
+| Exact-cost equivalence between evaluation trees and a specialised two-stack small-step machine | `RegisterProgram.Syntax.Machine.eval_iff_steps` |
 | A machine transition stays a transition, with the same cost, when stacks are appended below it | `RegisterProgram.Syntax.Machine.Step.context` |
 | Every terminating machine execution returns the gcd | `RegisterProgram.Syntax.Machine.head_correct` |
 | A successful machine execution exists on every input | `RegisterProgram.Syntax.Machine.head_exists` |
@@ -432,7 +432,7 @@ The Python presentation uses setter functions `set_i` of arity W + 1 to replace 
 generator parameter. The paper and Lean inline these setters, giving four internal
 symbols of arities W, W, 3 and 1. A setter only passes its evaluated arguments to the
 generator, so inlining preserves results and remainder counts; this equivalence with
-the Python presentation is not formalized. Both presentations evaluate each nested
+the Python presentation is not formalised. Both presentations evaluate each nested
 generator once and retain the caller's other parameters until it returns. W bounds
 arity, not total storage: the recursion stack can grow.
 
