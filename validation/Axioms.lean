@@ -64,6 +64,11 @@ import ShortGCD
 #print axioms ShortGCD.Recursive.Machine.eval_iff_steps
 #print axioms ShortGCD.Recursive.Machine.stacks_bounded
 #print axioms ShortGCD.TailRecursive.stacks_bounded
+-- The closure-depth question of van den Dries and Moschovakis.
+#print axioms ShortGCD.ClosureDepth.rem_natCast
+#print axioms ShortGCD.ClosureDepth.depth_le
+#print axioms ShortGCD.ClosureDepth.depth_bound
+#print axioms ShortGCD.ClosureDepth.no_logarithmic_sequences
 -- The almost-all lower bound.
 #print axioms ShortGCD.AlmostAll.within_iff_D_le
 #print axioms ShortGCD.AlmostAll.le_of_within_regular

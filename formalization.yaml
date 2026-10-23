@@ -81,8 +81,8 @@ sources:
     relationship: background
     note: >-
       Poses the closure-depth question answered by the paper's closure-depth corollary,
-      a short consequence of the formalized derivation bound that is proved in the paper,
-      not formalized.
+      formalized as ShortGCD.ClosureDepth.no_logarithmic_sequences with the source's
+      definitions of iq, rem and the closure stages.
     author_endorsement: not-contacted
 
 related_formalizations: []
@@ -102,7 +102,9 @@ status:
     which only weakens the statement refuted. Not formalized: the consequence for the
     question after Corollary 6C.7 (p. 188), which also uses the book's Theorem 4F.1, and
     the general theory of uniform processes; certificates are formalized directly as finite
-    sets of facts. The library also proves, for each p, a fixed nondeterministic register
+    sets of facts. The library also proves the negative answer to van den Dries and
+    Moschovakis's closure-depth question (ShortGCD.ClosureDepth.no_logarithmic_sequences,
+    with g(a, b) ≤ 1 + G(a, rem(b, a))), and, for each p, a fixed nondeterministic register
     program with 4^p + 7 registers and no recursion stack whose cost is
     (3/p + o(1)) log₂ a, both as a register program and, written one function per line, as
     a tail-recursive program on the book's recursive machine

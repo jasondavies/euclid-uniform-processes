@@ -851,8 +851,10 @@ The general theory of uniform processes, including Theorem~4F.1 used in
 Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
 not formalised. The certificate bounds and conjecture refutations are
 formalised independently of that theory, with certificates represented by
-their facts as in Lemma~\ref{lem:fact-representation}; that lemma and
-Corollary~\ref{cor:closure-depth} are proved here, not formalised.
+their facts as in Lemma~\ref{lem:fact-representation}; that lemma is proved
+here, not formalised. Corollary~\ref{cor:closure-depth} is formalised with
+the source's definitions of $\operatorname{iq}$, $\rem$ and the closure
+stages, including their conventions at zero divisors.
 
 The development is also packaged for the Palomar registry:
 \texttt{Challenge.lean} imports only mathlib and states the main theorems
@@ -887,6 +889,8 @@ Corollary~\ref{cor:refute} &
 \lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
 \lean{not_main_conjecture_4F5_Neps}${}^\dagger$\\
 Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
+Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le},
+\lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}\\
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:registers} &

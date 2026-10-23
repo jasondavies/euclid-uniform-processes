@@ -128,10 +128,13 @@ optimal among its peers:
   2009, doi:10.1145/1459010.1459012 (p. 2:11;
   [preprint](https://www.math.ucla.edu/~ynm/papers/ac.pdf)). There g(a, b) is the least
   number of parallel stages, starting from {0, 1, a, b} and applying +, −, integer
-  quotient and remainder to all available pairs, after which gcd(a, b) is available. They ask whether
-  g(αₙ, βₙ) > C log αₙ along some sequence with αₙ → ∞. Since rem(β, α) appears at the
-  first stage, g(α, β) ≤ 1 + G(α, rem(β, α)) = O(log α / log log α) uniformly in β, so
-  no such sequence exists. This short consequence is proved in the paper, not formalised.
+  quotient and remainder to all available pairs, after which gcd(a, b) is available. They
+  ask whether g(aₙ, bₙ) > C log aₙ along some sequence with aₙ → ∞. Since rem(b, a)
+  appears at the first stage, g(a, b) ≤ 1 + G(a, rem(b, a)) = O(log a / log log a)
+  uniformly in b, so no such sequence exists. This is formalised with the source's
+  definitions of iq, rem and the stages, including their conventions at zero divisors
+  (`ClosureDepth.depth_le`, `ClosureDepth.depth_bound`,
+  `ClosureDepth.no_logarithmic_sequences`).
 
 ### What remains open
 
@@ -235,7 +238,7 @@ All modules are in [ShortGCD/](ShortGCD/). `A → B` means B imports A, and a ch
 `A → B → C` means B imports A and C imports B; `A, B → C` means C imports both A and B.
 Derivation, Prefix, Arithmetic and CoprimeCertificate import only Mathlib. The root
 [ShortGCD.lean](ShortGCD.lean) imports Asymptotic, Certificates, Conjecture,
-SharpCertificates, AlmostAll, LowerBounds and TailRecursive. Every file uses Lean's
+SharpCertificates, AlmostAll, LowerBounds, ClosureDepth and TailRecursive. Every file uses Lean's
 module system (`module`, `public import`), as Palomar requires.
 
 ```
@@ -256,6 +259,9 @@ Both strands meet
   Asymptotic, GcdCertificate → Certificates → Conjecture
   SharpBound, Conjecture → SharpCertificates
   Conjecture, AlmostAll → LowerBounds
+
+The closure-depth question
+  Asymptotic → ClosureDepth
 
 The program family
   Derivation → TailProgram → TailEuclid
