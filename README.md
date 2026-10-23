@@ -1,29 +1,42 @@
 # The Euclidean algorithm is not optimal among uniform processes
 
-Van den Dries and Moschovakis conjectured that Euclid's algorithm is optimal, up to a
-constant factor, in the number of remainder operations, among all algorithms (the *Main
-Conjecture* of Moschovakis's 2019 book) and even all *uniform processes* (Moschovakis's
-abstract model of computation). The terms below are defined under [Notation](#notation).
+Euclid's algorithm computes gcd(a, b) with about 1.44 log₂ a remainder operations in the
+worst case. Van den Dries and Moschovakis asked whether any algorithm restricted to the
+remainder operation and a zero test can do essentially better. Moschovakis's *Main
+Conjecture* says no: for every such algorithm there is an r > 0 such that it makes at
+least r log a remainder calls on infinitely many inputs.
+
+Lower bounds like this are normally proved for Moschovakis's *uniform processes*, an
+abstract model of any computation that learns about its inputs only through the given
+operations; every program gives one. Moschovakis conjectured that the logarithmic lower
+bound already holds there: Conjecture 3.4 of his 2012 notes, and the precise version
+(4F-5) of the Main Conjecture in his 2019 book.
+
+**Main result: those uniform-process conjectures are false.** Every pair a ≥ b ≥ 1 has a
+derivation of gcd(a, b) with (6 + o(1)) log₂ a / log₂ log₂ a remainder calls, where each
+call takes the remainder of two values already computed. So the *intrinsic complexity*
+of gcd and of coprimeness, which bounds the cost of every uniform process from below, is
+o(log a). This refutes Conjecture 3.4 and (4F-5). With the book's Theorem 4F.1, a single
+uniform process attains this cost, ruling out the possibility raised on p. 188 of the book
+that the Main Conjecture holds for all uniform processes. It also means the homomorphism method, the
+standard tool for such lower bounds, cannot prove a logarithmic one.
+
+**Still open: the Main Conjecture for algorithms.** A derivation chooses which values to
+combine for free, so it does not give a program with this cost, and no single program with
+o(log a) remainder calls is known.
+
+**Also proved.** The known Ω(log log a) lower bound, previously proved for specific hard
+pairs, holds for almost all coprime pairs. For each ε > 0 there is a fixed
+nondeterministic gcd program with cost at most ε log₂ a + Bε; the program depends on ε.
+
+**Verified.** Everything above is machine-checked in Lean 4, except the step that uses the
+cited Theorem 4F.1; the refutations of Conjecture 3.4 and (4F-5) do not need it. The
+result has not yet been reviewed by an expert in the area. The terms are defined under
+[Notation](#notation).
 
 **AI transparency.** This work was produced entirely by AI systems, including the main
 result, the Lean formalization and the manuscript; the human author initiated the
 research and directed the AI systems. The paper ends with a full declaration.
-
-**Proved.** gcd(a, b) has a remainder-only derivation with
-(6 + o(1)) log₂ a / log₂ log₂ a remainder calls, uniformly in 0 ≤ b ≤ a (Euclid needs
-about 1.44 log₂ a in the worst case). Hence the intrinsic calls(rem)-complexity of gcd
-and coprimeness is o(log a). Also: the known Ω(log log a) lower bound, previously proved
-for specific hard pairs, holds for almost all coprime pairs; and, for each ε > 0, there
-is a fixed nondeterministic gcd program with cost at most ε log₂ a + Bε.
-
-**Refuted.** Conjecture 3.4 of Moschovakis's 2012 notes and the precise version (4F-5) of
-the Main Conjecture in his 2019 book; with the cited Theorem 4F.1, also the possibility
-raised on p. 188 that the Main Conjecture holds for all uniform processes of Nε.
-
-**Open.** The Main Conjecture for algorithms. No single sublogarithmic program is known.
-
-**Verified.** Everything above is machine-checked in Lean 4, except the step that uses the
-cited Theorem 4F.1. The result has not yet been reviewed by an expert in the area.
 
 Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf).
 
@@ -286,6 +299,14 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
   are empty.
 
 ## Finite checks
+
+[scripts/check.sh](scripts/check.sh) builds the library, reruns the axiom audits and the
+quick finite checks below, and compares each output with its recorded file; CI
+([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs it on every push and pull
+request. It leaves out `check_prefix_lemma.py`, which takes about a minute and checks a
+lemma that Lean proves in general. A separate manual workflow
+([palomar-preflight.yml](.github/workflows/palomar-preflight.yml)) runs Palomar's own
+verifier, including the comparator, on a chosen commit.
 
 ```sh
 python3 scripts/check_certificates.py
