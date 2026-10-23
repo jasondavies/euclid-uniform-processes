@@ -36,6 +36,7 @@ lake build
 expect validation/axioms.txt lake env lean validation/Axioms.lean
 
 expect validation/replay.json python3 scripts/check_certificates.py
+expect validation/benchmark_certificates.json python3 scripts/benchmark_certificates.py
 expect research/register-validation.json python3 research/check_register_program.py
 expect research/register-validation.json python3 -O research/check_register_program.py
 

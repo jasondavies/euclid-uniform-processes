@@ -66,7 +66,8 @@ constants and no other operations are supplied. Let $G(a,b)$ be the least
 number of instructions in a derivation containing $\gcd(a,b)$, and let
 $D(a,b)=G(a,b)$ for coprime inputs. Thus $G(a,0)=0$ and $D(a,1)=0$.
 Arithmetic used in the proofs, such as subtraction, sorting or comparison,
-only selects instructions; it is never itself an instruction.
+only selects instructions; it is never itself an instruction. Thus $G$
+measures the length of a derivation, not the work of finding one.
 
 \begin{theorem}\label{thm:main}
 There is a constant $C$ such that for all integers $a\geq4$ and $0\leq b\leq a$,
@@ -103,7 +104,9 @@ certificates. This bounds the intrinsic complexity of gcd and coprimeness,
 refutes Conjecture~3.4 of \cite{moschovakis2012} and version (4F-5) of the
 Main Conjecture, and limits what the homomorphism method can prove. The
 book's best-uniform-process theorem then gives a single process with the
-same bound on every input.
+same bound on every input. The upper bound also settles an open problem
+of van den Dries and Moschovakis on the closure depth of the gcd
+(Corollary~\ref{cor:closure-depth}).
 
 We also prove that $D(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$
 coprime pairs $2\leq b<a\leq N$ (Proposition~\ref{prop:loglog}).
@@ -113,20 +116,24 @@ with arbitrarily small logarithmic coefficients, uniformly over all inputs
 coefficient decreases.
 
 \paragraph{Related work.}
-The known intrinsic lower bound is $\Omega(\log\log a)$ on special families
-of coprime pairs \cite{vddm2004,vddm2009},
-\cite[Theorem~6C.5]{moschovakis2019}. Pratt's unpublished nondeterministic algorithm
+The known intrinsic lower bounds give $\Omega(\log\log a)$ on special
+families of coprime pairs \cite{vddm2004,vddm2009},
+\cite[Theorem~6C.5]{moschovakis2019}, also for richer primitives such as
+addition and integer quotient, and for depth. Pratt's unpublished nondeterministic algorithm
 \cite[Theorem~2E.2 and Problems~x2E.17--x2E.19]{moschovakis2019}
 matches this order on successive Fibonacci numbers
 \cite[Corollary~6C.7]{moschovakis2019}.
-Our almost-all bound gives the same order on a set of full density among
-coprime pairs.
+For remainder-only derivations, our almost-all bound gives the same order
+on a set of full density among coprime pairs.
 
 In a different model, Bshouty obtained the optimal bound
 $\Theta(\log N/\log\log N)$ for gcd on inputs in $[0,N]$ using a random
-access machine with linear operations, shifts and indirect addressing.
-His construction reads precomputed blocks of the binary gcd algorithm
-\cite{stein1967}, \cite[\S4.5.2]{knuth1997} from a table \cite[Theorems~i and~ii]{bshouty1989}. Here the saving comes from
+access machine with linear operations, shifts, comparisons and indirect
+addressing \cite[Theorems~i and~ii, p.~3]{bshouty1989}. His construction
+tabulates blocks of the binary gcd algorithm \cite{stein1967},
+\cite[\S4.5.2]{knuth1997}, computing table entries on demand and counting
+their construction \cite[\S4, Algorithm~D and Lemma~5, pp.~12--14]{bshouty1989}.
+Here the saving comes from
 reusing a Euclidean prefix with remainder as the only instruction.
 
 \section{Normalisation}\label{sec:normalization}
@@ -215,6 +222,16 @@ instructions that generate
 \end{equation}
 We call these three instructions a \emph{contraction} of $m$, and $w$ the new
 modulus.
+
+For example, from $44,17$ one instruction stores the prefix $44,17,10$.
+Modulo $m=10>2\cdot44/10$ its residues are $4,7,0$, and the close pair
+$4<7$ gives the contraction
+\[
+\rem(44,10)=4,\qquad \rem(17,10)=7,\qquad \rem(7,4)=3,
+\]
+with new modulus $3<10/(3-1)$, as in Lemma~\ref{lem:gap}. One more
+instruction, $\rem(10,3)=1$, finishes. Euclid's algorithm also takes five
+instructions here; the saving appears only for large inputs.
 
 \section{Construction and recurrence}\label{sec:construction}
 Fix an integer $n>16$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil>4$.
@@ -350,6 +367,33 @@ the worst-case function $T$, so the resulting threshold is independent of $b$.
 \end{proof}
 We do not claim that $6$ is optimal.
 
+\subsection{Closure depth}
+Van den Dries and Moschovakis \cite{vddm2009} measure the parallel depth of the gcd. Put
+$S_0=\{0,1,a,b\}$, let $S_{k+1}$ adjoin to $S_k$ all values $x+y$, $x-y$,
+$\operatorname{iq}(x,y)$ (integer quotient) and $\rem(x,y)$ with
+$x,y\in S_k$, and let $g(a,b)$
+be the least $k$ with $\gcd(a,b)\in S_k$ \cite[p.~2:6]{vddm2009}. They ask
+whether there are positive integers $\alpha_n\to\infty$ and $\beta_n$ and a
+$C>0$ with $g(\alpha_n,\beta_n)>C\log\alpha_n$ for all $n$
+\cite[Open Problem, p.~2:11]{vddm2009}.
+
+\begin{corollary}\label{cor:closure-depth}
+For integers $\alpha\geq4$ and $\beta\geq1$,
+\[
+g(\alpha,\beta)\leq1+G(\alpha,\rem(\beta,\alpha))
+ =O\left(\frac{\log\alpha}{\log\log\alpha}\right).
+\]
+Hence no such sequences exist.
+\end{corollary}
+\begin{proof}
+Put $r=\rem(\beta,\alpha)$, so $r\in S_1$, $0\leq r<\alpha$ and
+$\gcd(\alpha,r)=\gcd(\alpha,\beta)$. In a derivation from $\alpha,r$, the
+value of the $k$th instruction lies in $S_{k+1}$, by induction on $k$: its
+operands are $\alpha$, $r$ or earlier values, all in $S_k$. The source's
+remainder agrees with ours at positive divisors. Theorem~\ref{thm:main}
+bounds $G(\alpha,r)$.
+\end{proof}
+
 \section{Certificates and uniform processes}\label{sec:certificates}
 \paragraph{Structures and certificates.}
 Write $\mathrm{tt},\mathrm{ff}$ for the truth values and $\eq_c$ for the
@@ -377,6 +421,36 @@ remainder-call complexity} $\calls_{\rem}(\mathcal A,f,\vec x)$ is the least
 number of remainder facts in a certificate
 \cite[\S\S1D, 4C--4E]{moschovakis2019}.
 
+The Lean development represents a certificate by its facts. The following
+lemma justifies this, and supplies the derivations used below.
+
+\begin{lemma}[Fact representation]\label{lem:fact-representation}
+Let $F$ be a finite set of true remainder and test facts in which every
+number is generated from $a,b$ by the remainder facts of $F$. Then $F$ is
+the diagram of a finite partial substructure generated by $a,b$ (of
+$\mathcal N_\varepsilon$, or of $\mathcal N_0$ if $F$ has no $\eq_1$
+facts), and every such substructure arises in this way. A map
+$\pi:\mathbb N\to\mathbb N$ preserves the facts of $F$ exactly when its
+restriction to the universe is a homomorphism, and every homomorphism
+extends to such a map. Every element of the universe is the last value of
+a derivation from $a,b$ with at most as many instructions as $F$ has
+remainder facts.
+\end{lemma}
+\begin{proof}
+Take the universe $V$ to consist of $a,b$ and the numbers occurring in $F$,
+and interpret each primitive only at the recorded arguments, with the
+recorded value. Truth of the facts makes these partial operations and
+tests restrictions of the primitives of $\mathbb N$, and the hypothesis says that $V$ is generated by
+$a,b$. Conversely, the diagram of a finite generated partial substructure is
+such a set $F$. A homomorphism need only respect the recorded operations and
+tests on $V$, and values outside $V$ are irrelevant; this gives the second
+assertion. For the last, start from $a,b$ and repeatedly apply a remainder
+fact of $F$ whose operands are available and whose value is new. While some
+element of $V$ is unavailable such a fact exists: take the first
+unavailable value in a generation of that element. Each fact is applied at
+most once.
+\end{proof}
+
 \begin{proposition}\label{prop:certificates}
 For coprime $a,b\geq1$,
 $\calls_{\rem}(\mathcal N_\varepsilon,\coprime,a,b)=D(a,b)$. For
@@ -394,7 +468,7 @@ divisors divides every transported generated value, hence divides the image
 $1$. Conversely, if a certificate has no positive $\eq_1$ fact, then
 $x\mapsto2x$ preserves its remainder facts, zero tests and negative
 one-tests, but not coprimeness. So every certificate contains $1$, and
-listing its values in generation order gives a derivation of $1$ with at
+Lemma~\ref{lem:fact-representation} gives a derivation of $1$ with at
 most as many instructions as the certificate has remainder facts. This
 proves the first assertion.
 
@@ -412,10 +486,11 @@ certificate, $\eq_1$ facts included, and allowing $\eq_1$ facts can only lower t
 bound transfers to $\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$.
 \end{proof}
 \begin{remark}\label{rem:noncoprime}
-At $(0,0)$ the output is an input and the empty certificate suffices.
+At $(0,0)$ the output is an input, and the substructure with universe
+$\{0\}$ and no facts is a certificate.
 For gcd restricted to positive inputs, appending $\eq_0(a)=\mathrm{ff}$ and
-$\eq_0(b)=\mathrm{ff}$ keeps input images in the domain, at no remainder cost. For a noncoprime
-input, adding $\eq_1(g)=\mathrm{ff}$ to the gcd certificate certifies noncoprimeness, so the sublogarithmic remainder-call
+$\eq_0(b)=\mathrm{ff}$ keeps input images in the domain, at no remainder cost. For a positive
+noncoprime input, adding $\eq_1(g)=\mathrm{ff}$ to the gcd certificate certifies noncoprimeness, so the sublogarithmic remainder-call
 bound holds for both truth values of coprimeness as well as for the gcd. The
 overhead is a fixed additive constant and does not change the leading
 coefficient, so Corollary~\ref{cor:six} holds for all three complexities of
@@ -461,7 +536,8 @@ and a $K>0$ such that
 \calls_{\rem}(\mathrm{Eucl},x,y)\leq L(x,y)\leq K\calls_{\rem}(\mathcal A,\gcd,x,y),
 \tag{4F-5}
 \]
-where $L(x,y)=2\log\max(x,y)$ and $\calls_{\rem}(\mathrm{Eucl},x,y)$ counts
+where $L(x,y)=2\log\max(x,y)$ for $(x,y)\neq(0,0)$, $L(0,0)=0$, and
+$\calls_{\rem}(\mathrm{Eucl},x,y)$ counts
 the remainder calls of the Euclidean algorithm $\mathrm{Eucl}$ (the book writes
 $\varepsilon$) on $(x,y)$. The book states (4F-5) for the Euclidean algorithm
 in $\mathbf N_\varepsilon$, so its $\mathcal A$ is $\mathcal N_\varepsilon$;
@@ -517,8 +593,8 @@ $\log\log a$ calls, except on a sparse set of pairs.
 \begin{proposition}\label{prop:loglog}
 For integers $d\geq1$ and $N\geq3$, at most
 $40(2+\ln N)N^{2-2^{-d}}$ coprime pairs $2\leq b<a\leq N$ satisfy
-$D(a,b)\leq d$. Hence $D(a,b)\geq(1-o(1))\log\log N$ for all but
-$o(N^2)$ of these pairs.
+$D(a,b)\leq d$. Hence, for each fixed $\varepsilon>0$, all but $o(N^2)$ of
+these pairs satisfy $D(a,b)>(1-\varepsilon)\log\log N$.
 \end{proposition}
 
 \begin{proof}
@@ -578,8 +654,11 @@ $X=N/2^j\geq3$, and bounding their logarithmic factors by $2+\ln N$, gives
 For the second assertion, take
 $d=\lfloor\log\ln N-2\log\ln\ln N\rfloor$ for sufficiently large $N$.
 Then $N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the exceptional set has
-size $o(N^2)$, while $d=(1-o(1))\log\log N$.
+size $o(N^2)$, while $d=(1-o(1))\log\log N$, so eventually
+$d\geq(1-\varepsilon)\log\log N$.
 \end{proof}
+A positive proportion (asymptotically $6/\pi^2$) of these pairs are coprime,
+so the exceptional set also has density zero among coprime pairs.
 The saving $2^{-d}$ in the exponent of $N^{2-2^{-d}}$ shrinks as $d$ grows,
 so this argument does not reach the upper-bound scale $\log N/\log\log N$.
 
@@ -746,18 +825,33 @@ chooses instructions offline with unrestricted arithmetic, using the
 parameters of Section~\ref{sec:construction}; below a base size (256 bits by
 default) it uses Euclid's algorithm. An independent replay then checks
 operand availability, nonzero divisors, every remainder equation and the
-final gcd. On one pseudorandom coprime
-pair of each size, generated from its default seed, it gives these
-instruction counts:
+final gcd.
+
+The script \nolinkurl{scripts/benchmark_certificates.py} uses seed
+$20261016$ to sample $25$ coprime pairs at each size: $a$ is uniform among
+integers of that bit length, and $b$ is drawn uniformly from
+$\{2,\ldots,a-1\}$ until $\gcd(a,b)=1$. It also runs the successive
+Fibonacci pair $(F_k,F_{k-1})$ with $F_k$ the first Fibonacci number of
+that bit length ($k=738$, $2951$, $11801$). The table gives remainder calls;
+the Euclidean count stops when $1$ first appears.
 \begin{center}
-\begin{tabular}{rrr}\toprule
-Input bits & This construction & Euclid (to reach $1$)\\\midrule
-512 & 196 & 326\\
-2048 & 669 & 1204\\
-8192 & 2059 & 4754\\\bottomrule
+\small
+\begin{tabular}{rcccc}\toprule
+ & \multicolumn{2}{c}{Random pairs: min / median / max}
+ & \multicolumn{2}{c}{Fibonacci pair}\\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+Input bits & Construction & Euclid & Construction & Euclid\\\midrule
+512 & 189 / 214 / 226 & 266 / 295 / 337 & 38 & 735\\
+2048 & 617 / 647 / 669 & 1136 / 1192 / 1260 & 60 & 2948\\
+8192 & 2007 / 2037 / 2059 & 4664 / 4774 / 4890 & 110 & 11798\\\bottomrule
 \end{tabular}
 \end{center}
-The asymptotic claim rests on the proof, not on these examples. The
+All $78$ derivations and the example of Section~\ref{sec:contractions} pass
+replay, and \nolinkurl{validation/benchmark_certificates.json} records the
+individual counts. On the Fibonacci pairs, Euclid's worst case, the bits
+removed by successive contractions roughly double (16, 31, 64, 125 and 252
+at 512 bits), so few contractions are needed. These samples illustrate the construction; the
+asymptotic claim rests on the proof. The
 accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and exhaustively tests the prefix
 lemma over a finite range. For Section~\ref{sec:programs}, a separate compiler
 and interpreter replay successful choices in finite first-order programs,
@@ -779,7 +873,9 @@ complete map and reproduction commands.
 The general theory of uniform processes, including Theorem~4F.1 used in
 Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
 not formalised. The certificate bounds and conjecture refutations are
-formalised independently of that theory.
+formalised independently of that theory, with certificates represented by
+their facts as in Lemma~\ref{lem:fact-representation}; that lemma and
+Corollary~\ref{cor:closure-depth} are proved here, not formalised.
 
 The development is also packaged for the Palomar registry:
 \texttt{Challenge.lean} imports only mathlib and states the main theorems
@@ -873,12 +969,13 @@ produced with GPT-6-Astra (OpenAI), used through Codex. Claude Opus~5.5
 (Anthropic), used through Claude Code, carried out review and editing passes
 and packaged the formalisation for the Palomar registry, which included
 writing \texttt{Challenge.lean}, the lower-bound module and a proof change
-needed by the independent kernels.
+needed by the independent kernels. GPT-6-Astra, through Codex, later revised
+the exposition and expanded the computational checks.
 
 The Lean development gives a machine-checkable version of the main claims,
 subject to its trusted foundations (Lean's kernel, mathlib, and the axioms
 listed in Appendix~\ref{app:lean}) and to the correspondence between its
-definitions and the book's notions discussed there.
+definitions and the book's notions (Lemma~\ref{lem:fact-representation}).
 
 This declaration distinguishes the provenance of the work from conventional
 AI-assisted writing. The human author accepts responsibility for the
@@ -948,5 +1045,6 @@ Lou van den Dries and Yiannis N. Moschovakis.
 Arithmetic complexity.
 \emph{ACM Transactions on Computational Logic} 10(1), Article~2, 49~pp., 2009.
 \href{https://doi.org/10.1145/1459010.1459012}{doi:10.1145/1459010.1459012}.
+Preprint: \url{https://www.math.ucla.edu/~ynm/papers/ac.pdf}.
 \end{thebibliography}
 \end{document}

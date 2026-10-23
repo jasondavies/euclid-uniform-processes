@@ -97,7 +97,7 @@ optimal among its peers:
 
   $$(x, y) \in D \implies \mathrm{calls}_{\mathrm{rem}}(\mathrm{Eucl}, x, y) \le L(x, y) \le K \cdot \mathrm{calls}_{\mathrm{rem}}(\mathcal{A}, \gcd, x, y),$$
 
-  where L(x, y) = 2 log max(x, y) and Eucl is the Euclidean algorithm. We prove that for
+  where L(x, y) = 2 log max(x, y), with L(0, 0) = 0, and Eucl is the Euclidean algorithm. We prove that for
   every K > 0 the second inequality holds on only finitely many pairs. This holds both
   for gcd certificates without eq1 facts (𝒜 = (ℕ, rem, eq0)) and for certificates in Nε.
   The book's form, with a set D on which the complexity is unbounded (condition (4F-4)),
@@ -120,6 +120,15 @@ optimal among its peers:
   primitive operation diagrams cannot prove a logarithmic lower bound: every input has a
   certificate with o(log a) remainder facts. This leaves open arguments combining
   homomorphisms with additional restrictions on computations.
+- **Closure depth.** The bound settles the Open Problem at the end of §3 of van den Dries
+  and Moschovakis, *Arithmetic Complexity*, ACM Transactions on Computational Logic 10(1),
+  2009, doi:10.1145/1459010.1459012 (p. 2:11;
+  [preprint](https://www.math.ucla.edu/~ynm/papers/ac.pdf)). There g(a, b) is the least
+  number of parallel stages, starting from {0, 1, a, b} and applying +, −, integer
+  quotient and remainder to all available pairs, after which gcd(a, b) is available. They ask whether
+  g(αₙ, βₙ) > C log αₙ along some sequence with αₙ → ∞. Since rem(β, α) appears at the
+  first stage, g(α, β) ≤ 1 + G(α, rem(β, α)) = O(log α / log log α) uniformly in β, so
+  no such sequence exists. This short consequence is proved in the paper, not formalised.
 
 ### What remains open
 
@@ -307,7 +316,9 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
 - **What is cited, not formalised.** The book's general best-uniform-process theorem
   (4F.1) is cited in the manuscript; the abstract theory of uniform processes is not
   re-formalised here. The refutations need no such theory, because they are stated
-  about intrinsic complexities defined directly from certificates. The paper also cites
+  about intrinsic complexities defined directly from certificates, represented by their
+  facts; the paper's fact-representation lemma relates this to the book's finite partial
+  structures and is not itself formalised. The paper also cites
   the known lower bounds (van den Dries–Moschovakis); they are not formalised either.
 - **Conventions.** Coprimeness in the refutations is the book's relation, which requires
   positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses
@@ -327,6 +338,7 @@ verifier, including the comparator, on a chosen commit.
 
 ```sh
 python3 scripts/check_certificates.py
+python3 scripts/benchmark_certificates.py
 python3 remainder_only_certificate.py
 python3 scripts/check_prefix_lemma.py
 ```
@@ -335,8 +347,17 @@ python3 scripts/check_prefix_lemma.py
   covers zero inputs, equal inputs, scaled non-coprime inputs, random large inputs and
   Fibonacci pairs. With seed 20261016 and base size 64 bits, the 310 cases include
   175 noncoprime pairs and exercise 3,543 contractions. Four invalid traces are rejected.
-- **[remainder_only_certificate.py](remainder_only_certificate.py)** reproduces the three
-  numerical examples in the manuscript, using seed 20261016 and base size 256 bits.
+- **[benchmark_certificates.py](scripts/benchmark_certificates.py)** reproduces the
+  manuscript's table (about 15 seconds). With seed 20261016 and base size 256 bits, it
+  samples 25 coprime pairs at each of 512, 2048 and 8192 bits (a uniform of that bit
+  length, then b uniform in [2, a − 1] until coprime) and adds the first Fibonacci pair
+  of each size. Every derivation is replayed, and the worked contraction from (44, 17) is
+  checked. The Euclidean count stops when the gcd first appears. Results, with input
+  hashes and individual counts, are in
+  [validation/benchmark_certificates.json](validation/benchmark_certificates.json).
+- **[remainder_only_certificate.py](remainder_only_certificate.py)** contains the planner
+  and replay checker. Run directly, it prints one example per size, using seed 20261016
+  and base size 256 bits.
 - **[check_prefix_lemma.py](scripts/check_prefix_lemma.py)** checks the Euclidean-prefix
   lemma (`prefix_pairs_distinct`): if r_0 = a, r_1 = b, r_2, … are the Euclidean
   remainders and m > 2a/r_h, then the pairs (r_i mod m, r_{i+1} mod m), 0 ≤ i < h, are
@@ -464,8 +485,8 @@ python3 research/register_program.py --width 9
 - [scripts/](scripts/): finite checks for the main results, and Palomar's checks in
   [scripts/palomar/](scripts/palomar/).
 - [validation/](validation/): axiom audit and recorded check results.
-- [remainder_only_certificate.py](remainder_only_certificate.py): the numerical examples
-  in the manuscript.
+- [remainder_only_certificate.py](remainder_only_certificate.py): the derivation planner
+  and replay checker used by the manuscript's computational checks.
 
 ## Building the paper
 
