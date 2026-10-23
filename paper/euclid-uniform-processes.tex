@@ -48,7 +48,8 @@ the text. Details are given at the end of the paper.
 \section{Introduction}\label{sec:intro}
 Van den Dries and Moschovakis asked whether the Euclidean algorithm is optimal
 among its peers, the algorithms that compute the gcd from the remainder
-function \cite[p.~390]{vddm2004}. Moschovakis's Main Conjecture asserts that for every
+function \cite[p.~390]{vddm2004}. Moschovakis's Main Conjecture (in his
+monograph \cite{moschovakis2019}, henceforth ``the book'') asserts that for every
 algorithm $\alpha$ from $\rem$ and the zero test $\eq_0$ computing
 $\gcd(x,y)$ there is an $r>0$ such that $\alpha$ makes more than $r\log x$
 remainder calls on infinitely many pairs $x>y\geq1$
@@ -58,9 +59,7 @@ for algorithms it remains open. Uniform processes are the book's abstract
 model of computation from given primitives: every deterministic or
 nondeterministic recursive program induces one
 \cite[\S4A, Proposition~4A.1]{moschovakis2019}, but a uniform process need
-not be implemented by any finite program.
-Throughout, ``the book'' means Moschovakis's monograph
-\cite{moschovakis2019}, and logarithms are to base $2$.
+not be implemented by any finite program. Logarithms are to base $2$.
 
 \paragraph{Derivations.}
 A \emph{derivation} from $a,b$ is a finite list that starts with $a,b$ and in
@@ -491,15 +490,18 @@ certificate, $\eq_1$ facts included, and allowing $\eq_1$ facts can only lower t
 bound transfers to $\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$.
 \end{proof}
 \begin{remark}\label{rem:noncoprime}
-At $(0,0)$ the output is an input, and the substructure with universe
+\begin{enumerate}
+\item At $(0,0)$ the output is an input, and the substructure with universe
 $\{0\}$ and no facts is a certificate.
-For gcd restricted to positive inputs, appending $\eq_0(a)=\mathrm{ff}$ and
-$\eq_0(b)=\mathrm{ff}$ keeps input images in the domain, at no remainder cost. For a positive
-noncoprime input, adding $\eq_1(g)=\mathrm{ff}$ to the gcd certificate certifies noncoprimeness, so the sublogarithmic remainder-call
-bound holds for both truth values of coprimeness as well as for the gcd. The
-overhead is a fixed additive constant and does not change the leading
-coefficient, so Corollary~\ref{cor:six} holds for all three complexities of
-Corollary~\ref{cor:refute} below on positive inputs.
+\item For gcd restricted to positive inputs, appending $\eq_0(a)=\mathrm{ff}$
+and $\eq_0(b)=\mathrm{ff}$ keeps input images in the domain, at no
+remainder cost.
+\item For a positive noncoprime input, adding $\eq_1(g)=\mathrm{ff}$ to the
+gcd certificate certifies noncoprimeness. So the sublogarithmic bound holds
+for both truth values of coprimeness, and since each overhead is a fixed
+additive constant, Corollary~\ref{cor:six} holds for all three complexities
+of Corollary~\ref{cor:refute} below on positive inputs.
+\end{enumerate}
 \end{remark}
 
 \paragraph{A single uniform process.}
@@ -694,10 +696,6 @@ $P$ and a constant $B\geq0$ such that
 \]
 \end{theorem}
 
-The program depends on $\varepsilon$ but not on the inputs. The Main
-Conjecture lets its coefficient $r$ depend on the program, so the family is
-consistent with it; no single sublogarithmic program is obtained.
-
 \begin{proof}
 Put $k=2^p$, $h=k^2+1$ and $W=h+6$. If $b=0$, return $a$.
 Otherwise initialise the registers $x_0,\ldots,x_{W-1}$ at
@@ -743,11 +741,14 @@ $\Lambda\leq3/p$. Take $n=\lceil\log a\rceil$ and add the two verification
 calls. Finally, choose $p>3/\varepsilon$ and absorb the finitely many
 smaller inputs in $B$.
 \end{proof}
+The program depends on $\varepsilon$ but not on the inputs. The Main
+Conjecture lets its coefficient $r$ depend on the program, so the family is
+consistent with it; no single sublogarithmic program is obtained.
 
 \paragraph{Recursive programs.}
 With the prefix length fixed, Euclid's algorithm can replace the recursive
-completion of Section~\ref{sec:construction}, since its cost $O(\beta n)$
-vanishes as $\beta\to0$. Writing one
+completion of Section~\ref{sec:construction}, since its cost, at most about
+$4\beta n$, is negligible as $\beta\to0$. Writing one
 function per line yields a finite nondeterministic tail-recursive program
 with the same remainder cost \cite[\S\S2A, 2C, 2E]{moschovakis2019}.
 Lean verifies this correspondence with the book's recursive machine and
