@@ -745,13 +745,16 @@ smaller inputs in $B$.
 With the prefix length fixed, Euclid's algorithm completes the computation
 at cost $O(\beta n)$, negligible as $\beta\to0$; the recursive completion
 of Section~\ref{sec:construction} is needed only when the prefix length
-grows. Lean also checks a recursive form of the same family: a finite
-nondeterministic recursive program over $\mathcal N_0$ in the sense of
-\cite[\S\S2A, 2E]{moschovakis2019}, whose generator has $4^p+5$ parameters
-and finishes with two nested gcd computations, together with an exact-cost
-correspondence between its evaluations and convergent computations of a
-specialisation of the book's recursive machine (Appendix~\ref{app:lean}).
-It satisfies the same bound, so Theorem~\ref{thm:registers} holds for the
+grows. Writing one function per line turns the register program into a
+finite nondeterministic tail-recursive program in the sense of
+\cite[\S\S2A, 2E]{moschovakis2019}, as in the book's reduction of iteration
+to tail recursion \cite[\S2C]{moschovakis2019}: a function $\mathrm{run}$
+of all the registers, with one body for each assignment, calling
+$\mathrm{run}$ with $\rem(x_i,x_j)$ in place of $x_l$, and one for each
+candidate, verifying $x_i$. Lean checks that its evaluations, and its computations on a
+specialisation of the book's recursive machine, correspond exactly to the
+computations of the register program, with the same remainder cost
+(Appendix~\ref{app:lean}). So Theorem~\ref{thm:registers} holds for the
 book's recursive programs as well.
 
 \section{Discussion and open problems}\label{sec:discussion}
@@ -827,13 +830,10 @@ removed by successive contractions roughly double (16, 31, 64, 125 and 252
 at 512 bits), so few contractions are needed. These samples illustrate the construction; the
 asymptotic claim rests on the proof. The
 accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and exhaustively tests the prefix
-lemma over a finite range. For the recursive programs of
-Section~\ref{sec:programs}, a separate compiler and interpreter replay
-successful choices in finite first-order programs,
-evaluating arguments right to left as the book's machine does. The
-\texttt{README.md} records commands, test ranges, seeds, and results.
-The Python interpreter is not formally verified; unrestricted arithmetic
-used to plan choices is outside the programs.
+lemma over a finite range. The \texttt{README.md} records commands, test
+ranges, seeds, and results. The Python checks are not formally verified;
+the unrestricted arithmetic used to plan instructions is outside the
+derivations.
 
 \appendix
 \section{Formal verification}\label{app:lean}
@@ -894,10 +894,8 @@ Theorem~\ref{thm:registers} &
 \lean{TailSource.run_trace_relabel}, \lean{TailSource.executes_correct},
 \lean{TailSource.arbitrarily_small_coefficient}\\
 Recursive programs (Section~\ref{sec:programs}) &
-\lean{RegisterProgram.Fixed.limsup_profile_le},
-\lean{RegisterProgram.Syntax.eval_head_correct},
-\lean{RegisterProgram.Syntax.Machine.eval_iff_steps},
-\lean{RegisterProgram.Syntax.Machine.arbitrarily_small_program}\\
+\lean{TailRecursive.executes_iff_eval}, \lean{Recursive.Machine.eval_iff_steps},
+\lean{TailRecursive.arbitrarily_small_coefficient}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -931,19 +929,18 @@ registers: it tracks the relabelling in the proof, and writes each new
 remainder to a register no other value occupies, which exists by
 pigeonhole whenever two names share a register.
 
-The recursive programs (the \lean{RegisterProgram} declarations) are
-finite first-order syntax whose generator keeps the caller's values on a
-stack during nested calls. Generator runs translate into evaluations of
-this syntax with exactly the same remainder count, including final
-verification; every terminating evaluation is correct, and a successful
-evaluation exists on every input. Lean also proves exact-cost equivalence
-with a specialisation of the book's two-stack machine: arguments are
-evaluated right to left, zero tests and branches are separate transitions,
-and only remainder transitions are charged
+The tail-recursive form (\lean{TailRecursive}) is written in a language of
+finite nondeterministic first-order programs (\lean{Recursive}): terms with
+variables, remainder, a zero-test conditional and calls of internal
+symbols, each symbol with finitely many bodies, evaluated call by value.
+\lean{TailRecursive.executes_iff_eval} matches its evaluations exactly, in
+value and remainder cost, with executions of the register program. For
+every program in the language, \lean{Recursive.Machine.eval_iff_steps}
+proves exact-cost equivalence with a specialisation of the book's two-stack
+machine: arguments are evaluated right to left, zero tests and branches are
+separate transitions, and only remainder transitions are charged
 \cite[Table~1, pp.~75--76]{moschovakis2019}. Closures represent
-substitution in machine states, not extra program data. The repository
-README gives the program text and describes the Python compiler and
-interpreter.
+substitution in machine states, not extra program data.
 
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a

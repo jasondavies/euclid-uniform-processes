@@ -38,28 +38,8 @@ import ShortGCD
 #print axioms ShortGCD.eventually_sizeCost_add_le_six
 #print axioms ShortGCD.uniform_real_bound_six
 #print axioms ShortGCD.uniform_intrinsic_bound_six
--- Fixed finite nondeterministic programs and their first-order syntax.
-#print axioms ShortGCD.RegisterProgram.Accepts.correct
-#print axioms ShortGCD.RegisterProgram.Run.scale
-#print axioms ShortGCD.RegisterProgram.exists_accepts
-#print axioms ShortGCD.RegisterProgram.maxCost_step
-#print axioms ShortGCD.RegisterProgram.Fixed.limsup_profile_le
-#print axioms ShortGCD.RegisterProgram.Fixed.eventually_accepts_bound
-#print axioms ShortGCD.RegisterProgram.Fixed.arbitrarily_small_coefficient
-#print axioms ShortGCD.RegisterProgram.Syntax.run_invokes
-#print axioms ShortGCD.RegisterProgram.Syntax.accepts_eval
-#print axioms ShortGCD.RegisterProgram.Syntax.eval_head_correct
-#print axioms ShortGCD.RegisterProgram.Syntax.eval_head_exists
-#print axioms ShortGCD.RegisterProgram.Syntax.eventually_eval_bound
-#print axioms ShortGCD.RegisterProgram.Syntax.arbitrarily_small_program
--- Exact-cost small-step machine correspondence and operational bounds.
-#print axioms ShortGCD.RegisterProgram.Syntax.Machine.Step.context
-#print axioms ShortGCD.RegisterProgram.Syntax.Machine.eval_iff_steps
-#print axioms ShortGCD.RegisterProgram.Syntax.Machine.head_correct
-#print axioms ShortGCD.RegisterProgram.Syntax.Machine.head_exists
-#print axioms ShortGCD.RegisterProgram.Syntax.Machine.eventually_steps_bound
-#print axioms ShortGCD.RegisterProgram.Syntax.Machine.arbitrarily_small_program
--- The bounded-memory (stack-free) program family.
+-- The register programs, and the same programs as tail-recursive programs on the book's
+-- recursive machine.
 #print axioms ShortGCD.TailProgram.Run.dvd
 #print axioms ShortGCD.TailProgram.Run.scale
 #print axioms ShortGCD.TailProgram.Accepts.correct
@@ -74,6 +54,13 @@ import ShortGCD
 #print axioms ShortGCD.TailSource.executes_correct
 #print axioms ShortGCD.TailSource.executes_total
 #print axioms ShortGCD.TailSource.arbitrarily_small_coefficient
+#print axioms ShortGCD.TailRecursive.bodies_finite
+#print axioms ShortGCD.TailRecursive.executes_iff_eval
+#print axioms ShortGCD.TailRecursive.executes_iff_steps
+#print axioms ShortGCD.TailRecursive.steps_correct
+#print axioms ShortGCD.TailRecursive.steps_total
+#print axioms ShortGCD.TailRecursive.arbitrarily_small_coefficient
+#print axioms ShortGCD.Recursive.Machine.eval_iff_steps
 -- The almost-all lower bound.
 #print axioms ShortGCD.AlmostAll.within_iff_D_le
 #print axioms ShortGCD.AlmostAll.le_of_within_regular

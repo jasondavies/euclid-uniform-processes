@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the repository checks; CI runs this script on each push and pull request.
 # Each check fails the script on a mismatch. Audits and finite checks are compared with the
-# recorded outputs in validation/ and research/, so a change in any of them must be recorded.
+# recorded outputs in validation/, so a change in any of them must be recorded.
 # The exhaustive prefix-lemma check (scripts/check_prefix_lemma.py, about a minute) is not run
 # here: Lean proves the lemma in general (prefix_pairs_distinct).
 set -euo pipefail
@@ -37,8 +37,6 @@ expect validation/axioms.txt lake env lean validation/Axioms.lean
 
 expect validation/replay.json python3 scripts/check_certificates.py
 expect validation/benchmark_certificates.json python3 scripts/benchmark_certificates.py
-expect research/register-validation.json python3 research/check_register_program.py
-expect research/register-validation.json python3 -O research/check_register_program.py
 
 # The examples record wall-clock seconds, which are dropped before comparing.
 python3 remainder_only_certificate.py | sed -E 's/, "seconds": [0-9.]+//' > "$actual"
