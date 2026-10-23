@@ -24,7 +24,8 @@ uniform process from below, is o(log a). This refutes Conjecture 3.4 and (4F-5).
 book's Theorem 4F.1, a single uniform process attains this cost, ruling out the
 possibility raised on p. 188 of the book that the Main Conjecture holds for all uniform
 processes. It also means the homomorphism method, the standard tool for such lower
-bounds, cannot prove a logarithmic one.
+bounds, cannot prove a logarithmic one. The terms are defined under
+[Notation](#notation).
 
 **Still open: the Main Conjecture for algorithms.** A derivation chooses which values to
 combine for free, so it does not give a program with this cost, and no single program with
@@ -41,8 +42,7 @@ also settles van den Dries and Moschovakis's open problem on the closure depth o
 cited Theorem 4F.1; the refutations of Conjecture 3.4 and (4F-5) do not need it. This
 includes the link to the book's own definitions: Lean states the book's certificates and
 intrinsic complexities directly and proves them equal to those used in the refutations.
-The result has not yet been reviewed by an expert in the area. The terms are defined under
-[Notation](#notation).
+The result has not yet been reviewed by an expert in the area.
 
 **AI transparency.** This work was produced entirely by AI systems, including the main
 result, the Lean formalisation and the manuscript; the human author initiated the
@@ -144,13 +144,10 @@ which two stored residues to combine is not charged, and a program would still n
 implement reusable access to the growing stored prefix within the claimed cost. The
 [program family](#program-family) shows that the obstacle is memory, not recursion:
 W registers give coefficient about 6 / log₂ W. Whether every W-register program needs
-c log a / log W calls is open.
+c log a / log W calls is open. (Pratt's algorithm, as presented in the book, is also a
+nondeterministic register program; we did not obtain his unpublished manuscript.)
 
 ## Lean verification
-
-**Status.** The summary at the top says what is machine-checked; the expandable
-declaration tables below and
-[Soundness and scope](#soundness-and-scope) give the details.
 
 The project pins Lean and mathlib to v4.35.0. On a fresh checkout with elan:
 
@@ -327,14 +324,10 @@ theorems; the program-family, closure-depth and book-certificate theorems were a
 afterwards.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
-  defines every notion the theorems use (derivations, G, certificates, the three
-  intrinsic complexities, the register program, the closure stages and the book's own
-  certificate definitions), and states the twenty compared theorems with `sorry`: the two
-  upper bounds, the five refutations, six theorems showing that the complexities are not
-  trivially small (certificates exist, and four lower bounds), three for the program
-  family (every convergent computation returns the gcd, every input has one, and the
-  ε log₂ a + Bε bound), the answer to the closure-depth question, and three showing that
-  the book's intrinsic complexities equal the fact-based ones.
+  defines every notion the theorems use, and states the twenty compared theorems (listed
+  in `comparator.json`) with `sorry`: the upper bounds, the refutations, their
+  non-vacuity, the program family, the closure-depth answer and the equalities with the
+  book's definitions.
 - **[Solution.lean](Solution.lean)** imports `ShortGCD`, where each of these declarations
   is defined and proved under the same name.
 - **[comparator.json](comparator.json)** lists the compared theorems and permitted axioms;
@@ -377,15 +370,12 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
 ## Program family
 
 For each p ≥ 1, a nondeterministic register program over (ℕ, rem, eq0) with 4ᵖ + 5
-work registers and two read-only input registers (4ᵖ + 7 in all), and no recursion
-stack, has worst-case remainder cost at most (3/p + o(1)) log₂ a, uniformly in b ≤ a.
-Cost is the minimum number of remainder calls over convergent computations; every
-convergent computation returns the gcd, and every input has one. Thus, for every
-ε > 0, there is a fixed program with cost at most ε log₂ a + Bε on all inputs
-a ≥ b ≥ 1. The paper proves this in the section "Fixed programs with arbitrarily small
-coefficients". **This does not give one sublogarithmic program**: the program depends
-on ε, and the Main Conjecture allows its lower-bound coefficient to depend on the
-program.
+work registers, two read-only input registers and no stack has worst-case cost at most
+(3/p + o(1)) log₂ a, uniformly in b ≤ a (paper, §7). Cost is the minimum number of
+remainder calls over convergent computations; every convergent computation returns the
+gcd, and every input has one. **This does not give one sublogarithmic program**: the
+program depends on p, and the Main Conjecture allows its lower-bound coefficient to
+depend on the program.
 
 The construction keeps a fixed-length Euclidean prefix and the contractions. Once the
 modulus m is small, it computes a mod m and b mod m and finishes with two Euclidean
@@ -406,20 +396,11 @@ Lean checks the result for formal versions of two of the book's models of comput
   function per line, as in the book's reduction of iteration to tail recursion (§2C).
   The function run takes the inputs and the work registers; its bodies are
   run(u⃗[d := rem(u_i, u_j)]) for each choice of i, j, d, and accept(a, b, u_i) for each
-  i. `TailRecursive.program_tailRecursive` proves that the head and every body
-  have only tail-position calls: call arguments, remainder operands and conditional
-  guards contain no internal calls. Operationally, `TailRecursive.stacks_bounded`
-  proves that on the book's machine the control and value stacks together never hold
-  more than max(w + 6, 17) entries (instructions and values), for any input and however
-  long the computation runs; closure environments have at most w + 2 entries each.
-  `TailRecursive.executes_iff_eval` matches its evaluations exactly, in value and
-  remainder cost, with executions of the register program. For every program in the
-  language of `Recursive` (terms with variables, remainder, a zero-test conditional and
-  calls of internal symbols, each with finitely many bodies),
-  `Recursive.Machine.eval_iff_steps` proves exact-cost
-  equivalence with a specialisation of the book's two-stack machine (Table 1, p. 75):
-  arguments are evaluated right to left, zero tests and branches are separate
-  transitions, and only remainder transitions are charged.
+  i. `TailRecursive.program_tailRecursive` proves that every call is in tail position,
+  and `TailRecursive.stacks_bounded` that on the machine the control and value stacks
+  never hold more than max(w + 6, 17) entries, where w = 4ᵖ + 5 is the number of work
+  registers, on any input and however long the computation runs. `TailRecursive.executes_iff_steps` matches machine computations
+  exactly, in value and remainder cost, with executions of the register program.
 
 The result concerns the minimum successful cost of nondeterministic programs. It does
 not settle the book's Problem x2G.6, which asks whether every recursive function in
@@ -435,11 +416,14 @@ on every input and correctness of every terminating one, without fairness or
 termination of all branches. Cost counts only remainder calls, including the two final
 verification calls, not machine steps or the work of finding successful choices.
 Positive scaling preserves successful runs and their costs (`TailProgram.Run.scale`).
-Machine closures implement substitution; programs cannot inspect them as data.
 
-The related-work discussion in the paper compares Pratt's program as presented in
-Theorem 2E.2 and Corollary 6C.7 of the book. We did not obtain Pratt's unpublished
-manuscript, and make no claim of exhaustive coverage or priority.
+The language of `Recursive` has terms with variables, remainder, a zero-test conditional
+and calls of internal symbols, each with finitely many bodies, evaluated call by value.
+For every such program, `Recursive.Machine.eval_iff_steps` proves exact-cost equivalence
+with a specialisation of the book's two-stack machine (Table 1, p. 75): arguments are
+evaluated right to left, zero tests and branches are separate transitions, and only
+remainder transitions are charged. Machine closures implement substitution; programs
+cannot inspect them as data, and each closure environment has at most w + 2 entries.
 
 </details>
 
