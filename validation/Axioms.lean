@@ -59,6 +59,21 @@ import ShortGCD
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.head_exists
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.eventually_steps_bound
 #print axioms ShortGCD.RegisterProgram.Syntax.Machine.arbitrarily_small_program
+-- The bounded-memory (stack-free) program family.
+#print axioms ShortGCD.TailProgram.Run.dvd
+#print axioms ShortGCD.TailProgram.Run.scale
+#print axioms ShortGCD.TailProgram.Accepts.correct
+#print axioms ShortGCD.TailProgram.exists_accepts
+#print axioms ShortGCD.TailProgram.maxCost_step
+#print axioms ShortGCD.TailProgram.Fixed.limsup_profile_le
+#print axioms ShortGCD.TailProgram.Fixed.eventually_accepts_bound
+#print axioms ShortGCD.TailProgram.Fixed.arbitrarily_small_coefficient
+#print axioms ShortGCD.TailSource.total_registers
+#print axioms ShortGCD.TailSource.run_trace_relabel
+#print axioms ShortGCD.TailSource.executes_iff
+#print axioms ShortGCD.TailSource.executes_correct
+#print axioms ShortGCD.TailSource.executes_total
+#print axioms ShortGCD.TailSource.arbitrarily_small_coefficient
 -- The almost-all lower bound.
 #print axioms ShortGCD.AlmostAll.within_iff_D_le
 #print axioms ShortGCD.AlmostAll.le_of_within_regular

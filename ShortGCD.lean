@@ -7,3 +7,4 @@ public import ShortGCD.SharpCertificates
 public import ShortGCD.RegisterSmallStep
 public import ShortGCD.AlmostAll
 public import ShortGCD.LowerBounds
+public import ShortGCD.TailSource

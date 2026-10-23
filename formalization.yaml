@@ -103,9 +103,9 @@ status:
     question after Corollary 6C.7 (p. 188), which also uses the book's Theorem 4F.1, and
     the general theory of uniform processes; certificates are formalized directly as finite
     sets of facts. The library also proves a family of fixed nondeterministic programs with
-    cost (3/p + o(1)) log₂ a; it is not part of the compared statements. The paper's
-    register-program version of that family (bounded memory, no recursion) is proved in
-    the paper and not yet formalized.
+    cost (3/p + o(1)) log₂ a, and a bounded-memory version of that family (4^p + 7
+    registers, no recursion stack; TailSource.arbitrarily_small_coefficient); neither is
+    part of the compared statements.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []

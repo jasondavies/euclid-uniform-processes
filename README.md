@@ -116,9 +116,9 @@ optimal among its peers:
 - **Program family.** For every ε > 0 there is a fixed finite nondeterministic recursive
   gcd program, using only rem and eq0, with cost at most ε log₂ a + Bε on all positive
   inputs a ≥ b; see [Nondeterministic program family](#nondeterministic-program-family).
-  The paper also shows that no recursion is needed: a nondeterministic register program
-  with 4^p + 7 registers achieves the same coefficient 3/p. This bounded-memory form is
-  proved in the paper and not yet formalised.
+  No recursion is needed: for each p ≥ 1, a nondeterministic register program with
+  4ᵖ + 7 registers and no stack achieves the same coefficient 3/p; see
+  [Bounded-memory program family](#bounded-memory-program-family).
 - **The homomorphism-test barrier.** The Homomorphism Test applied to all generated
   primitive operation diagrams cannot prove a logarithmic lower bound: every input has a
   certificate with o(log a) remainder facts. This leaves open arguments combining
@@ -233,7 +233,7 @@ All modules are in [ShortGCD/](ShortGCD/). `A → B` means B imports A, and a ch
 `A → B → C` means B imports A and C imports B; `A, B → C` means C imports both A and B.
 Derivation, Prefix, Arithmetic and CoprimeCertificate import only Mathlib. The root
 [ShortGCD.lean](ShortGCD.lean) imports Asymptotic, Certificates, Conjecture,
-SharpCertificates, RegisterSmallStep, AlmostAll and LowerBounds. Every file uses Lean's
+SharpCertificates, RegisterSmallStep, AlmostAll, LowerBounds and TailSource. Every file uses Lean's
 module system (`module`, `public import`), as Palomar requires.
 
 ```
@@ -261,6 +261,11 @@ The program family
     → RegisterRecurrence
   RegisterRecurrence, SharpBound → RegisterAsymptotic → RegisterSyntax
     → RegisterSmallStep
+
+The bounded-memory program family
+  Derivation → TailProgram → TailEuclid
+  TailEuclid, Euclid → TailPrefix → TailRecurrence
+  TailRecurrence, SharpBound → TailAsymptotic → TailSource
 ```
 
 - **The finite recurrence.** The core is `sizeCost_step` (in FiniteBound). Its
@@ -321,8 +326,7 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
   re-formalised here. The refutations need no such theory, because they are stated
   about intrinsic complexities defined directly from certificates, represented by their
   facts; the paper's fact-representation lemma relates this to the book's finite partial
-  structures and is not itself formalised. The register-program form of the program
-  family (in §7 of the paper) is not yet formalised either. The paper also cites
+  structures and is not itself formalised. The paper also cites
   the known lower bounds (van den Dries–Moschovakis); they are not formalised either.
 - **Conventions.** Coprimeness in the refutations is the book's relation, which requires
   positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses
@@ -475,6 +479,64 @@ python3 research/check_register_program.py
 python3 -O research/check_register_program.py
 python3 research/register_program.py --width 9
 ```
+
+</details>
+
+## Bounded-memory program family
+
+The program family needs no recursion stack. For each p ≥ 1, a nondeterministic
+register program with 4ᵖ + 5 work registers and two read-only input registers
+(4ᵖ + 7 in all) has worst-case remainder cost at most (3/p + o(1)) log₂ a, uniformly in
+b ≤ a. Every convergent computation returns the gcd, and every input has one. The paper
+proves this as the bounded-memory theorem in the section "Fixed programs with
+arbitrarily small coefficients".
+
+The construction keeps the fixed prefix and the contractions. Once the modulus m is
+small, it computes a mod m and b mod m and finishes with two Euclidean loops in place,
+instead of the two nested gcd computations of the recursive family. The size threshold
+appears only in the proof; the program does not compute it.
+
+Lean checks this for an explicit register program in the book's sense (§2F, with
+the nondeterminism of §2E), `TailSource.Step`. Its state is a finite control line
+and the work registers; the two input registers are never written, and there is no
+stack. Every command acts on single registers: an assignment u_d := rem(u_i, u_j), a
+branch on eq0(u_i) choosing a candidate, the branches eq0(rem(a, u_i)) and
+eq0(rem(b, u_i)), and halting. Each remainder evaluation is charged once, including
+the two final checks, and a zero or rejected candidate loops. The generator used in
+the cost proofs (`TailProgram.Run`) can also relabel all registers at once for free;
+`TailSource.run_trace_relabel` removes this, replaying a relabelled run on the
+physical registers with the same remainder calls and no extra registers.
+
+The names distinguish the two families. The `Register*` modules formalise the
+recursive generator, whose nested calls use a stack; the bounded-memory programs are in
+the `Tail*` modules.
+
+The result concerns the minimum successful cost of nondeterministic programs. It does
+not give one program with sublogarithmic cost. Nor does it settle the book's
+Problem x2G.6, which asks whether every recursive function in the pointed Euclidean
+structure is tail recursive.
+
+<details>
+<summary>Lean declarations for the bounded-memory family</summary>
+
+| Statement | Lean name |
+| --- | --- |
+| Stack-free runs: every value is divisible by every common divisor of the inputs | `TailProgram.Run.dvd` |
+| Positive scaling preserves runs and their remainder counts | `TailProgram.Run.scale` |
+| Every accepted computation returns the gcd | `TailProgram.Accepts.correct` |
+| An accepted computation exists on every input | `TailProgram.exists_accepts` |
+| The fixed-width recurrence, finishing with two in-place Euclidean loops instead of recursive subcomputations | `TailProgram.maxCost_step` |
+| For each p ≥ 1, the worst-case cost with 4ᵖ + 5 work registers is at most (3/p + o(1)) log₂ a | `TailProgram.Fixed.limsup_profile_le` |
+| For each p ≥ 1 and C > 3/p: once a is large enough, every b ≤ a has an accepted computation with at most C log₂ a remainder calls | `TailProgram.Fixed.eventually_accepts_bound` |
+| The machine has 4ᵖ + 7 registers in all | `TailSource.total_registers` |
+| Relabelling the registers is never needed: a generator run is replayed by single-register commands at the same cost | `TailSource.run_trace_relabel` |
+| Exact-cost equivalence between register-program traces and accepted computations | `TailSource.executes_iff` |
+| Every convergent machine execution returns the gcd | `TailSource.executes_correct` |
+| A convergent machine execution exists on every input | `TailSource.executes_total` |
+| The ε log₂ a + Bε bound for machine executions, with the program chosen before the inputs | `TailSource.arbitrarily_small_coefficient` |
+
+These declarations are in the main [axiom audit](validation/Axioms.lean), with output
+recorded in [axioms.txt](validation/axioms.txt).
 
 </details>
 

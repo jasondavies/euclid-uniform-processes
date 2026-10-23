@@ -34,7 +34,8 @@ theorem, a single uniform process attains this bound.
 The Main Conjecture for algorithms remains open. We also prove an
 $\Omega(\log\log a)$ lower bound for almost all coprime pairs and give a
 family of finite nondeterministic gcd programs with arbitrarily small
-logarithmic cost coefficients. The bounds and the refutations are
+logarithmic cost coefficients, which need only a fixed number of registers
+and no recursion. The bounds and the refutations are
 formalised in Lean~4; the best-uniform-process theorem is cited.
 \end{abstract}
 
@@ -815,10 +816,14 @@ Theorem~\ref{thm:programs}:
 \begin{proof}
 Put $k=2^p$, $h=k^2+1$ and $W=h+6$, and start the registers
 $x_0,\ldots,x_{W-1}$ at $(a,b,a,b,a,\ldots,a)$. At its main line the program
-may perform any assignment $x_l:=\rem(x_i,x_j)$ or $x_l:=x_i$ with $l\geq2$,
-or pass to verification with candidate $x_i$. Verification halts with $x_i$
+may perform any assignment $x_l:=\rem(x_i,x_j)$ with $i,j,l\geq2$, or pass to
+verification with a candidate $x_i$, $i\geq2$. Verification halts with $x_i$
 if $x_i\neq0$, $\rem(x_0,x_i)=0$ and $\rem(x_1,x_i)=0$, and loops otherwise.
-The inputs $x_0,x_1$ are never overwritten. Every register value is
+The inputs $x_0,x_1$ are never overwritten. The proof below describes
+computations that move values between registers; no copying command is
+needed, since a computation can leave each value in place and write each new
+remainder to a register whose value is no longer used, recording the roles of
+the registers in its choice of commands. Every register value is
 divisible by $\gcd(a,b)$, so every convergent computation returns the gcd,
 and Euclid's algorithm gives one.
 
@@ -948,9 +953,8 @@ The general theory of uniform processes, including Theorem~4F.1 used in
 Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
 not formalised. The certificate bounds and conjecture refutations are
 formalised independently of that theory, with certificates represented by
-their facts as in Lemma~\ref{lem:fact-representation}; that lemma,
-Corollary~\ref{cor:closure-depth} and Theorem~\ref{thm:registers} are
-proved here, not yet formalised.
+their facts as in Lemma~\ref{lem:fact-representation}; that lemma and
+Corollary~\ref{cor:closure-depth} are proved here, not formalised.
 
 The development is also packaged for the Palomar registry:
 \texttt{Challenge.lean} imports only mathlib and states the main theorems
@@ -998,6 +1002,10 @@ Theorem~\ref{thm:programs}: syntax &
 Operational correspondence &
 \lean{RegisterProgram.Syntax.Machine.eval_iff_steps},
 \lean{RegisterProgram.Syntax.Machine.arbitrarily_small_program}\\
+Theorem~\ref{thm:registers} &
+\lean{TailProgram.maxCost_step}, \lean{TailProgram.Fixed.limsup_profile_le},
+\lean{TailSource.executes_iff}, \lean{TailSource.executes_correct},
+\lean{TailSource.arbitrarily_small_coefficient}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1031,6 +1039,19 @@ and body evaluations. Closures represent substitution in machine states,
 not extra program data. This checks the language and program family used
 here; the repository README describes the Python compiler and interpreter
 and their relation to the Lean syntax.
+
+The \lean{RegisterProgram} declarations concern the generator of
+Theorem~\ref{thm:programs}, whose nested calls use a stack. For
+Theorem~\ref{thm:registers}, Lean defines the register program itself
+(\lean{TailSource.Step}): finitely many lines, work registers, two input
+registers that no command writes, and no stack. Each command is an
+assignment $x_l:=\rem(x_i,x_j)$ or a branch or halt on a single register,
+and each remainder evaluation is charged once, including the two
+verification calls. Every convergent execution returns the gcd, and one
+exists on every input. The cost proofs use a generator that may also
+relabel all registers at once; \lean{TailSource.run_trace_relabel} replays
+such runs by single-register commands at the same cost, so no copying is
+needed.
 
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a
