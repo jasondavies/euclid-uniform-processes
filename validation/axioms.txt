@@ -57,6 +57,8 @@
 'ShortGCD.AlmostAll.card_within_le' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.AlmostAll.card_D_le' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.AlmostAll.tendsto_card_within_loglog' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.exists_certifiesCoprimeness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ShortGCD.exists_certifiesGcd' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.G_le_callsRemGcd' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.G_le_callsGcd' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.callsCoprimeness_eq_G' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -9,6 +9,8 @@
     "ShortGCD.not_main_conjecture_4F5",
     "ShortGCD.not_main_conjecture_4F5_Neps",
     "ShortGCD.not_main_conjecture_4F5_literal",
+    "ShortGCD.exists_certifiesCoprimeness",
+    "ShortGCD.exists_certifiesGcd",
     "ShortGCD.G_le_callsRemGcd",
     "ShortGCD.G_le_callsGcd",
     "ShortGCD.callsCoprimeness_eq_G",

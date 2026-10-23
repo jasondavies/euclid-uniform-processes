@@ -82,7 +82,8 @@ status:
     (coprimeness in Nε, gcd in (ℕ, rem, eq0), gcd in Nε); the refutations of Conjecture 3.4
     (real r and pairs, and the literal rational-r reading) and of (4F-5) (infinitely many
     pairs, in both structures, and the literal reading with a set on which the complexity is
-    unbounded); and the lower bounds G ≤ the gcd complexities, coprimeness complexity = G
+    unbounded); the existence of certificates (for coprimeness when a, b ≥ 1, and for gcd for
+    every pair); and the lower bounds G ≤ the gcd complexities, coprimeness complexity = G
     on positive coprime inputs, and the almost-all (1 − ε) log₂ log₂ N bound. The
     refutations of (4F-5) omit the book's first inequality calls(rem)(Eucl, x, y) ≤ L(x, y),
     which only weakens the statement refuted. Not formalized: the consequence for the
@@ -191,6 +192,16 @@ alignment:
       module: "ShortGCD.Conjecture"
       status: adapted
       note: "D any set on which the complexity is unbounded (condition (4F-4)); first inequality dropped."
+    - source: "Paper, remark on noncoprime inputs (certificates exist)"
+      lean: "ShortGCD.exists_certifiesCoprimeness"
+      module: "ShortGCD.LowerBounds"
+      status: proved
+      note: "For a, b ≥ 1, some certificate settles a ⊥⊥ b, so callsCoprimeness is not sInf ∅."
+    - source: "Paper, certificates proposition (certificates exist)"
+      lean: "ShortGCD.exists_certifiesGcd"
+      module: "ShortGCD.LowerBounds"
+      status: proved
+      note: "Every pair has a gcd certificate without eq1 facts, so callsGcd and callsRemGcd are not sInf ∅."
     - source: "Paper, certificates proposition (lower bound)"
       lean: "ShortGCD.G_le_callsRemGcd"
       module: "ShortGCD.LowerBounds"

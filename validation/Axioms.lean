@@ -64,6 +64,8 @@ import ShortGCD
 #print axioms ShortGCD.AlmostAll.card_D_le
 #print axioms ShortGCD.AlmostAll.tendsto_card_within_loglog
 -- Lower bounds for the intrinsic complexities.
+#print axioms ShortGCD.exists_certifiesCoprimeness
+#print axioms ShortGCD.exists_certifiesGcd
 #print axioms ShortGCD.G_le_callsRemGcd
 #print axioms ShortGCD.G_le_callsGcd
 #print axioms ShortGCD.callsCoprimeness_eq_G

@@ -786,7 +786,7 @@ with every definition visible and deliberate \texttt{sorry} placeholders.
 \texttt{Solution.lean} imports the proved library, independently of these placeholders.
 Palomar's comparator checks that the proved statements are exactly those of
 \texttt{Challenge.lean} and replays the proofs through Lean's kernel and
-independent kernels. The eleven compared theorems are marked ${}^\dagger$ in
+independent kernels. The thirteen compared theorems are marked ${}^\dagger$ in
 Table~\ref{tab:lean}.
 
 \begin{table}[htbp]
@@ -804,9 +804,9 @@ Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}${}^\dagger$, \lean{unifo
 Proposition~\ref{prop:certificates} &
 \lean{callsRem_eq_D}, \lean{G_eq_D}, \lean{callsCoprimeness_eq_callsRem},
 \lean{gcd_certificate_lower}, \lean{callsGcd_le}, \lean{callsRemGcd_le_callsGcd},
-\lean{G_le_callsRemGcd}${}^\dagger$,
+\lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
 \lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
-Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}\\
+Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
 Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalized here\\
 Corollary~\ref{cor:refute} &
 \lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,

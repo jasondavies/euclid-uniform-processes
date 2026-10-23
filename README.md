@@ -203,6 +203,7 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | Every generated gcd certificate has at least G(a, b) remainder facts | `gcd_certificate_lower` |
 | At most 40 (2 + ln N) N^(2 − 2^(−d)) pairs 2 ≤ b < a ≤ N have a derivation of 1 of length at most d | `AlmostAll.card_within_le` |
 | For every ε > 0, D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs b < a ≤ N | `AlmostAll.tendsto_card_within_loglog` |
+| Certificates exist: for coprimeness when a, b ≥ 1, and for gcd (without eq1 facts) for every pair, so no complexity is the empty infimum 0 | `exists_certifiesCoprimeness`, `exists_certifiesGcd` |
 | Both gcd complexities are at least G(a, b) | `G_le_callsRemGcd`, `G_le_callsGcd` |
 | On positive coprime inputs, `callsCoprimeness` equals G(a, b) | `callsCoprimeness_eq_G` |
 | For every ε > 0, `callsCoprimeness` > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs 2 ≤ b < a ≤ N | `tendsto_card_callsCoprimeness_loglog` |
@@ -259,8 +260,8 @@ The program family
 - **The conjectures.** Conjecture turns the bounds into the refutations;
   SharpCertificates combines the refined bound with the certificate reductions.
 - **Non-vacuity.** LowerBounds shows that the refuted complexities are not small for
-  trivial reasons: they are at least G, and the coprimeness complexity is
-  Ω(log log N) on almost all coprime pairs.
+  trivial reasons: certificates exist, so none is the empty infimum 0; they are at least
+  G; and the coprimeness complexity is Ω(log log N) on almost all coprime pairs.
 
 </details>
 
@@ -271,8 +272,9 @@ Lean-verified results.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
   defines every notion the theorems use (derivations, G, certificates and the three
-  intrinsic complexities), and states the eleven compared theorems with `sorry`: the
-  upper bounds, the five refutations and four lower bounds.
+  intrinsic complexities), and states the thirteen compared theorems with `sorry`: the
+  two upper bounds, the five refutations, and six theorems showing that the complexities
+  are not trivially small (certificates exist, and four lower bounds).
 - **[Solution.lean](Solution.lean)** imports `ShortGCD`, where each of these declarations
   is defined and proved under the same name.
 - **[comparator.json](comparator.json)** lists the compared theorems and permitted axioms;

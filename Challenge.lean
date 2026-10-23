@@ -28,9 +28,10 @@ This refutes Conjecture 3.4 of Moschovakis's 2012 notes *Absolute lower bounds f
 processes* and the version (4F-5) of the Main Conjecture on p. 151 of the book. The Main
 Conjecture for algorithms (recursive programs) is not addressed and remains open.
 
-The lower-bound theorems at the end show that the complexities are not small for trivial
-reasons: every certificate needs at least `G a b` remainder facts, and the coprimeness
-complexity is at least `(1 − ε) log₂ log₂ N` on almost all coprime pairs below `N`.
+The theorems at the end show that the complexities are not small for trivial reasons:
+certificates exist, so no complexity is `sInf ∅ = 0`; every certificate needs at least `G a b`
+remainder facts; and the coprimeness complexity is at least `(1 − ε) log₂ log₂ N` on almost
+all coprime pairs below `N`.
 -/
 
 open Filter Topology Finset
@@ -194,6 +195,18 @@ theorem not_main_conjecture_4F5_literal :
   sorry
 
 /-! ## Lower bounds: the complexities are not trivially small -/
+
+/-- **Coprimeness certificates exist.** For `a, b ≥ 1`, some certificate settles the truth
+value of `a ⊥⊥ b`, so `callsCoprimeness a b` is the size of an actual certificate, not
+`sInf ∅ = 0`. -/
+theorem exists_certifiesCoprimeness {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
+    ∃ U : Cert, CertifiesCoprimeness U a b := by
+  sorry
+
+/-- **Gcd certificates exist.** Every pair has a gcd certificate without `eq1` facts, so
+`callsGcd a b` and `callsRemGcd a b` are sizes of actual certificates, not `sInf ∅ = 0`. -/
+theorem exists_certifiesGcd (a b : ℕ) : ∃ U : Cert, U.CertifiesGcd a b ∧ U.eq1s = ∅ := by
+  sorry
 
 /-- Every gcd certificate in `Nε` has at least `G a b` remainder facts. -/
 theorem G_le_callsRemGcd (a b : ℕ) : G a b ≤ callsRemGcd a b := by

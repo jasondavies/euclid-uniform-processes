@@ -11,6 +11,8 @@ public import ShortGCD.AlmostAll
 These statements show that the intrinsic complexities refuted in `ShortGCD.Conjecture` are not
 small for trivial reasons:
 
+* `exists_certifiesCoprimeness`, `exists_certifiesGcd`: certificates exist, so each complexity
+  is the size of an actual certificate, not `sInf ∅ = 0`.
 * `G_le_callsRemGcd`, `G_le_callsGcd`: every gcd certificate needs at least `G a b` remainder
   facts, so both gcd complexities are at least `G a b`.
 * `callsCoprimeness_eq_G`: on positive coprime inputs the complexity of the book's coprimeness
@@ -22,6 +24,22 @@ small for trivial reasons:
 open Filter Topology
 
 namespace ShortGCD
+
+/-- For `a, b ≥ 1`, some certificate settles the truth value of `a ⊥⊥ b`, so
+`callsCoprimeness a b` is the size of an actual certificate, not `sInf ∅ = 0`. -/
+theorem exists_certifiesCoprimeness {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
+    ∃ U : Cert, CertifiesCoprimeness U a b := by
+  by_cases hc : Nat.Coprime a b
+  · obtain ⟨U, hU, -⟩ := coprime_certificate_bound hc
+    exact ⟨_, certifiesCoprimeness_of_certifiesCoprime ha hb hU⟩
+  · obtain ⟨U, hS, hG, -, hπ⟩ := noncoprime_certificate_bound ha hc
+    exact ⟨U, hS, hG, fun π h ↦ iff_of_false (fun h' ↦ hπ π h h'.2.2) fun h' ↦ hc h'.2.2⟩
+
+/-- Every pair has a gcd certificate without `eq1` facts, so `callsGcd a b` and
+`callsRemGcd a b` are sizes of actual certificates, not `sInf ∅ = 0`. -/
+theorem exists_certifiesGcd (a b : ℕ) : ∃ U : Cert, U.CertifiesGcd a b ∧ U.eq1s = ∅ := by
+  obtain ⟨-, U, hU, h1, -⟩ := callsGcd_set_nonempty a b
+  exact ⟨U, hU, h1⟩
 
 /-- Every pair has a gcd certificate in `Nε`, so `callsRemGcd` is a minimum, not `sInf ∅`. -/
 theorem callsRemGcd_set_nonempty' (a b : ℕ) :
