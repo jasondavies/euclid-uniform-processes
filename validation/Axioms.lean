@@ -48,7 +48,6 @@ import ShortGCD
 #print axioms ShortGCD.TailProgram.Fixed.limsup_profile_le
 #print axioms ShortGCD.TailProgram.Fixed.eventually_accepts_bound
 #print axioms ShortGCD.TailProgram.Fixed.arbitrarily_small_coefficient
-#print axioms ShortGCD.TailFlow.executes_iff
 #print axioms ShortGCD.Register.ofLabels_returns
 #print axioms ShortGCD.TailSource.total_registers
 #print axioms ShortGCD.TailSource.run_trace_relabel
@@ -58,7 +57,10 @@ import ShortGCD
 #print axioms ShortGCD.TailSource.arbitrarily_small_coefficient
 #print axioms ShortGCD.TailRecursive.bodies_finite
 #print axioms ShortGCD.TailRecursive.program_tailRecursive
-#print axioms ShortGCD.TailRecursive.flow_iff_eval
+#print axioms ShortGCD.Register.eval_iff_halts
+#print axioms ShortGCD.Register.compile_tailRecursive
+#print axioms ShortGCD.Register.compile_finite
+#print axioms ShortGCD.Register.stacks_bounded
 #print axioms ShortGCD.TailRecursive.executes_iff_eval
 #print axioms ShortGCD.TailRecursive.executes_iff_steps
 #print axioms ShortGCD.TailRecursive.steps_correct

@@ -290,13 +290,15 @@ The book's certificates
 The program family
   Derivation → TailProgram → TailEuclid
   TailEuclid, Euclid → TailPrefix → TailRecurrence
-  TailRecurrence, SharpBound → TailAsymptotic → TailFlow
-  TailFlow, RegisterProgram → TailSource
-  TailSource, Recursive → TailRecursive
+  TailRecurrence, SharpBound → TailAsymptotic
+  TailAsymptotic, RegisterProgram → TailSource
+  RegisterProgram, Recursive → RegisterRecursion
+  TailSource, RegisterRecursion → TailRecursive
 ```
 
 RegisterProgram (the book's register programs) and Recursive (nondeterministic
 first-order programs and the book's recursive machine) import only Mathlib.
+RegisterRecursion compiles every register program into a tail-recursive program.
 
 - **The finite recurrence.** The core is `sizeCost_step` (in FiniteBound). Its
   hypotheses concern natural-number size parameters, not an assumed complexity bound.
@@ -394,15 +396,18 @@ Lean checks the result for formal versions of two of the book's models of comput
   in the cost proofs (`TailProgram.Run`) can also relabel all registers at once for
   free; `TailSource.run_trace_relabel` removes this, replaying a relabelled run on the
   physical registers with the same remainder calls and no extra registers.
-- **Recursive programs** (§§2A, 2E): `TailRecursive` writes the same program one
-  function per line, as in the book's reduction of iteration to tail recursion (§2C).
-  The function run takes the inputs and the work registers; its bodies are
-  run(u⃗[d := rem(u_i, u_j)]) for each choice of i, j, d, and accept(a, b, u_i) for each
-  i. `TailRecursive.program_tailRecursive` proves that every call is in tail position,
-  and `TailRecursive.stacks_bounded` that on the machine the control and value stacks
-  never hold more than max(w + 6, 17) entries, where w = 4ᵖ + 5 is the number of work
-  registers, on any input and however long the computation runs. `TailRecursive.executes_iff_steps` matches machine computations
-  exactly, in value and remainder cost, with executions of the register program.
+- **Recursive programs** (§§2A, 2E): `Register.compile` translates every register
+  program into a recursive program one function per line, as in the book's reduction
+  of iteration to tail recursion (§2C). Each line becomes a function of the k
+  registers: an assignment becomes a tail call with one argument replaced, a branching
+  a zero-test conditional between two tail calls, a halt its term, and alternative
+  commands alternative bodies. For every register program, `Register.eval_iff_halts`
+  matches evaluations exactly, in value and remainder cost, with convergent
+  computations; `Register.compile_tailRecursive` proves that every call is in tail
+  position; and `Register.stacks_bounded` that on the machine the control and value
+  stacks never hold more than 2k + 4 entries, on any input and however long the
+  computation runs. `TailRecursive` applies this to the gcd program, with k = 4ᵖ + 7
+  registers, so its stacks never exceed 2·4ᵖ + 18 entries.
 
 The result concerns the minimum successful cost of nondeterministic programs. It does
 not settle the book's Problem x2G.6, which asks whether every recursive function in
@@ -450,10 +455,13 @@ entries.
 | Every convergent execution of the register program returns the gcd | `TailSource.executes_correct` |
 | A convergent execution exists on every input | `TailSource.executes_total` |
 | The ε log₂ a + Bε bound for the register program, with the program chosen before the inputs | `TailSource.arbitrarily_small_coefficient` |
-| The tail-recursive program is finite | `TailRecursive.bodies_finite` |
-| The head and every alternative body have only tail-position internal calls | `TailRecursive.program_tailRecursive` |
+| Every register program compiles to a recursive program whose evaluations match its convergent computations exactly, in value and remainder cost | `Register.eval_iff_halts` |
+| Every call of a compiled program is a tail call; each line symbol has finitely many bodies | `Register.compile_tailRecursive`, `Register.compile_finite` |
 | For every tail-recursive program, the machine's stacks stay within the size of the largest head or body | `Recursive.Machine.stacks_bounded` |
-| For this program, the machine's control and value stacks never exceed max(w + 6, 17) entries | `TailRecursive.stacks_bounded` |
+| For every compiled program with k registers, the machine's stacks never exceed 2k + 4 entries | `Register.stacks_bounded` |
+| The tail-recursive gcd program is finite | `TailRecursive.bodies_finite` |
+| The head and every alternative body have only tail-position internal calls | `TailRecursive.program_tailRecursive` |
+| For this program, the machine's control and value stacks never exceed 2w + 8 entries, w = 4ᵖ + 5 | `TailRecursive.stacks_bounded` |
 | Exact-cost equivalence between register-program executions and evaluations of the tail-recursive program | `TailRecursive.executes_iff_eval` |
 | Exact-cost equivalence between evaluation and the two-stack machine, for every program | `Recursive.Machine.eval_iff_steps` |
 | The same for the tail-recursive program's machine computations | `TailRecursive.executes_iff_steps` |

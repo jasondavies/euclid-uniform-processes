@@ -790,9 +790,9 @@ completion of Section~\ref{sec:construction}, since its cost, at most about
 $4\beta n$, is negligible as $\beta\to0$; and writing one
 function per line yields a finite nondeterministic tail-recursive program
 with the same remainder cost \cite[\S\S2A, 2C, 2E]{moschovakis2019}.
-Lean verifies this correspondence for its model of the book's recursive
-machine, a specialisation of the book's Table~1, and proves an
-input-independent bound on its stacks (Appendix~\ref{app:lean}).
+Lean verifies this translation for every register program on its model of
+the book's recursive machine, a specialisation of the book's Table~1, and
+proves an input-independent bound on the stacks (Appendix~\ref{app:lean}).
 
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
@@ -984,21 +984,24 @@ registers: it tracks the relabelling in the proof, and writes each new
 remainder to a register no other value occupies, which exists by
 pigeonhole whenever two names share a register.
 
-The tail-recursive form (\lean{TailRecursive}) is written in a language of
-nondeterministic first-order programs (\lean{Recursive}): terms with
-variables, remainder, a zero-test conditional and calls of internal
-symbols, each symbol with a set of alternative bodies, evaluated call by
-value; this program has finitely many (\lean{TailRecursive.bodies_finite}).
-\lean{TailRecursive.program_tailRecursive} certifies that the head and every
-body have only tail-position internal calls: arguments, remainder operands
-and conditional guards contain no internal calls. Consequently
-(\lean{TailRecursive.stacks_bounded}) the machine's control and value stacks
-never hold more than $\max(w+6,17)$ entries in all, for $w$ work registers,
-on any input and however long the computation runs; each closure
-environment has at most $w+2$ entries. Here $w=4^p+5$, so the stack bound
-for Theorem~\ref{thm:registers} is $\max(4^p+11,17)$.
-\lean{TailRecursive.executes_iff_eval} matches its evaluations exactly, in
-value and remainder cost, with executions of the register program. For
+The tail-recursive form (\lean{TailRecursive}) compiles the register program
+into a language of nondeterministic first-order programs (\lean{Recursive}):
+terms with variables, remainder, a zero-test conditional and calls of
+internal symbols, each symbol with a set of alternative bodies, evaluated
+call by value. The compiler (\lean{Register.compile}) follows the book's
+reduction of iteration to tail recursion \cite[\S2C]{moschovakis2019}: each
+line becomes a function of the $k$ registers, an assignment a tail call with
+one argument replaced, a branching a zero-test conditional between two tail
+calls, a halt its term, and alternative commands alternative bodies. For
+every register program, \lean{Register.eval_iff_halts} matches evaluations
+exactly, in value and remainder cost, with convergent computations; every
+call is a tail call, whose arguments, remainder operands and conditional
+guards contain no internal calls (\lean{Register.compile_tailRecursive});
+and the machine's control and value stacks never hold more than $2k+4$
+entries in all, on any input and however long the computation runs
+(\lean{Register.stacks_bounded}). Each closure environment has at most $k$
+entries. For Theorem~\ref{thm:registers}, $k=4^p+7$, so the stacks never
+exceed $2\cdot4^p+18$ entries (\lean{TailRecursive.stacks_bounded}). For
 every program in the language, \lean{Recursive.Machine.eval_iff_steps}
 proves exact-cost equivalence with a specialisation of the book's two-stack
 machine: arguments are evaluated right to left, zero tests and branches are

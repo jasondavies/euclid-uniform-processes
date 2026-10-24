@@ -1,7 +1,7 @@
 module
 
 public import ShortGCD.RegisterProgram
-public import ShortGCD.TailFlow
+public import ShortGCD.TailAsymptotic
 
 @[expose] public section
 
@@ -242,10 +242,20 @@ lemma verify_trace {w a b z} (u : Fin (2+w) → ℕ) (j : Fin w) (hj : u (work j
   exact ⟨u₂, .cons s₀ (.cons s₁ (.cons s₂ (.cons s₃ (.cons s₄ (.refl _))))), h₂⟩
 
 /-- A physical register for a write to the logical register `d` under the relabelling
-`σ`: no other logical register is stored there. -/
+`σ`: no other logical register is stored there. If `σ d` is shared, `σ` is not
+injective, hence not surjective, and some work register is unused. -/
 lemma exists_target {w} (σ : Fin w → Fin w) (d : Fin w) :
-    ∃ p, ∀ k, k ≠ d → σ k ≠ p :=
-  TailFlow.exists_target σ d
+    ∃ p, ∀ k, k ≠ d → σ k ≠ p := by
+  by_cases hs : ∀ k, k ≠ d → σ k ≠ σ d
+  · exact ⟨σ d, hs⟩
+  · push Not at hs
+    obtain ⟨k, hkd, hk⟩ := hs
+    have hni : ¬ Function.Injective σ := fun hi => hkd (hi hk)
+    have hns : ¬ Function.Surjective σ :=
+      fun hsur => hni (Finite.injective_iff_surjective.mpr hsur)
+    obtain ⟨p, hp⟩ : ∃ p, ∀ k, σ k ≠ p := by
+      simpa [Function.Surjective] using hns
+    exact ⟨p, fun k _ => hp k⟩
 
 /-- A generator run, with logical register `k` held in work register `σ k`, is replayed by
 the register program with the same remainder calls. Routing changes only `σ`; each
