@@ -930,51 +930,6 @@ earlier coefficient-$6$ forms of the two leading-coefficient theorems and
 eleven others. The coefficient-$3$ forms and the program, closure-depth and
 book-certificate statements were added afterwards.
 
-\begin{table}[htbp]
-\centering\small
-\caption{Main results and Lean declarations, all in the namespace \texttt{ShortGCD}. Names marked ${}^\dagger$ are compared against \texttt{Challenge.lean}.}
-\label{tab:lean}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.67\textwidth}@{}}
-\toprule
-Paper & Lean declaration(s)\\\midrule
-Theorem~\ref{thm:main} & \lean{uniform_real_bound}\\
-Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
-Lemma~\ref{lem:gap} & \lean{small_remainder}\\
-Lemma~\ref{lem:prefix} & \lean{prefix_class_card_le_three}, \lean{residue_card_three}; for \eqref{eq:contract}, \lean{prefix_reservoir}\\
-Lemma~\ref{lem:fact-representation} & \lean{Book.callsCoprimeness_eq}${}^\dagger$,
-\lean{Book.callsRemGcd_eq}${}^\dagger$, \lean{Book.callsGcd_eq}${}^\dagger$\\
-Corollary~\ref{cor:three} & \lean{uniform_real_bound_three}${}^\dagger$, \lean{uniform_intrinsic_bound_three}${}^\dagger$\\
-Proposition~\ref{prop:certificates} &
-\lean{callsGcd_le},
-\lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
-\lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
-Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
-Corollary~\ref{cor:refute} &
-\lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
-\lean{not_main_conjecture_4F5_Neps}${}^\dagger$, and the literal readings
-\lean{not_conjecture_3_4_literal}${}^\dagger$,
-\lean{not_main_conjecture_4F5_literal}${}^\dagger$\\
-Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
-Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le},
-\lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}${}^\dagger$\\
-Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
-\lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
-Theorem~\ref{thm:registers} &
-\lean{TailProgram.Fixed.limsup_profile_le},
-\lean{TailProgram.Fixed.eventually_accepts_bound}, \lean{TailSource.executes_iff},
-\lean{TailSource.total_registers},
-\lean{TailSource.executes_correct}${}^\dagger$,
-\lean{TailSource.executes_total}${}^\dagger$,
-\lean{TailSource.arbitrarily_small_coefficient}${}^\dagger$\\
-Recursive programs (Section~\ref{sec:programs}) &
-\lean{TailRecursive.program_tailRecursive},
-\lean{TailRecursive.stacks_bounded},
-\lean{TailRecursive.executes_iff_steps},
-\lean{TailRecursive.arbitrarily_small_coefficient}\\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \paragraph{Arithmetic bounds.}
 Costs are lengths of explicit remainder derivations. The finite theorem
 \lean{sizeCost_step} proves the recurrence from natural-number size
@@ -1034,6 +989,51 @@ machine: arguments are evaluated right to left, zero tests and branches are
 separate transitions, and only remainder transitions are charged
 \cite[Table~1, p.~75]{moschovakis2019}. Closures represent
 substitution in machine states, not extra program data.
+
+\begin{table}[!h]
+\centering\small
+\caption{Main results and Lean declarations, all in the namespace \texttt{ShortGCD}. Names marked ${}^\dagger$ are compared against \texttt{Challenge.lean}.}
+\label{tab:lean}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.67\textwidth}@{}}
+\toprule
+Paper & Lean declaration(s)\\\midrule
+Theorem~\ref{thm:main} & \lean{uniform_real_bound}\\
+Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
+Lemma~\ref{lem:gap} & \lean{small_remainder}\\
+Lemma~\ref{lem:prefix} & \lean{prefix_class_card_le_three}, \lean{residue_card_three}; for \eqref{eq:contract}, \lean{prefix_reservoir}\\
+Lemma~\ref{lem:fact-representation} & \lean{Book.callsCoprimeness_eq}${}^\dagger$,
+\lean{Book.callsRemGcd_eq}${}^\dagger$, \lean{Book.callsGcd_eq}${}^\dagger$\\
+Corollary~\ref{cor:three} & \lean{uniform_real_bound_three}${}^\dagger$, \lean{uniform_intrinsic_bound_three}${}^\dagger$\\
+Proposition~\ref{prop:certificates} &
+\lean{callsGcd_le},
+\lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
+\lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
+Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
+Corollary~\ref{cor:refute} &
+\lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
+\lean{not_main_conjecture_4F5_Neps}${}^\dagger$, and the literal readings
+\lean{not_conjecture_3_4_literal}${}^\dagger$,
+\lean{not_main_conjecture_4F5_literal}${}^\dagger$\\
+Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
+Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le},
+\lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}${}^\dagger$\\
+Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
+\lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
+Theorem~\ref{thm:registers} &
+\lean{TailProgram.Fixed.limsup_profile_le},
+\lean{TailProgram.Fixed.eventually_accepts_bound}, \lean{TailSource.executes_iff},
+\lean{TailSource.total_registers},
+\lean{TailSource.executes_correct}${}^\dagger$,
+\lean{TailSource.executes_total}${}^\dagger$,
+\lean{TailSource.arbitrarily_small_coefficient}${}^\dagger$\\
+Recursive programs (Section~\ref{sec:programs}) &
+\lean{TailRecursive.program_tailRecursive},
+\lean{TailRecursive.stacks_bounded},
+\lean{TailRecursive.executes_iff_steps},
+\lean{TailRecursive.arbitrarily_small_coefficient}\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a
