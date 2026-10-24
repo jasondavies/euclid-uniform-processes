@@ -53,14 +53,14 @@ monograph \cite{moschovakis2019}, henceforth ``the book'') asserts that for ever
 algorithm $\alpha$ from $\rem$ and the zero test $\eq_0$ computing
 $\gcd(x,y)$ there is an $r>0$ such that $\alpha$ makes more than $r\log x$
 remainder calls on infinitely many pairs $x>y\geq1$
-\cite[p.~2]{moschovakis2019}. We refute the formulations of this conjecture
-for uniform processes, the book's more general model, in Moschovakis's 2012
-notes and in the book (Section~\ref{sec:certificates}); for algorithms it
-remains open. Uniform processes are the book's abstract
+\cite[p.~2]{moschovakis2019}. Uniform processes are the book's abstract
 model of computation from given primitives: every deterministic or
 nondeterministic recursive program induces one
 \cite[\S4A, Proposition~4A.1]{moschovakis2019}, but a uniform process need
-not be implemented by any finite program.
+not be implemented by any finite program. Moschovakis stated versions of
+the conjecture for uniform processes in his 2012 notes and in the book; we
+refute both (Section~\ref{sec:certificates}). For algorithms the conjecture
+remains open.
 
 \paragraph{Derivations.}
 A \emph{derivation} from $a,b$ is a finite list that starts with $a,b$ and in
@@ -94,15 +94,19 @@ the prefix occupies at least $\sqrt h$ residue classes modulo $m$
 calls produce a positive value below $m/(\sqrt h-1)$
 (Lemma~\ref{lem:gap}). Reusing the same prefix, we repeatedly shrink the
 modulus from $r_h$ to at most $N^{1/3}$ in $O(n/\log n)$ calls.
-Two recursive gcd derivations on inputs at most $N^{1/3}$ finish.
+Since $m$ need not be coprime to $a$ or $b$, two recursive gcd
+derivations on inputs at most $N^{1/3}$ finish: of $d=\gcd(m,\rem(a,m))$,
+and then of $\gcd(d,\rem(b,m))$.
 If $T(n)$ is the worst derivation cost for inputs at most $2^n$, the
 resulting recurrence \eqref{eq:recurrence} gives $T(n)=O(n/\log n)$.
 Tuning the prefix length sharpens the upper coefficient to $6+o(1)$
 (Corollary~\ref{cor:six}).
 
 \paragraph{Consequences and further results.}
-Section~\ref{sec:certificates} converts the derivations into small
-certificates. This bounds the intrinsic complexity of gcd and coprimeness,
+Section~\ref{sec:certificates} shows that $G(a,b)$ equals the intrinsic
+remainder-call complexity of coprimeness in the book's Euclidean structure
+on positive coprime inputs, and bounds those of gcd to within $2$
+(Proposition~\ref{prop:certificates}). Theorem~\ref{thm:main} therefore
 refutes Conjecture~3.4 of \cite{moschovakis2012} and version (4F-5) of the
 Main Conjecture, and limits what the homomorphism method can prove. The
 book's best-uniform-process theorem then gives a single process with the
@@ -117,6 +121,14 @@ nondeterministic register program with a successful computation costing at
 most $\varepsilon\log a+B$ on each input $a\geq b\geq1$
 (Theorem~\ref{thm:registers}). The
 number of registers grows as $\varepsilon$ decreases.
+
+Sections~\ref{sec:normalization}--\ref{sec:construction} prove
+Theorem~\ref{thm:main} and its refinements, Section~\ref{sec:certificates}
+treats certificates and uniform processes, Sections~\ref{sec:loglog}
+and~\ref{sec:programs} give the lower bound and the register programs,
+Section~\ref{sec:discussion} discusses open problems, and
+Section~\ref{sec:checks} and Appendix~\ref{app:lean} describe the
+computational checks and the Lean formalisation.
 
 \paragraph{Related work.}
 The known intrinsic lower bounds give $\Omega(\log\log a)$ on special
@@ -222,8 +234,8 @@ give at most $t^2$ ordered pairs.
 \end{proof}
 Since Lemma~\ref{lem:prefix} holds for every $m>2a/r_h$, one stored prefix
 serves every later modulus, although these moduli are not known in advance.
-When $\sqrt h>1$, Lemma~\ref{lem:gap} applied to the prefix gives three
-instructions that generate
+For every available $m>2a/r_h$, when $\sqrt h>1$, Lemma~\ref{lem:gap}
+applied to the prefix gives three instructions that generate
 \begin{equation}\label{eq:contract}
 0<w<\frac{m}{\sqrt h-1}.
 \end{equation}
@@ -385,9 +397,8 @@ with $g(a_n,b_n)>C\log a_n$ for all $n$
 \cite[Open Problem, p.~2:11]{vddm2009}. Here, following \cite[p.~2:4]{vddm2009},
 the stages live in $\mathbb Z$, $\operatorname{iq}(x,y)=\lfloor x/y\rfloor$
 and $\rem(x,y)=x-y\operatorname{iq}(x,y)$ for $y\neq0$, and
-$\operatorname{iq}(x,0)=\rem(x,0)=x$; these total operations differ from the
-partial remainder of Section~\ref{sec:certificates}, but agree with it at
-positive divisors.
+$\operatorname{iq}(x,0)=\rem(x,0)=x$; these total operations agree with the
+remainder used in derivations, whose divisors are always positive.
 
 \begin{corollary}\label{cor:closure-depth}
 For integers $a\geq4$ and $b\geq1$,
@@ -395,7 +406,8 @@ For integers $a\geq4$ and $b\geq1$,
 g(a,b)\leq1+G(a,\rem(b,a))
  =O\left(\frac{\log a}{\log\log a}\right).
 \]
-Hence no such sequences exist.
+Hence the Open Problem has a negative answer: no such sequences $a_n,b_n$
+exist.
 \end{corollary}
 \begin{proof}
 Put $r=\rem(b,a)$, so $r\in S_1$, $0\leq r<a$ and $\gcd(a,r)=\gcd(a,b)$.
@@ -427,19 +439,23 @@ finite partial substructure $\mathcal U$ of $\mathcal A$, generated by
 $\vec x$ and containing $f(\vec x)$ when $f$ is a function, such that every
 homomorphism $\pi:\mathcal U\to\mathcal A$ satisfies
 $f(\pi\vec x)=\pi(f(\vec x))$; homomorphisms fix the truth values, so for a
-relation this says $f(\pi\vec x)=f(\vec x)$. The remainder equations of a derivation form
-a finite partial substructure generated by the inputs;
+relation this says $f(\pi\vec x)=f(\vec x)$. In other words, any assignment
+of values preserving the recorded operations and tests must preserve the
+answer. The \emph{facts} of $\mathcal U$ are its recorded equations
+$\rem(x,y)=z$ (\emph{remainder facts}) and test values
+$\eq_c(x)=\mathrm{tt}$ or $\mathrm{ff}$ (\emph{test facts}); together they
+form the \emph{diagram} of $\mathcal U$. The remainder equations of a
+derivation form a finite partial substructure generated by the inputs;
 Proposition~\ref{prop:certificates} adds the test facts that make it a
-certificate. In other words, any assignment of values preserving the recorded
-operations and tests must preserve the answer. The \emph{intrinsic
-remainder-call complexity} $\calls_{\rem}(\mathcal A,f,\vec x)$ is the least
+certificate. The \emph{intrinsic remainder-call complexity} $\calls_{\rem}(\mathcal A,f,\vec x)$ is the least
 number of remainder facts in a certificate
 \cite[\S\S1D, 4C--4E]{moschovakis2019}.
 
-The following lemma shows that a finite generated partial substructure is
-determined by its remainder and test facts, as in the Lean encoding; Lean
-proves the resulting equality of intrinsic complexities
-(Appendix~\ref{app:lean}).
+The following lemma lets us treat certificates as finite sets of facts and
+extract a derivation from any certificate; it is used in
+Proposition~\ref{prop:certificates}. It also justifies the fact-based Lean
+encoding, for which Lean proves the resulting equality of intrinsic
+complexities (Appendix~\ref{app:lean}).
 
 \begin{lemma}[Fact representation]\label{lem:fact-representation}
 Let $F$ be a finite set of true remainder and test facts in which every
@@ -480,11 +496,12 @@ and the same bounds hold for $\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$.
 \begin{proof}
 A derivation of $1$, together with $\eq_1(1)=\mathrm{tt}$,
 $\eq_0(a)=\mathrm{ff}$ and $\eq_0(b)=\mathrm{ff}$, certifies $\coprime$: under
-any homomorphism the input images are positive, and each of their common
-divisors divides every transported generated value, hence divides
-$\pi(1)$, which is $1$ because the fact $\eq_1(1)=\mathrm{tt}$ is preserved. Conversely, if a certificate has no positive $\eq_1$ fact, then
-$x\mapsto2x$ preserves its remainder facts, zero tests and negative
-one-tests, but not coprimeness. So every certificate contains $1$, and
+any homomorphism the input images are positive, and every common divisor of
+them divides the image of every generated value, hence divides $\pi(1)$,
+which is $1$ because the fact $\eq_1(1)=\mathrm{tt}$ is preserved.
+Conversely, if a certificate records no fact $\eq_1(x)=\mathrm{tt}$, then
+$x\mapsto2x$ preserves its remainder facts and all its other test facts,
+but not coprimeness. So every certificate contains $1$, and
 Lemma~\ref{lem:fact-representation} gives a derivation of $1$ with at
 most as many instructions as the certificate has remainder facts. This
 proves the first assertion.
@@ -492,15 +509,16 @@ proves the first assertion.
 For gcd as a function, the certificate must reach its output $g$, giving a
 lower bound of $G(a,b)$. For an upper bound, append
 \[
-\rem(a,g)=z,\qquad \rem(b,g)=z,\qquad \eq_0(z)=\mathrm{tt},
+\rem(a,g)=0,\qquad \rem(b,g)=0,\qquad \eq_0(0)=\mathrm{tt}.
 \]
-where the generated $z$ is zero. Every homomorphism $\pi$ has $\pi(z)=0$ and
+Every homomorphism $\pi$ has $\pi(0)=0$ and
 $\pi(g)>0$ (by definedness of either appended remainder). Thus $\pi(g)$
 divides both input images. Conversely every common divisor of those images
 divides $\pi(g)$ by induction over the derivation. This proves the bounds
-for $\mathcal N_0$. The lower-bound argument applies to every gcd
-certificate, $\eq_1$ facts included, and allowing $\eq_1$ facts can only lower the count, so the upper
-bound transfers to $\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$.
+for $\mathcal N_0$. In $\mathcal N_\varepsilon$ the lower-bound argument is
+unchanged, and every certificate in $\mathcal N_0$ is also one in
+$\mathcal N_\varepsilon$, so both bounds transfer to
+$\calls_{\rem}(\mathcal N_\varepsilon,\gcd,a,b)$.
 \end{proof}
 \begin{remark}\label{rem:noncoprime}
 \begin{enumerate}
@@ -568,7 +586,8 @@ pairs with a zero entry need no remainder facts.
 \end{proof}
 
 \paragraph{A single uniform process.}
-The book's Theorem~4F.1 states that, whenever every input has a certificate,
+The book's best-uniform-process theorem (Theorem~4F.1) states that,
+whenever every input has a certificate,
 one uniform process attains the intrinsic complexity at every input
 \cite[pp.~149--150]{moschovakis2019}.
 
@@ -642,11 +661,11 @@ Producing $1$ within $d$ instructions therefore forces
 
 To count irregular pairs below $N$, choose a witness
 $0<|qb-pa|<a/(Bq)$. Dividing $p,q$ by their gcd preserves this inequality,
-so assume $\gcd(p,q)=1$. The nonzero integer $r=qb-pa$ then gives
+so assume $\gcd(p,q)=1$. The nonzero integer $e=qb-pa$ then gives
 $q<a/B\leq N/B$ and $0\leq p\leq q$.
 For each $q$, there are at most $2q$ choices of $p$ and $2N/(Bq)$ choices
-of the signed integer $r$. Given $p,q,r$, the equation
-$pa\equiv-r\pmod q$ determines one residue class for $a$, leaving at most
+of the signed integer $e$. Given $p,q,e$, the equation
+$pa\equiv-e\pmod q$ determines one residue class for $a$, leaving at most
 $N/q+1$ choices; $b$ is then determined. With $Q=\lfloor N/B\rfloor$,
 the number of irregular pairs is at most
 \[
@@ -679,8 +698,8 @@ Then $N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the exceptional set has
 size $o(N^2)$, while $d=(1-o(1))\log\log N$, so eventually
 $d\geq(1-\varepsilon)\log\log N$.
 \end{proof}
-A positive proportion (asymptotically $6/\pi^2$) of these pairs are coprime,
-so the exceptional set also has density zero among coprime pairs.
+Since there are asymptotically $3N^2/\pi^2$ coprime pairs
+$2\leq b<a\leq N$, the exceptional set has density zero among them.
 The saving $2^{-d}$ in the exponent of $N^{2-2^{-d}}$ shrinks as $d$ grows,
 so this argument does not reach the upper-bound scale $\log N/\log\log N$.
 
@@ -729,10 +748,10 @@ below move values between registers for readability; copying is never needed
 
 Multiplying every value by $g=\gcd(a,b)$ turns a computation on
 $(a/g,b/g)$ into one on $(a,b)$ with the same remainder count, so it
-suffices to treat coprime pairs. Let $S(n)$ be the largest, over coprime
-$1\leq b\leq a\leq2^n$, of the least number of remainder calls by which
-main-line moves of $P_p$, starting from any state with $a,b$ in two working
-registers, place $1$ in a working register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
+suffices to treat coprime pairs. Let $S(n)$ be the maximum, over coprime
+$1\leq b\leq a\leq2^n$ and over states with $a,b$ in two working registers,
+of the least number of remainder calls with which main-line moves of $P_p$
+place $1$ in a working register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
 
 Compute the Euclidean remainders $r_0=a,r_1=b,r_2,\ldots$ in working
 registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$.
@@ -744,14 +763,14 @@ with $p$ fixed, the prefix lemma applies to every modulus above $N^\beta$
 for large $n$, the prefix occupies at least $k+1$ residue classes, and at
 most $\lceil n/p\rceil$ contractions, using a modulus register and two
 scratch registers, produce a positive $m\leq N^\beta$. Then put
-$u=a\bmod m$ and $v=b\bmod m$, and run Euclid's algorithm in place on $m,u$
+$u=\rem(a,m)$ and $v=\rem(b,m)$, and run Euclid's algorithm in place on $m,u$
 and then on the result $d$ and $v$. Each run takes at most $2\log m+3$
 calls, and the result is $\gcd(d,v)=\gcd(m,a,b)=1$. Thus, eventually in $n$,
 \[
 S(n)\leq\max\left\{S(\lceil\alpha n\rceil)+h,\quad
  h+3\lceil n/p\rceil+4\beta n+7\right\}.
 \]
-Euclid gives $S(n)=O(n)$. Passing to upper limits,
+Euclid gives $S(n)=O(n)$, so $\Lambda$ below is finite. Passing to upper limits,
 $\Lambda=\limsup_{n\to\infty}S(n)/n$ satisfies
 $\Lambda\leq\max\{\alpha\Lambda,\ 3/p+4\beta\}$, and since $\alpha<1$,
 $\Lambda\leq3/p+4\beta$. The program does not depend on $\beta$, so
@@ -764,15 +783,15 @@ Conjecture lets its coefficient $r$ depend on the program, so the family is
 consistent with it; no single sublogarithmic program is obtained.
 
 \paragraph{Recursive programs.}
-With the prefix length fixed, Euclid's algorithm can replace the recursive
+Theorem~\ref{thm:registers} also holds for the book's recursive programs.
+With the prefix length fixed, Euclid's algorithm replaces the recursive
 completion of Section~\ref{sec:construction}, since its cost, at most about
-$4\beta n$, is negligible as $\beta\to0$. Writing one
+$4\beta n$, is negligible as $\beta\to0$; and writing one
 function per line yields a finite nondeterministic tail-recursive program
 with the same remainder cost \cite[\S\S2A, 2C, 2E]{moschovakis2019}.
 Lean verifies this correspondence for its model of the book's recursive
 machine, a specialisation of the book's Table~1, and proves an
 input-independent bound on its stacks (Appendix~\ref{app:lean}).
-Thus Theorem~\ref{thm:registers} holds for the book's recursive programs as well.
 
 \section{Discussion and open problems}\label{sec:discussion}
 \paragraph{The gap.}
