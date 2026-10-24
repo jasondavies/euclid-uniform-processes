@@ -6,8 +6,10 @@ public import ShortGCD.Asymptotic
 
 /-! # The leading constant in the uniform bound
 
-The finite construction is reused with a prefix of size roughly `n^(2*c)`,
-where `0 < c < 1/2`, and arbitrarily small fixed recursive size ratios.
+The finite construction is reused with a prefix of size roughly `3 n^c`, where `0 < c < 1`,
+and arbitrarily small fixed recursive size ratios. By the three-per-class bound
+(`prefix_reservoir_three`), such a prefix shrinks the modulus by more than a factor `2^⌊c log₂ n⌋`
+per contraction.
 The original Big-O theorem supplies boundedness before taking upper limits.
 -/
 
@@ -19,15 +21,14 @@ namespace Sharp
 
 /-- The normalizing weight `log₂ n / n`. -/
 def weight (n : ℕ) : ℝ := Real.logb 2 n / n
-/-- The normalized cost `T̂(2^n) · log₂ n / n`, whose upper limit is at most `6`. -/
+/-- The normalized cost `T̂(2^n) · log₂ n / n`, whose upper limit is at most `3`. -/
 def profile (n : ℕ) : ℝ := sizeCost (2^n) * weight n
 /-- The rounded rescaling `⌈q n⌉`, the bit size of a recursive argument. -/
 def scale (q : ℝ) (n : ℕ) : ℕ := ⌈q * n⌉₊
 /-- The exponent `e = ⌊c log₂ n⌋` of the contraction ratio `k = 2^e`. -/
 def exponent (c : ℝ) (n : ℕ) : ℕ := ⌊c * Real.logb 2 n⌋₊
-/-- The prefix length `h = k² + 1` with `k = 2^e`: the analogue of `Fixed.prefixLength`, now
-growing with `n`. -/
-def prefixSize (c : ℝ) (n : ℕ) : ℕ := (2^(exponent c n))^2 + 1
+/-- The prefix length `h = 3k` with `k = 2^e`, growing with `n`. -/
+def prefixSize (c : ℝ) (n : ℕ) : ℕ := 3*2^(exponent c n)
 /-- The number of contractions `J = ⌈n/e⌉`, so that `k^J ≥ 2^n`. -/
 def steps (c : ℝ) (n : ℕ) : ℕ := ⌈(n : ℝ) / exponent c n⌉₊
 
@@ -119,24 +120,23 @@ lemma exponent_ratio {c : ℝ} (hc : 0 ≤ c) :
   (tendsto_nat_floor_mul_div_atTop hc).comp log_tendsto
 
 lemma prefixSize_le {c : ℝ} (hc : 0 ≤ c) {n : ℕ} (hn : 2 ≤ n) :
-    (prefixSize c n : ℝ) ≤ (n : ℝ) ^ (2*c) + 1 := by
+    (prefixSize c n : ℝ) ≤ 3 * (n : ℝ) ^ c := by
   have hn0 : (0 : ℝ) < n := by exact_mod_cast (show 0 < n by omega)
   have hl : 0 ≤ Real.logb 2 (n : ℝ) := Real.logb_nonneg (by norm_num) (by exact_mod_cast (show 1 ≤ n by omega))
   have hp := Nat.floor_le (mul_nonneg hc hl)
   change (exponent c n : ℝ) ≤ c * Real.logb 2 n at hp
-  have he : (2 : ℝ) ^ ((2 : ℝ) * exponent c n) ≤ (n : ℝ) ^ (2*c) := by
+  have he : (2 : ℝ) ^ (exponent c n : ℝ) ≤ (n : ℝ) ^ c := by
     calc
-      _ ≤ (2 : ℝ) ^ (Real.logb 2 n * (2*c)) :=
-        Real.rpow_le_rpow_of_exponent_le (by norm_num) (by nlinarith)
+      _ ≤ (2 : ℝ) ^ (Real.logb 2 n * c) :=
+        Real.rpow_le_rpow_of_exponent_le (by norm_num) (by linarith)
       _ = _ := by rw [Real.rpow_mul (by norm_num), Real.rpow_logb (by norm_num) (by norm_num) hn0]
-  have he' : ((2 : ℝ) ^ exponent c n)^2 ≤ (n : ℝ) ^ (2*c) := by
-    convert he using 1
-    rw [mul_comm (2 : ℝ), Real.rpow_mul (by norm_num), Real.rpow_natCast, Real.rpow_two]
-  simpa [prefixSize] using add_le_add_right he' 1
+  rw [Real.rpow_natCast] at he
+  simp only [prefixSize, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat]
+  linarith
 
-lemma power_weight_tendsto {c : ℝ} (hc : c < 1/2) :
-    Tendsto (fun n : ℕ => (n : ℝ) ^ (2*c) * weight n) atTop (𝓝 0) := by
-  have hpow := (isLittleO_log_rpow_atTop (r := 1-2*c) (by linarith)).tendsto_div_nhds_zero
+lemma power_weight_tendsto {c : ℝ} (hc : c < 1) :
+    Tendsto (fun n : ℕ => (n : ℝ) ^ c * weight n) atTop (𝓝 0) := by
+  have hpow := (isLittleO_log_rpow_atTop (r := 1-c) (by linarith)).tendsto_div_nhds_zero
   have h := (hpow.div_const (Real.log 2)).comp tendsto_natCast_atTop_atTop
   simp only [zero_div] at h
   apply h.congr'
@@ -146,15 +146,15 @@ lemma power_weight_tendsto {c : ℝ} (hc : c < 1/2) :
   rw [Real.rpow_sub hn0, Real.rpow_one]
   field_simp
 
-lemma early_overhead_tendsto {c : ℝ} (hc0 : 0 ≤ c) (hc : c < 1/2) :
+lemma early_overhead_tendsto {c : ℝ} (hc0 : 0 ≤ c) (hc : c < 1) :
     Tendsto (fun n : ℕ => ((prefixSize c n : ℝ)+1) * weight n) atTop (𝓝 0) := by
-  have h := (power_weight_tendsto hc).add (weight_tendsto.const_mul 2)
+  have h := ((power_weight_tendsto hc).const_mul 3).add (weight_tendsto.const_mul 3)
   simp only [mul_zero, add_zero] at h
   apply tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds h
   · exact Eventually.of_forall (fun n => mul_nonneg (by positivity) (weight_nonneg n))
   · filter_upwards [eventually_ge_atTop 2] with n hn
     have hp := prefixSize_le hc0 hn
-    have hh := mul_le_mul_of_nonneg_right (show (prefixSize c n : ℝ)+1 ≤ (n:ℝ)^(2*c)+2 by linarith)
+    have hh := mul_le_mul_of_nonneg_right (show (prefixSize c n : ℝ)+1 ≤ 3*(n:ℝ)^c+3 by linarith)
       (weight_nonneg n)
     nlinarith
 
@@ -175,7 +175,7 @@ def lateEnvelope (c : ℝ) (n : ℕ) : ℝ :=
   ((prefixSize c n : ℝ)+1) * weight n +
     3 * (Real.logb 2 n / exponent c n) + 4 * weight n
 
-lemma lateEnvelope_tendsto {c : ℝ} (hc0 : 0 < c) (hc : c < 1/2) :
+lemma lateEnvelope_tendsto {c : ℝ} (hc0 : 0 < c) (hc : c < 1) :
     Tendsto (lateEnvelope c) atTop (𝓝 (3/c)) := by
   have h := ((early_overhead_tendsto hc0.le hc).add
     (((exponent_ratio hc0.le).inv₀ hc0.ne').const_mul 3)).add (weight_tendsto.const_mul 4)
@@ -200,7 +200,7 @@ lemma recurrence {c β : ℝ} (hc : 0 < c) (hβ : 0 < β) :
     hthreshold.eventually (eventually_ge_atTop 1)] with n hp hn
   apply sizeCost_step (hL := Nat.one_le_pow _ _ (by omega))
     (hh := by positivity) (hk := Nat.one_le_pow _ _ (by omega))
-    (hkh := Nat.lt_succ_self _)
+    (hkh := .inr le_rfl)
   · have h1 := Nat.le_ceil ((1-β/2)*(n:ℝ))
     have h2 := Nat.le_ceil (β*(n:ℝ))
     have he : n+1 ≤ scale β n + scale (1-β/2) n := by
@@ -229,7 +229,7 @@ lemma factor_nonneg {q : ℝ} {n : ℕ} (hn : 2 ≤ n) (hs : 2 ≤ scale q n) :
     Real.logb_nonneg (by norm_num) (by exact_mod_cast (show 1 ≤ scale q n by omega))
   exact mul_nonneg (div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _)) (div_nonneg hl hs')
 
-lemma limsup_recurrence {c β : ℝ} (hc0 : 0 < c) (hc : c < 1/2)
+lemma limsup_recurrence {c β : ℝ} (hc0 : 0 < c) (hc : c < 1)
     (hβ0 : 0 < β) (hβ : β < 1/2) :
     limsup profile atTop ≤ max ((1-β/2) * limsup profile atTop)
       (2*β * limsup profile atTop + 3/c) := by
@@ -280,7 +280,7 @@ lemma limsup_nonneg : 0 ≤ limsup profile atTop := by
   obtain ⟨n, hn⟩ := hb.exists
   exact (profile_nonneg n).trans hn
 
-lemma limsup_parameter_bound {c β : ℝ} (hc0 : 0 < c) (hc : c < 1/2)
+lemma limsup_parameter_bound {c β : ℝ} (hc0 : 0 < c) (hc : c < 1)
     (hβ0 : 0 < β) (hβ : β < 1/2) :
     limsup profile atTop * (1-2*β) ≤ 3/c := by
   have h := limsup_recurrence hc0 hc hβ0 hβ
@@ -292,7 +292,7 @@ lemma limsup_parameter_bound {c β : ℝ} (hc0 : 0 < c) (hc : c < 1/2)
     exact hpos.le
   · nlinarith
 
-lemma limsup_le_three_div {c : ℝ} (hc0 : 0 < c) (hc : c < 1/2) :
+lemma limsup_le_three_div {c : ℝ} (hc0 : 0 < c) (hc : c < 1) :
     limsup profile atTop ≤ 3/c := by
   have hlim : Tendsto (fun β : ℝ => limsup profile atTop * (1-2*β))
       (𝓝[>] 0) (𝓝 (limsup profile atTop)) := by
@@ -303,22 +303,22 @@ lemma limsup_le_three_div {c : ℝ} (hc0 : 0 < c) (hc : c < 1/2) :
     (eventually_lt_nhds (show (0 : ℝ) < 1/2 by norm_num)).filter_mono inf_le_left] with β hβ0 hβ
   exact limsup_parameter_bound hc0 hc hβ0 hβ
 
-/-- **The leading-coefficient bound.** `limsup_{n → ∞} T̂(2^n) log₂ n / n ≤ 6`. -/
-theorem limsup_profile_le_six : limsup profile atTop ≤ 6 := by
+/-- **The leading-coefficient bound.** `limsup_{n → ∞} T̂(2^n) log₂ n / n ≤ 3`. -/
+theorem limsup_profile_le_three : limsup profile atTop ≤ 3 := by
   apply le_of_forall_pos_le_add
   intro ε hε
-  have hc0 : 0 < 3/(6+ε) := by positivity
-  have hc : 3/(6+ε) < (1 : ℝ)/2 := by
-    apply (div_lt_iff₀ (by positivity : 0 < 6+ε)).mpr
+  have hc0 : 0 < 3/(3+ε) := by positivity
+  have hc : 3/(3+ε) < (1 : ℝ) := by
+    apply (div_lt_iff₀ (by positivity : 0 < 3+ε)).mpr
     linarith
   have h := limsup_le_three_div hc0 hc
-  have he : (3 : ℝ)/(3/(6+ε)) = 6+ε := by field_simp
+  have he : (3 : ℝ)/(3/(3+ε)) = 3+ε := by field_simp
   rwa [he] at h
 
-/-- Every constant strictly greater than six eventually bounds the bit profile. -/
-theorem eventually_profile_lt {C : ℝ} (hC : 6 < C) :
+/-- Every constant strictly greater than three eventually bounds the bit profile. -/
+theorem eventually_profile_lt {C : ℝ} (hC : 3 < C) :
     ∀ᶠ n in atTop, profile n < C :=
-  eventually_lt_of_limsup_lt (limsup_profile_le_six.trans_lt hC) profile_bounded
+  eventually_lt_of_limsup_lt (limsup_profile_le_three.trans_lt hC) profile_bounded
 
 lemma ceil_log_ratio : Tendsto (fun x : ℝ => Real.logb 2 ⌈x⌉₊ / Real.logb 2 x)
     atTop (𝓝 1) := by
@@ -384,13 +384,13 @@ lemma sizeCost_input_le {a : ℕ} (ha : 4 ≤ a) :
 
 end Sharp
 
-/-- For every `K` and every `C > 6`, eventually in `a`, `T̂(a) + K ≤ C log₂ a / log₂ log₂ a`:
+/-- For every `K` and every `C > 3`, eventually in `a`, `T̂(a) + K ≤ C log₂ a / log₂ log₂ a`:
 a fixed number of extra calls does not change the leading constant. -/
-theorem eventually_sizeCost_add_le_six (K : ℕ) {C : ℝ} (hC : 6 < C) :
+theorem eventually_sizeCost_add_le_three (K : ℕ) {C : ℝ} (hC : 3 < C) :
     ∀ᶠ a : ℕ in atTop, (sizeCost a + K : ℝ) ≤
       C * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
-  let B := (6+C)/2
-  have hB : 6 < B := by dsimp [B]; linarith
+  let B := (3+C)/2
+  have hB : 3 < B := by dsimp [B]; linarith
   have hBC : B < C := by dsimp [B]; linarith
   have hlim := (Sharp.inputFactor_tendsto.const_mul B).add
     (Sharp.inputWeight_tendsto.const_mul (K : ℝ))
@@ -409,11 +409,11 @@ theorem eventually_sizeCost_add_le_six (K : ℕ) {C : ℝ} (hC : 6 < C) :
   field_simp
 
 /-- For every `ε > 0`, for all sufficiently large `a` and every `b ≤ a`,
-`G a b ≤ (6 + ε) log₂ a / log₂ log₂ a`. -/
-theorem uniform_real_bound_six {ε : ℝ} (hε : 0 < ε) :
+`G a b ≤ (3 + ε) log₂ a / log₂ log₂ a`. -/
+theorem uniform_real_bound_three {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ a : ℕ in atTop, ∀ b : ℕ, b ≤ a →
-      (G a b : ℝ) ≤ (6+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
-  filter_upwards [eventually_sizeCost_add_le_six 0 (show 6 < 6+ε by linarith)] with a ha
+      (G a b : ℝ) ≤ (3+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
+  filter_upwards [eventually_sizeCost_add_le_three 0 (show 3 < 3+ε by linarith)] with a ha
   intro b hba
   exact (Nat.cast_le.mpr (G_le_sizeCost le_rfl hba)).trans (by simpa using ha)
 

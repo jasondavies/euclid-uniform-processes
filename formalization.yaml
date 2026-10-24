@@ -6,13 +6,14 @@ project:
   description: >-
     For every pair a ≥ b ≥ 1 there is a straight-line derivation of gcd(a, b) that
     uses only the remainder operation on available values and makes at most
-    (6 + o(1)) log₂ a / log₂ log₂ a remainder calls, uniformly in b ≤ a; Euclid's algorithm
+    (3 + o(1)) log₂ a / log₂ log₂ a remainder calls, uniformly in b ≤ a; Euclid's algorithm
     needs about 1.44 log₂ a calls in the worst case. The proof stores a prefix of the
-    Euclidean remainder sequence, shows that its consecutive pairs stay distinct modulo
-    every sufficiently large modulus, and uses close residues to shrink the modulus by three
-    remainder calls at a time. Consequently the intrinsic calls(rem)-complexities of the gcd
-    and of coprimeness, in the sense of Moschovakis's Abstract Recursion and Intrinsic
-    Complexity, are O(log a / log log a). This refutes Conjecture 3.4 of Moschovakis's 2012
+    Euclidean remainder sequence, shows that modulo every sufficiently large modulus its
+    consecutive pairs stay distinct and at most three of its values share a residue class,
+    and uses close residues to shrink the modulus by three remainder calls at a time.
+    Consequently the intrinsic calls(rem)-complexities of the gcd and of coprimeness, in
+    the sense of Moschovakis's Abstract Recursion and Intrinsic Complexity, are
+    O(log a / log log a). This refutes Conjecture 3.4 of Moschovakis's 2012
     notes "Absolute lower bounds for uniform processes" and the version (4F-5) of the Main
     Conjecture in the book, both for the structure (ℕ, rem, eq0) and for
     Nε = (ℕ, rem, eq0, eq1). The Main Conjecture for algorithms (deterministic or
@@ -38,7 +39,7 @@ sources:
       - "Jason Davies"
     location: "paper/euclid-uniform-processes.tex in this repository"
     note: >-
-      The upper bound, the leading coefficient 6, the refutations and the almost-all lower
+      The upper bound, the leading coefficient 3, the refutations and the almost-all lower
       bound are first presented in the accompanying paper and in this formalization.
   - title: "Abstract Recursion and Intrinsic Complexity"
     authors:
@@ -89,7 +90,7 @@ related_formalizations: []
 
 status:
   scope: >-
-    Formalized: the upper bound G(a, b) ≤ (6 + ε) log₂ a / log₂ log₂ a for large a and all
+    Formalized: the upper bound G(a, b) ≤ (3 + ε) log₂ a / log₂ log₂ a for large a and all
     b ≤ a, where G is the least number of remainder calls in a straight-line derivation of
     gcd(a, b); the same bound for the three intrinsic complexities defined from certificates
     (coprimeness in Nε, gcd in (ℕ, rem, eq0), gcd in Nε); the refutations of Conjecture 3.4
@@ -188,12 +189,12 @@ alignment:
   namespace: "ShortGCD"
   statements:
     - source: "Paper, main theorem and its leading-coefficient corollary"
-      lean: "ShortGCD.uniform_real_bound_six"
+      lean: "ShortGCD.uniform_real_bound_three"
       module: "ShortGCD.SharpBound"
       status: proved
-      note: "G(a, b) ≤ (6 + ε) log₂ a / log₂ log₂ a for all large a and every b ≤ a."
+      note: "G(a, b) ≤ (3 + ε) log₂ a / log₂ log₂ a for all large a and every b ≤ a."
     - source: "Paper, refutation corollary and certificates proposition"
-      lean: "ShortGCD.uniform_intrinsic_bound_six"
+      lean: "ShortGCD.uniform_intrinsic_bound_three"
       module: "ShortGCD.SharpCertificates"
       status: proved
       note: "The same bound for the three intrinsic complexities, for 0 < b ≤ a."

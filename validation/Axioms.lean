@@ -26,6 +26,8 @@ import ShortGCD
 #print axioms ShortGCD.gcd_certificate_lower
 -- The upper bound.
 #print axioms ShortGCD.prefix_pairs_distinct
+#print axioms ShortGCD.prefix_class_card_le_three
+#print axioms ShortGCD.residue_card_three
 #print axioms ShortGCD.small_remainder
 #print axioms ShortGCD.sizeCost_step
 #print axioms ShortGCD.uniform_bit_bound
@@ -34,10 +36,10 @@ import ShortGCD
 #print axioms ShortGCD.sizeCost_isBigO
 #print axioms ShortGCD.sizeCost_isLittleO_log
 -- The refined leading coefficient and its certificate consequences.
-#print axioms ShortGCD.Sharp.limsup_profile_le_six
-#print axioms ShortGCD.eventually_sizeCost_add_le_six
-#print axioms ShortGCD.uniform_real_bound_six
-#print axioms ShortGCD.uniform_intrinsic_bound_six
+#print axioms ShortGCD.Sharp.limsup_profile_le_three
+#print axioms ShortGCD.eventually_sizeCost_add_le_three
+#print axioms ShortGCD.uniform_real_bound_three
+#print axioms ShortGCD.uniform_intrinsic_bound_three
 -- The register programs, and the same programs as tail-recursive programs on the book's
 -- recursive machine.
 #print axioms ShortGCD.TailProgram.Run.dvd

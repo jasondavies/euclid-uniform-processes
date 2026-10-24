@@ -16,7 +16,7 @@ bound already holds there: Conjecture 3.4 of his 2012 notes, and the precise ver
 **Main result: those uniform-process conjectures are false.** Every pair a ≥ b ≥ 1 has a
 derivation of gcd(a, b) with
 
-$$\bigl(6 + o(1)\bigr) \frac{\log_2 a}{\log_2 \log_2 a}$$
+$$\bigl(3 + o(1)\bigr) \frac{\log_2 a}{\log_2 \log_2 a}$$
 
 remainder calls, where each call takes the remainder of two values already computed. So
 the *intrinsic complexity* of gcd and of coprimeness, which bounds the cost of every
@@ -76,10 +76,12 @@ commit `40279dd`.
 
 ### Upper bound and refutations
 
-The refined upper bound is **(6 + o(1)) log₂ a / log₂ log₂ a**, uniformly in b.
-Precisely, for every ε > 0, the coefficient 6 + ε works for all sufficiently large a
+The refined upper bound is **(3 + o(1)) log₂ a / log₂ log₂ a**, uniformly in b.
+Precisely, for every ε > 0, the coefficient 3 + ε works for all sufficiently large a
 and every 0 ≤ b ≤ a. The same leading coefficient holds for the intrinsic
-remainder-call complexities below on positive inputs. No optimality of 6 is claimed.
+remainder-call complexities below on positive inputs. No optimality of 3 is claimed.
+The coefficient rests on the sharper form of the Euclidean-prefix lemma: modulo every
+m > 2a/r_h, each residue class contains at most three of the prefix values r_0, …, r_h.
 
 As a consequence, the intrinsic calls(rem)-complexity of both coprimeness and gcd in
 Nε is o(log a), uniformly over pairs with 1 ≤ b ≤ a. This refutes the uniform-process
@@ -142,7 +144,8 @@ remainder-only algorithm, deterministic or nondeterministic, with this cost: cho
 which two stored residues to combine is not charged, and a program would still need to
 implement reusable access to the growing stored prefix within the claimed cost. The
 [program family](#program-family) shows that the obstacle is memory, not recursion:
-W registers give coefficient about 6 / log₂ W. Whether every W-register program needs
+W registers give coefficient about 6 / log₂ W (about 3 / log₂ W with the paper's
+three-per-class count, not formalised). Whether every W-register program needs
 c log a / log W calls is open. (Pratt's algorithm, as presented in the book, is also a
 nondeterministic register program; we did not obtain his unpublished manuscript.)
 
@@ -188,12 +191,15 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 
 | Statement | Lean name |
 | --- | --- |
-| For every ε > 0: G(a, b) ≤ (6 + ε) log₂ a / log₂ log₂ a for all b ≤ a, once a is large enough | `uniform_real_bound_six` |
-| For every ε > 0: `callsCoprimeness`, `callsGcd` and `callsRemGcd` are at most (6 + ε) log₂ a / log₂ log₂ a for all 1 ≤ b ≤ a, once a is large enough | `uniform_intrinsic_bound_six` |
+| For every ε > 0: G(a, b) ≤ (3 + ε) log₂ a / log₂ log₂ a for all b ≤ a, once a is large enough | `uniform_real_bound_three` |
+| For every ε > 0: `callsCoprimeness`, `callsGcd` and `callsRemGcd` are at most (3 + ε) log₂ a / log₂ log₂ a for all 1 ≤ b ≤ a, once a is large enough | `uniform_intrinsic_bound_three` |
 | Consecutive pairs in a coprime Euclidean prefix are distinct modulo every m > 2a/r_h | `prefix_pairs_distinct` |
 | If the h consecutive residue pairs are distinct, the number t of individual residues satisfies h ≤ t² | `residue_card_sq` |
-| The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 6 | `Sharp.limsup_profile_le_six` |
-| For every fixed K and every C > 6: sizeCost(a) + K ≤ C · log₂ a / log₂ log₂ a once a is large enough | `eventually_sizeCost_add_le_six` |
+| Modulo every m > 2a/r_h, each residue class contains r_i for at most three indices i ≤ h | `prefix_class_card_le_three` |
+| Hence the number t of residues of r_0, …, r_h satisfies h + 1 ≤ 3t | `residue_card_three` |
+| So a prefix with 3k ≤ h has at least k + 1 residues modulo every m > 2a/r_h, and each contraction shrinks the modulus below m/k | `prefix_reservoir_three` |
+| The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 3 | `Sharp.limsup_profile_le_three` |
+| For every fixed K and every C > 3: sizeCost(a) + K ≤ C · log₂ a / log₂ log₂ a once a is large enough | `eventually_sizeCost_add_le_three` |
 | For one real constant C: G(a, b) ≤ C · log₂ a / log₂ log₂ a for every a ≥ 4 and b ≤ a | `uniform_real_bound` |
 | sizeCost(a) is O(log a / log log a) | `sizeCost_isBigO` |
 | sizeCost(a) is o(log a) | `sizeCost_isLittleO_log` |
@@ -306,8 +312,9 @@ RegisterRecursion compiles every register program into a tail-recursive program.
   resulting bound by strong induction.
 - **The logarithms.** Asymptotic compares integer logarithms with real logarithms.
 - **The leading coefficient.** SharpBound reuses `sizeCost_step` with tunable prefix
-  and recursive-size parameters. The original Big-O theorem supplies boundedness;
-  an upper-limit argument gives 6, and rounding limits preserve it for general inputs.
+  and recursive-size parameters, using the three-per-class count of the prefix lemma.
+  The original Big-O theorem supplies boundedness; an upper-limit argument gives 3,
+  and rounding limits preserve it for general inputs.
 - **The conjectures.** Conjecture turns the bounds into the refutations;
   SharpCertificates combines the refined bound with the certificate reductions.
 - **Non-vacuity.** LowerBounds shows that the refuted complexities are not small for

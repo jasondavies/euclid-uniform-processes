@@ -24,8 +24,8 @@ book's theory of uniform processes, is not formalized here: the theorems below a
 the intrinsic complexities, defined directly from certificates.
 
 **Results.** `G a b`, the least number of remainder calls in a straight-line derivation of
-`gcd(a, b)`, is at most `(6 + ε) log₂ a / log₂ log₂ a` for large `a`, uniformly in `b ≤ a`.
-The intrinsic complexities satisfy the same `(6 + ε)` bound, so they are `o(log a)`.
+`gcd(a, b)`, is at most `(3 + ε) log₂ a / log₂ log₂ a` for large `a`, uniformly in `b ≤ a`.
+The intrinsic complexities satisfy the same `(3 + ε)` bound, so they are `o(log a)`.
 This refutes Conjecture 3.4 of Moschovakis's 2012 notes *Absolute lower bounds for uniform
 processes* and the version (4F-5) of the Main Conjecture on p. 151 of the book. The Main
 Conjecture for algorithms (recursive programs) is not addressed and remains open.
@@ -139,23 +139,23 @@ noncomputable def callsRemGcd (a b : ℕ) : ℕ :=
 /-! ## Upper bounds -/
 
 /-- **Main theorem.** For every `ε > 0`, for all sufficiently large `a` and every `b ≤ a`,
-`G a b ≤ (6 + ε) log₂ a / log₂ log₂ a`. Euclid's algorithm needs about `1.44 log₂ a` calls in
+`G a b ≤ (3 + ε) log₂ a / log₂ log₂ a`. Euclid's algorithm needs about `1.44 log₂ a` calls in
 the worst case. -/
-theorem uniform_real_bound_six {ε : ℝ} (hε : 0 < ε) :
+theorem uniform_real_bound_three {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ a : ℕ in atTop, ∀ b : ℕ, b ≤ a →
-      (G a b : ℝ) ≤ (6+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
+      (G a b : ℝ) ≤ (3+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
   sorry
 
-/-- The same coefficient `6 + ε` eventually bounds all three intrinsic complexities,
+/-- The same coefficient `3 + ε` eventually bounds all three intrinsic complexities,
 uniformly over positive second inputs `b ≤ a`. -/
-theorem uniform_intrinsic_bound_six {ε : ℝ} (hε : 0 < ε) :
+theorem uniform_intrinsic_bound_three {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ a : ℕ in atTop, ∀ b : ℕ, 0 < b → b ≤ a →
       (callsCoprimeness a b : ℝ) ≤
-        (6+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) ∧
+        (3+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) ∧
       (callsGcd a b : ℝ) ≤
-        (6+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) ∧
+        (3+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) ∧
       (callsRemGcd a b : ℝ) ≤
-        (6+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
+        (3+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by
   sorry
 
 /-! ## The refuted conjectures -/

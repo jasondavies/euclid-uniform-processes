@@ -2,8 +2,8 @@
   "challenge_module": "Challenge",
   "solution_module": "Solution",
   "theorem_names": [
-    "ShortGCD.uniform_real_bound_six",
-    "ShortGCD.uniform_intrinsic_bound_six",
+    "ShortGCD.uniform_real_bound_three",
+    "ShortGCD.uniform_intrinsic_bound_three",
     "ShortGCD.not_conjecture_3_4",
     "ShortGCD.not_conjecture_3_4_literal",
     "ShortGCD.not_main_conjecture_4F5",

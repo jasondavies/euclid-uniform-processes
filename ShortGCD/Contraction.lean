@@ -10,7 +10,8 @@ public import ShortGCD.Prefix
 
 `Reservoir R L k`: the set `R` has at least `k + 1` residues modulo every `m > L`. By the
 Euclidean-prefix lemma, the stored prefix `r_0, …, r_h` is one when `k² < h` and `2a ≤ L r_h`
-(`prefix_reservoir`). Each contraction costs three calls and shrinks the modulus below `m/k`,
+(`prefix_reservoir`), and by the three-per-class bound also when `3k ≤ h`
+(`prefix_reservoir_three`). Each contraction costs three calls and shrinks the modulus below `m/k`,
 and `large_branch` assembles the large branch: prefix, `J` contractions, then
 `finish_from_modulus`.
 -/
@@ -70,6 +71,25 @@ theorem prefix_reservoir (r q : ℕ → ℕ) (a h L k : ℕ)
       (Finset.range (h+1)).image (fun i => r i % m) := by simp only [Finset.image_image, Function.comp_def]
   rw [he]
   nlinarith
+
+/-- The linear count: the prefix is a reservoir when `3k ≤ h`, given the next remainder
+`r_{h+1}` as well. -/
+theorem prefix_reservoir_three (r q : ℕ → ℕ) (a h L k : ℕ)
+    (hpos : 0 < r h)
+    (hbound : ∀ i, i ≤ h → r i ≤ a)
+    (hlower : ∀ i, i ≤ h → r h ≤ r i)
+    (hcop : ∀ i, i ≤ h → Nat.Coprime (r i) (r (i+1)))
+    (hq : ∀ i, i+1 ≤ h → 0 < q i)
+    (heq : ∀ i, i+1 ≤ h → r i = q i*r (i+1)+r (i+2))
+    (hL : 2*a ≤ L*r h) (hsize : 3*k ≤ h) :
+    Reservoir ((Finset.range (h+1)).image r) L k := by
+  intro m hm
+  have hm' : 2*a < m*r h := hL.trans_lt (Nat.mul_lt_mul_of_pos_right hm hpos)
+  have hcard := residue_card_three r q a h m hbound hlower hcop hq heq hm'
+  have he : (((Finset.range (h+1)).image r).image (fun x => x % m)) =
+      (Finset.range (h+1)).image (fun i => r i % m) := by simp only [Finset.image_image, Function.comp_def]
+  rw [he]
+  omega
 
 /-- Complete large-prefix branch, with all costs and operand availability explicit.
 `H` counts the already constructed prefix; `J` counts contractions; `K` bounds

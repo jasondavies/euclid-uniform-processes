@@ -35,7 +35,7 @@ theorem uniform_bit_bound :
       have hrec := sizeCost_step (A := 2^n) (L := 2^(earlyBits n))
         (M := 2^(smallBits n)) (h := prefixLength n) (k := 2^(Nat.log 2 n/4))
         (J := contractionCount n) (Nat.one_le_pow _ _ (by omega)) (by exact Nat.zero_lt_succ _)
-        (Nat.one_le_pow _ _ (by omega)) hkh hthreshold hpower
+        (Nat.one_le_pow _ _ (by omega)) (.inl hkh) hthreshold hpower
       have hi1 := ih (earlyBits n) hearly
       have hi2 := ih (smallBits n) hsmall
       have hu1 : sizeCost (2^(earlyBits n))*(Nat.log 2 n-2) ≤ C*earlyBits n :=

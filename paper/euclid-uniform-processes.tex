@@ -99,8 +99,9 @@ derivations on inputs at most $N^{1/3}$ finish: of $d=\gcd(m,\rem(a,m))$,
 and then of $\gcd(d,\rem(b,m))$.
 If $T(n)$ is the worst derivation cost for inputs at most $2^n$, the
 resulting recurrence \eqref{eq:recurrence} gives $T(n)=O(n/\log n)$.
-Tuning the prefix length sharpens the upper coefficient to $6+o(1)$
-(Corollary~\ref{cor:six}).
+Since in fact each residue class modulo such $m$ contains at most three prefix
+values (Lemma~\ref{lem:prefix}), a longer prefix sharpens the upper
+coefficient to $3+o(1)$ (Corollary~\ref{cor:three}).
 
 \paragraph{Consequences and further results.}
 Section~\ref{sec:certificates} shows that $G(a,b)$ equals the intrinsic
@@ -201,6 +202,8 @@ $h$ pairs
 (r_i\bmod m,r_{i+1}\bmod m),\qquad 0\leq i<h,
 \]
 are distinct. The prefix therefore occupies $t$ residue classes with $t^2\geq h$.
+Moreover, each residue class modulo $m$ contains $r_i$ for at most three
+indices $0\leq i\leq h$, so $3t\geq h+1$.
 \end{lemma}
 \begin{proof}
 Suppose the pairs at $i<j$ coincide. Set
@@ -213,7 +216,7 @@ Right multiplication by
 $\bigl(\begin{smallmatrix}q&1\\1&0\end{smallmatrix}\bigr)$ sends
 $(A,B,C,E)$ to $(qA+B,\,A,\,qC+E,\,C)$, starting from $(q,1,1,0)$ for a single
 factor. By induction, all entries are nonnegative, $A\geq B\geq E$,
-$A\geq C\geq1$, $B\geq1$, and $\det M=(-1)^{j-i}$.
+$A\geq C\geq E$, $B,C\geq1$, and $\det M=(-1)^{j-i}$.
 Also $Ar_j\leq r_i\leq a$ and $r_j>r_h$ (as $j<h$), whence $A<a/r_h$.
 Write
 \[
@@ -231,6 +234,28 @@ Multiplication by the adjugate shows that $m$ divides both $\Delta r_j$ and
 $\Delta r_{j+1}$. Consecutive remainders are coprime, so B\'ezout's identity
 implies $m\mid\Delta$, a contradiction. Finally, $t$ individual residue classes
 give at most $t^2$ ordered pairs.
+
+For the second statement, let $q_h=\lfloor r_{h-1}/r_h\rfloor\geq1$ and
+$r_{h+1}=\rem(r_{h-1},r_h)$, so that the recurrence also holds for $i=h$,
+and suppose $r_s\equiv r_u\equiv r_v\pmod m$ with $s+2\leq u<v\leq h$; a
+class with four indices $i<j<k<l$ contains such $s=i$, $u=k$ and $v=l$.
+Write $\bigl(\begin{smallmatrix}\sigma&\tau\\\ast&\ast\end{smallmatrix}\bigr)$ and
+$\bigl(\begin{smallmatrix}A&B\\C&E\end{smallmatrix}\bigr)$ for the products
+of the factors with $\ell=s+1,\ldots,u$ and $\ell=u+1,\ldots,v$, so that
+$r_u=Ar_v+Br_{v+1}$ and $r_s=A'r_v+B'r_{v+1}$ with $A'=\sigma A+\tau C$
+and $B'=\sigma B+\tau E$. Then $m$ divides $r_s-r_v=(A'-1)r_v+B'r_{v+1}$
+and $r_u-r_v=(A-1)r_v+Br_{v+1}$. Eliminating $r_{v+1}$, and then $r_v$,
+shows that $m$ divides $Dr_v$ and $Dr_{v+1}$, where
+\[
+D=(A'-1)B-B'(A-1)=-\tau\det\begin{pmatrix}A&B\\C&E\end{pmatrix}+(\sigma-1)B+\tau E;
+\]
+as $r_v,r_{v+1}$ are coprime, $m\mid D$. If the determinant is $-1$, then
+$D\geq\tau>0$. If it is $1$, then $E\geq1$ as $AE=1+BC$, and $\sigma\geq2$
+because the first product has $u-s\geq2$ factors, so $D\geq B>0$. In both
+cases $D\leq\tau+B'-B\leq\tau+A'-B<2A'$, since $B'\leq A'$ (as $A\geq B$ and
+$C\geq E$) and $\tau\leq\sigma A<A'$. Finally $A'r_v\leq r_s\leq a$ gives
+$2A'\leq2a/r_h<m$, so $0<D<m$, a contradiction. Hence each class contains
+at most three of $r_0,\ldots,r_h$.
 \end{proof}
 Since Lemma~\ref{lem:prefix} holds for every $m>2a/r_h$, one stored prefix
 serves every later modulus, although these moduli are not known in advance.
@@ -336,33 +361,33 @@ and the theorem holds with $C=2C'$.
 \end{proof}
 
 \subsection{The leading coefficient}
-The same construction allows a more precise bound without changing either
-arithmetic lemma.
+The same construction, with the three-per-class count of
+Lemma~\ref{lem:prefix} and a longer prefix, gives a more precise bound.
 
-\begin{corollary}\label{cor:six}
+\begin{corollary}\label{cor:three}
 For every $\varepsilon>0$, there is an $a_0$ such that for every
 $a\geq a_0$ and $0\leq b\leq a$,
 \[
-G(a,b)\leq(6+\varepsilon)\frac{\log a}{\log\log a}.
+G(a,b)\leq(3+\varepsilon)\frac{\log a}{\log\log a}.
 \]
-Equivalently, the uniform upper bound has coefficient $6+o(1)$.
+Equivalently, the uniform upper bound has coefficient $3+o(1)$.
 \end{corollary}
 \begin{proof}
-Fix $0<c<1/2$ and $0<\beta<1/2$, and put $\alpha=1-\beta/2$.
+Fix $0<c<1$ and $0<\beta<1/2$, and put $\alpha=1-\beta/2$.
 For large $n$ put
 \[
-p=\lfloor c\log n\rfloor,\qquad k=2^p,\qquad h=k^2+1,
+p=\lfloor c\log n\rfloor,\qquad k=2^p,\qquad h=3k,
 \qquad J=\lceil n/p\rceil.
 \]
 Use $N^\alpha$ as the early threshold and $N^\beta$ as the target modulus,
 where $N=2^n$. In the late case $r_h>N^\alpha$, so
 $2a/r_h<2N^{1-\alpha}=2N^{\beta/2}<N^\beta$ for sufficiently large $n$, and
-the prefix lemma applies to every modulus above $N^\beta$. Since $k^2<h$, the prefix occupies at least $k+1$ residue classes,
+the prefix lemma applies to every modulus above $N^\beta$. Since $3t\geq h+1=3k+1$, the prefix occupies at least $k+1$ residue classes,
 so each contraction reduces the modulus by a factor greater than $k$.
 Moreover $k^J\geq N$, so $J$ contractions suffice.
 Writing $f(n)=n/\log n$, we have
 \[
-h=O(n^{2c})=o(f(n)),\qquad
+h=O(n^{c})=o(f(n)),\qquad
 3J=\left(\frac3c+o(1)\right)f(n).
 \]
 The two branches therefore give
@@ -380,12 +405,12 @@ Taking upper limits in the recurrence yields
 \Lambda\leq\max\{\alpha \Lambda,\ 2\beta \Lambda+3/c\}.
 \]
 Since $\alpha<1$ and $\Lambda\geq0$, this implies
-$(1-2\beta)\Lambda\leq3/c$. First let $\beta\downarrow0$ and then $c\uparrow1/2$ to obtain
-$\Lambda\leq6$. Finally, $n=\lceil\log a\rceil$ satisfies
+$(1-2\beta)\Lambda\leq3/c$. First let $\beta\downarrow0$ and then $c\uparrow1$ to obtain
+$\Lambda\leq3$. Finally, $n=\lceil\log a\rceil$ satisfies
 $f(n)\sim\log a/\log\log a$, proving the assertion. All upper limits concern
 the worst-case function $T$, so the resulting threshold is independent of $b$.
 \end{proof}
-We do not claim that $6$ is optimal.
+We do not claim that $3$ is optimal.
 
 \subsection{Closure depth}
 Van den Dries and Moschovakis \cite{vddm2009} measure the parallel depth of the gcd. Put
@@ -530,7 +555,7 @@ remainder cost.
 \item For a positive noncoprime input, adding $\eq_1(g)=\mathrm{ff}$ to the
 gcd certificate certifies noncoprimeness. So the sublogarithmic bound holds
 for both truth values of coprimeness, and since each overhead is a fixed
-additive constant, Corollary~\ref{cor:six} holds for all three complexities
+additive constant, Corollary~\ref{cor:three} holds for all three complexities
 of Corollary~\ref{cor:refute} below on positive inputs.
 \end{enumerate}
 \end{remark}
@@ -759,9 +784,10 @@ registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$.
 If $1$ has been reached, no further generation is needed. In the remaining early case,
 one further remainder gives the positive coprime pair $r_j,r_{j+1}$,
 bounded by $N^\alpha$, at total cost at most $h$; continue with that pair.
-Otherwise $r_h>N^\alpha$. As in the proof of Corollary~\ref{cor:six}, now
+Otherwise $r_h>N^\alpha$. As in the late case of Corollary~\ref{cor:three}, now
 with $p$ fixed, the prefix lemma applies to every modulus above $N^\beta$
-for large $n$, the prefix occupies at least $k+1$ residue classes, and at
+for large $n$, the prefix occupies $t$ residue classes with $t^2\geq h>k^2$, so
+$t\geq k+1$, and at
 most $\lceil n/p\rceil$ contractions, using a modulus register and two
 scratch registers, produce a positive $m\leq N^\beta$. Then put
 $u=\rem(a,m)$ and $v=\rem(b,m)$, and run Euclid's algorithm in place on $m,u$
@@ -807,8 +833,11 @@ For this construction, the obstacle to one sublogarithmic program is reusable
 access to a prefix whose length grows with the input. A nondeterministic
 program can guess the close pair, but it must hold all $h+1$ prefix values;
 regenerating them would cost about $h$ calls per contraction. By
-Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$,
-roughly $6/\log W$, so no bound $c\log a$ with $c$ independent of the number
+Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$.
+With the three-per-class count of Lemma~\ref{lem:prefix}, the same proof
+works with $h=3\cdot2^p$, so $W=h+6=3\cdot2^p+6$ registers
+also give coefficient $3/p$, roughly $3/\log W$ (this variant is not
+formalised). So no bound $c\log a$ with $c$ independent of the number
 of registers holds for nondeterministic register programs. A register
 program has only a fixed number of slots for prefix values. Does every
 nondeterministic register program computing gcd with $W$ registers make at
@@ -919,10 +948,10 @@ Paper & Lean declaration(s)\\\midrule
 Theorem~\ref{thm:main} & \lean{uniform_real_bound}\\
 Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
 Lemma~\ref{lem:gap} & \lean{small_remainder}\\
-Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}\\
+Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}, \lean{prefix_class_card_le_three}\\
 Lemma~\ref{lem:fact-representation} & \lean{Book.callsCoprimeness_eq}${}^\dagger$,
 \lean{Book.callsRemGcd_eq}${}^\dagger$, \lean{Book.callsGcd_eq}${}^\dagger$\\
-Corollary~\ref{cor:six} & \lean{uniform_real_bound_six}${}^\dagger$, \lean{uniform_intrinsic_bound_six}${}^\dagger$\\
+Corollary~\ref{cor:three} & \lean{uniform_real_bound_three}${}^\dagger$, \lean{uniform_intrinsic_bound_three}${}^\dagger$\\
 Proposition~\ref{prop:certificates} &
 \lean{callsGcd_le},
 \lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
@@ -960,8 +989,8 @@ For the initial Big-O proof, Lean uses
 $j=\lfloor\log n\rfloor$, $p=\lfloor j/4\rfloor$ and $h=2^{2p}+1$
 in place of $h=\lceil\sqrt n\rceil$, and checks the integer rounding
 estimates before passing to real logarithms. The refinement uses the
-tunable parameters of Corollary~\ref{cor:six} and checks the rounding limits
-preserving coefficient $6$.
+tunable parameters of Corollary~\ref{cor:three} and checks the rounding limits
+preserving coefficient $3$.
 For Proposition~\ref{prop:loglog}, Lean takes $B=a^{2^{-d}}/2$ separately
 for each pair instead of splitting into dyadic ranges. It proves the
 stated constant $40$ and the exceptional-set limit for every fixed
