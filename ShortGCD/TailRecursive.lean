@@ -80,7 +80,7 @@ theorem steps_total {w} (hw : 2 ≤ w) (a b : ℕ) :
 /-- **No recursion stack.** Every state reachable by the machine model from the head has at
 most `2w + 8` entries on its control and value stacks together, independently of the inputs
 and of the length of the computation. Each closure environment holds the `w + 2` registers,
-or the two inputs for the head. -/
+or the two inputs for the head and its arguments. -/
 theorem stacks_bounded {w a b k} {t : Machine.State (arity (2+w) (Sym w))}
     (h : Machine.Steps (bodies w) (start w a b) k t) :
     t.control.length + t.values.length ≤ 2*w+8 := by

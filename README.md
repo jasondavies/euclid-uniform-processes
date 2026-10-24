@@ -400,7 +400,8 @@ Lean checks the result for formal versions of two of the book's models of comput
   program into a recursive program one function per line, as in the book's reduction
   of iteration to tail recursion (§2C). Each line becomes a function of the k
   registers: an assignment becomes a tail call with one argument replaced, a branching
-  a zero-test conditional between two tail calls, a halt its term, and alternative
+  on eq0(u_i) a zero-test conditional between two tail calls and one on tt or ff a
+  single tail call, a halt its term, and alternative
   commands alternative bodies. For every register program, `Register.eval_iff_halts`
   matches evaluations exactly, in value and remainder cost, with convergent
   computations; `Register.compile_tailRecursive` proves that every call is in tail
