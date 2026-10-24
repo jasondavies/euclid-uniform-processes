@@ -19,7 +19,7 @@ The states are pairs of a line and the register values. As in the book's iterato
 assignment updates one register and a branching moves to the line selected by its test. The
 remainder is partial, as in the book's structures: `rem(x, 0)` is undefined, so an assignment
 of it has no transition. A computation starts at line `0`, and it converges when it reaches a
-halting line, returning the value of its term. Its cost is the number of remainder
+halting line whose term has a value, returning that value. Its cost is the number of remainder
 evaluations, as in the book's (2E-5).
 
 `ofLabels` numbers the lines of a program written with labels from a finite type, putting

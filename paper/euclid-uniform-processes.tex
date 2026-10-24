@@ -734,7 +734,8 @@ $P$ and a constant $B\geq0$ such that
 \end{theorem}
 
 \begin{proof}
-Put $k=2^p$, $h=k^2+1$ and $W=h+6$. If $b=0$, return $a$.
+Put $k=2^p$, $h=k^2+1$ and $W=h+6$: two inputs, $h+1$ prefix values, a
+modulus and two scratch registers. If $b=0$, return $a$.
 Otherwise initialise the registers $x_0,\ldots,x_{W-1}$ at
 $(a,b,a,b,a,\ldots,a)$ and enter the main line. There the program
 may perform any assignment $x_l:=\rem(x_i,x_j)$ with $i,j,l\geq2$, or pass to
@@ -749,9 +750,9 @@ below move values between registers for readability; copying is never needed
 Multiplying every value by $g=\gcd(a,b)$ turns a computation on
 $(a/g,b/g)$ into one on $(a,b)$ with the same remainder count, so it
 suffices to treat coprime pairs. Let $S(n)$ be the maximum, over coprime
-$1\leq b\leq a\leq2^n$ and over states with $a,b$ in two working registers,
+$1\leq b\leq a\leq2^n$ and over states with $a,b$ in two work registers,
 of the least number of remainder calls with which main-line moves of $P_p$
-place $1$ in a working register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
+place $1$ in a work register. Fix $0<\beta<1/2$ and put $\alpha=1-\beta/2$ and $N=2^n$.
 
 Compute the Euclidean remainders $r_0=a,r_1=b,r_2,\ldots$ in working
 registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$.
@@ -865,7 +866,7 @@ replay. On the Fibonacci pairs, Euclid's worst case, the bits
 removed by successive contractions roughly double (16, 31, 64, 125 and 252
 at 512 bits), so few contractions are needed. These samples illustrate the construction; the
 asymptotic claim rests on the proof. The
-accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and exhaustively tests the prefix
+accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and tests the prefix
 lemma over a finite range. The repository README gives scripts, commands,
 test ranges, seeds and individual results. The Python checks are not formally verified;
 the unrestricted arithmetic used to plan instructions is outside the
@@ -876,7 +877,7 @@ derivations.
 The development uses Lean~4.35.0 \cite{deMouraUllrich2021} with mathlib
 \cite{mathlib2020} at its v4.35.0 tag; the pinned mathlib commit is
 \texttt{56a005855ea17e0b0958f73ec801ae140b0a1679}.
-The proved library contains no proof placeholders or added axioms; the main-result audit
+The proved library contains no proof placeholders or added axioms; the axiom audit
 reports only \texttt{propext}, \texttt{Classical.choice}, and
 \texttt{Quot.sound}. Table~\ref{tab:lean} gives the main declarations;
 the repository README gives the
@@ -936,6 +937,7 @@ Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le},
 Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
 \lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
 Theorem~\ref{thm:registers} &
+\lean{TailProgram.Fixed.limsup_profile_le},
 \lean{TailProgram.Fixed.eventually_accepts_bound}, \lean{TailSource.executes_iff},
 \lean{TailSource.total_registers},
 \lean{TailSource.executes_correct}${}^\dagger$,
@@ -983,9 +985,10 @@ remainder to a register no other value occupies, which exists by
 pigeonhole whenever two names share a register.
 
 The tail-recursive form (\lean{TailRecursive}) is written in a language of
-finite nondeterministic first-order programs (\lean{Recursive}): terms with
+nondeterministic first-order programs (\lean{Recursive}): terms with
 variables, remainder, a zero-test conditional and calls of internal
-symbols, each symbol with finitely many bodies, evaluated call by value.
+symbols, each symbol with a set of alternative bodies, evaluated call by
+value; this program has finitely many (\lean{TailRecursive.bodies_finite}).
 \lean{TailRecursive.program_tailRecursive} certifies that the head and every
 body have only tail-position internal calls: arguments, remainder operands
 and conditional guards contain no internal calls. Consequently
@@ -1000,7 +1003,7 @@ every program in the language, \lean{Recursive.Machine.eval_iff_steps}
 proves exact-cost equivalence with a specialisation of the book's two-stack
 machine: arguments are evaluated right to left, zero tests and branches are
 separate transitions, and only remainder transitions are charged
-\cite[Table~1, pp.~75--76]{moschovakis2019}. Closures represent
+\cite[Table~1, p.~75]{moschovakis2019}. Closures represent
 substitution in machine states, not extra program data.
 
 \section*{Declaration of AI-generated research and authorship}

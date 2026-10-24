@@ -25,12 +25,12 @@ inductive Control (w : ℕ) where
   | reject
   deriving DecidableEq, Fintype
 
-/-- The control line and the work registers. The input registers holding `a` and `b`
-are never written, so they appear as the parameters `a b` of `Step`; the total
-numeric storage is `w+2` registers. -/
+/-- The control line and the work registers. In this form the checks read `a` and `b`
+without storing results, so the inputs are the parameters `a b` of `Step`; `TailSource`'s
+verification overwrites `u₀, u₁`. The total numeric storage is `w+2` registers. -/
 abbrev State (w : ℕ) := Control w × Registers w
 
-/-- The commands of the register program, read on the inputs `a b`. At line `run`
+/-- The commands of the control flow, read on the inputs `a b`. At line `run`
 the program may assign a remainder of two registers to any work register, or pass
 to the verification of a candidate. A zero candidate and a failed check loop. -/
 inductive Step (a b : ℕ) : {w : ℕ} → State w → ℕ → State w → Prop
@@ -107,7 +107,7 @@ lemma exists_target {w} (σ : Fin w → Fin w) (d : Fin w) :
     exact ⟨p, fun k _ => hp k⟩
 
 /-- A generator run, with logical register `k` held in physical register `σ k`, is
-replayed by the register program with the same remainder calls. Routing changes only
+replayed by the control flow with the same remainder calls. Routing changes only
 `σ`; each remainder is written to a physical register given by `exists_target`. -/
 lemma run_trace_relabel {w a b n z} {r : Registers w} (h : Run r n z)
     (hz : 0 < z) (ha : a%z=0) (hb : b%z=0) :
@@ -147,7 +147,7 @@ lemma run_trace {w a b n z} {r : Registers w} (h : Run r n z)
   run_trace_relabel h hz ha hb id r rfl
 
 /-- Head: return the first input when the second is zero; otherwise start the
-register program with the work registers holding copies of the two inputs. -/
+control flow with the work registers holding copies of the two inputs. -/
 def Executes (w a b c z : ℕ) : Prop :=
   (b=0 ∧ c=0 ∧ z=a) ∨
   (0 < b ∧ ∃ r i, Trace a b (.run,inputs w a b) c (.done i,r) ∧ r i=z)

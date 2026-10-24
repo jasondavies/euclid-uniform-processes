@@ -266,9 +266,9 @@ lemma runRem_inv {w a b K z} {r : Registers w} {i j d : Fin w}
   subst hv
   exact ⟨hj, body, hb, L, hc, by omega⟩
 
-/-! ## Register-program traces give evaluations -/
+/-! ## Control-flow traces give evaluations -/
 
-/-- The value, cost and pending work of a register-program state, read as an evaluation. -/
+/-- The value, cost and pending work of a control-flow state, read as an evaluation. -/
 def Reads {w} (a b : ℕ) (s : State w) (c z : ℕ) : Prop :=
   match s.1 with
   | .run => ∃ body ∈ bodies w .run, Eval (bodies w) (params a b s.2) body c z
@@ -315,7 +315,7 @@ lemma trace_reads {w a b c k z} {s t : State w} (h : Trace a b s c t)
   | refl => simpa using ht
   | cons hs ht' ih => simpa [Nat.add_assoc] using step_reads hs (ih ht)
 
-/-! ## Evaluations give register-program traces -/
+/-! ## Evaluations give control-flow traces -/
 
 lemma eval_trace {w a b} : ∀ K (r : Registers w) z (body : Term w (2+w)),
     body ∈ bodies w .run → Eval (bodies w) (params a b r) body K z →

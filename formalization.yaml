@@ -4,7 +4,7 @@ version: "v0.4"
 project:
   name: "The Euclidean algorithm is not optimal among uniform processes"
   description: >-
-    For every coprime pair a > b ≥ 1 there is a straight-line derivation of gcd(a, b) that
+    For every pair a ≥ b ≥ 1 there is a straight-line derivation of gcd(a, b) that
     uses only the remainder operation on available values and makes at most
     (6 + o(1)) log₂ a / log₂ log₂ a remainder calls, uniformly in b ≤ a; Euclid's algorithm
     needs about 1.44 log₂ a calls in the worst case. The proof stores a prefix of the
@@ -31,7 +31,7 @@ classification:
   msc2020: ["03D15", "68Q17", "11A05", "11Y16"]
 
 sources:
-  - title: "Sublogarithmic remainder-only gcd derivations and the refutation of the uniform-process conjectures (J. Davies, The Euclidean algorithm is not optimal among uniform processes)"
+  - title: "The Euclidean algorithm is not optimal among uniform processes (J. Davies)"
     type: original-proof
     relationship: other
     authors:
@@ -97,12 +97,15 @@ status:
     pairs, in both structures, and the literal reading with a set on which the complexity is
     unbounded); the existence of certificates (for coprimeness when a, b ≥ 1, and for gcd for
     every pair); and the lower bounds G ≤ the gcd complexities, coprimeness complexity = G
-    on positive coprime inputs, and the almost-all (1 − ε) log₂ log₂ N bound. The
+    on positive coprime inputs, and the almost-all (1 − ε) log₂ log₂ N bound; and the
+    equality of the book's intrinsic complexities (§§1D, 4C–4E, ShortGCD.Book) with the
+    fact-based ones. The
     refutations of (4F-5) omit the book's first inequality calls(rem)(Eucl, x, y) ≤ L(x, y),
     which only weakens the statement refuted. Not formalized: the consequence for the
     question after Corollary 6C.7 (p. 188), which also uses the book's Theorem 4F.1, and
-    the general theory of uniform processes; certificates are formalized directly as finite
-    sets of facts. The library also proves the negative answer to van den Dries and
+    the general theory of uniform processes. The refutations use fact-based certificates,
+    proved equal to the book's (Book.callsCoprimeness_eq, Book.callsRemGcd_eq,
+    Book.callsGcd_eq). The library also proves the negative answer to van den Dries and
     Moschovakis's closure-depth question (ShortGCD.ClosureDepth.no_logarithmic_sequences,
     with g(a, b) ≤ 1 + G(a, rem(b, a))), and, for each p, a fixed nondeterministic register
     program with 4^p + 7 registers and no recursion stack whose cost is

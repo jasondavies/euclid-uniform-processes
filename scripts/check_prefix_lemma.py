@@ -1,4 +1,4 @@
-"""Exhaustive check of the Euclidean-prefix lemma (Lean: ShortGCD.prefix_pairs_distinct).
+"""Finite check of the Euclidean-prefix lemma (Lean: ShortGCD.prefix_pairs_distinct).
 
 For every coprime pair with 3 <= a < A and 1 <= b < a, every prefix length h,
 and up to the requested number of consecutive moduli above 2a / r_h (with

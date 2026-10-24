@@ -30,10 +30,12 @@ This refutes Conjecture 3.4 of Moschovakis's 2012 notes *Absolute lower bounds f
 processes* and the version (4F-5) of the Main Conjecture on p. 151 of the book. The Main
 Conjecture for algorithms (recursive programs) is not addressed and remains open.
 
-The theorems at the end show that the complexities are not small for trivial reasons:
+The lower-bound theorems show that the complexities are not small for trivial reasons:
 certificates exist, so no complexity is `sInf ∅ = 0`; every certificate needs at least `G a b`
 remainder facts; and the coprimeness complexity is at least `(1 − ε) log₂ log₂ N` on almost
-all coprime pairs below `N`.
+all coprime pairs below `N`. Later sections state the bounded-memory register programs,
+the answer to the closure-depth question, and the equality of the book's certificate
+complexities with the ones above.
 -/
 
 open Filter Topology Finset
@@ -242,9 +244,9 @@ line is a halting command `halt, return t` or a list of alternative commands, ea
 assignment `uᵢ := t, goto l` or a branching `if t then goto l else goto l'`. Terms are the
 book's prime terms: `uᵢ`, `rem(uᵢ, uⱼ)`, `tt`, `ff` and `eq0(uᵢ)`. The remainder is partial,
 so an assignment of `rem(x, 0)` has no transition. A computation starts at line `0` and
-converges at a halting line, returning the value of its term; its cost is the number of
-remainder evaluations. `ofLabels` numbers lines written with labels from a finite type,
-putting the start line at `0`.
+converges at a halting line whose term has a value, returning that value; its cost is the
+number of remainder evaluations. `ofLabels` numbers lines written with labels from a finite
+type, putting the start line at `0`.
 
 The gcd program has `w + 2` registers: `u₀, u₁` hold the inputs `a, b` and the rest are
 work registers, initially `(a, b, a, …, a)`. Line `head` returns `a` if `b = 0`. At the main

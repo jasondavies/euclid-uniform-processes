@@ -295,7 +295,7 @@ The program family
   TailSource, Recursive → TailRecursive
 ```
 
-RegisterProgram (the book's register programs) and Recursive (finite nondeterministic
+RegisterProgram (the book's register programs) and Recursive (nondeterministic
 first-order programs and the book's recursive machine) import only Mathlib.
 
 - **The finite recurrence.** The core is `sizeCost_step` (in FiniteBound). Its
@@ -420,12 +420,14 @@ verification calls, not machine steps or the work of finding successful choices.
 Positive scaling preserves successful runs and their costs (`TailProgram.Run.scale`).
 
 The language of `Recursive` has terms with variables, remainder, a zero-test conditional
-and calls of internal symbols, each with finitely many bodies, evaluated call by value.
+and calls of internal symbols, each with a set of alternative bodies (finitely many for the
+gcd program, `TailRecursive.bodies_finite`), evaluated call by value.
 For every such program, `Recursive.Machine.eval_iff_steps` proves exact-cost equivalence
 with a specialisation of the book's two-stack machine (Table 1, p. 75): arguments are
 evaluated right to left, zero tests and branches are separate transitions, and only
 remainder transitions are charged. Machine closures implement substitution; programs
-cannot inspect them as data, and each closure environment has at most w + 2 entries.
+cannot inspect them as data; for the gcd program each closure environment has at most w + 2
+entries.
 
 </details>
 
@@ -458,7 +460,7 @@ cannot inspect them as data, and each closure environment has at most w + 2 entr
 | Every halting machine computation returns the gcd; one exists on every input | `TailRecursive.steps_correct`, `TailRecursive.steps_total` |
 | The ε log₂ a + Bε bound on the Lean model of the book's recursive machine | `TailRecursive.arbitrarily_small_coefficient` |
 
-These declarations are in the main [axiom audit](validation/Axioms.lean), with output
+These declarations are in the [axiom audit](validation/Axioms.lean), with output
 recorded in [axioms.txt](validation/axioms.txt). `TailSource.executes_correct`,
 `TailSource.executes_total` and `TailSource.arbitrarily_small_coefficient` are also
 compared against [Challenge.lean](Challenge.lean), which states the book's register
@@ -468,7 +470,7 @@ programs and this program in full.
 
 ## Finite checks
 
-[scripts/check.sh](scripts/check.sh) builds the library, reruns the axiom audits and the
+[scripts/check.sh](scripts/check.sh) builds the library, reruns the axiom audit and the
 quick finite checks below, and compares each output with its recorded file; CI
 ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs it on every push and pull
 request. It leaves out `check_prefix_lemma.py`, which takes about a minute and checks a
