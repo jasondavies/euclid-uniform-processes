@@ -80,7 +80,7 @@ The refined upper bound is **(3 + o(1)) log₂ a / log₂ log₂ a**, uniformly 
 Precisely, for every ε > 0, the coefficient 3 + ε works for all sufficiently large a
 and every 0 ≤ b ≤ a. The same leading coefficient holds for the intrinsic
 remainder-call complexities below on positive inputs. No optimality of 3 is claimed.
-The coefficient rests on the sharper form of the Euclidean-prefix lemma: modulo every
+The coefficient rests on the Euclidean-prefix lemma: modulo every
 m > 2a/r_h, each residue class contains at most three of the prefix values r_0, …, r_h.
 
 As a consequence, the intrinsic calls(rem)-complexity of both coprimeness and gcd in
@@ -402,7 +402,7 @@ Lean checks the result for formal versions of two of the book's models of comput
   physical registers with the same remainder calls and no extra registers.
 - **Recursive programs** (§§2A, 2E): `Register.compile` translates every register
   program into a recursive program one function per line, as in the book's reduction
-  of iteration to tail recursion (§2C). Each line becomes a function of the k
+  of iteration to tail recursion (§2C). Each line becomes a function of the W
   registers: an assignment becomes a tail call with one argument replaced, a branching
   on eq0(u_i) a zero-test conditional between two tail calls and one on tt or ff a
   single tail call, a halt its term, and alternative
@@ -410,8 +410,8 @@ Lean checks the result for formal versions of two of the book's models of comput
   matches evaluations exactly, in value and remainder cost, with convergent
   computations; `Register.compile_tailRecursive` proves that every call is in tail
   position; and `Register.stacks_bounded` that on the machine the control and value
-  stacks never hold more than 2k + 4 entries, on any input and however long the
-  computation runs. `TailRecursive` applies this to the gcd program, with k = 3·2ᵖ + 6
+  stacks never hold more than 2W + 4 entries, on any input and however long the
+  computation runs. `TailRecursive` applies this to the gcd program, with W = 3·2ᵖ + 6
   registers, so its stacks never exceed 6·2ᵖ + 16 entries.
 
 The result concerns the minimum successful cost of nondeterministic programs. It does

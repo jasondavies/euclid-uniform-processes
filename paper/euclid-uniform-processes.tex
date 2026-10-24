@@ -217,7 +217,8 @@ nonnegative, $A\geq B\geq E$, $A\geq C\geq E$, $B,C\geq1$, and
 $\det M_{i,j}=(-1)^{j-i}$; a product of at least two factors has $A\geq2$.
 
 Suppose $r_s\equiv r_u\equiv r_v\pmod m$ with $s+2\leq u<v\leq h$; a
-class with four indices $i<j<k<l$ contains such $s=i$, $u=k$ and $v=l$.
+class with four indices $i_1<i_2<i_3<i_4$ contains such $s=i_1$, $u=i_3$
+and $v=i_4$.
 Write $M_{s,u}=\bigl(\begin{smallmatrix}\sigma&\tau\\\ast&\ast\end{smallmatrix}\bigr)$ and
 $M_{u,v}=\bigl(\begin{smallmatrix}A&B\\C&E\end{smallmatrix}\bigr)$, so that
 $r_u=Ar_v+Br_{v+1}$ and $r_s=A'r_v+B'r_{v+1}$ with $A'=\sigma A+\tau C$
@@ -250,11 +251,12 @@ modulus.
 
 For example, from $44,17$ one instruction stores the prefix $44,17,10$.
 Modulo $m=10>2\cdot44/10$ its residues are $4,7,0$, and the close pair
-$4<7$ gives the contraction
+$4<7$ gives a contraction step as in Lemma~\ref{lem:gap} (this prefix is too
+short for \eqref{eq:contract}, so we read off the residues directly):
 \[
 \rem(44,10)=4,\qquad \rem(17,10)=7,\qquad \rem(7,4)=3,
 \]
-with new modulus $3<10/(3-1)$, as in Lemma~\ref{lem:gap}. One more
+with new modulus $3<10/(3-1)$. One more
 instruction, $\rem(10,3)=1$, finishes. This derivation takes five instructions;
 Euclid reaches $1$ in four. The example illustrates contraction without a
 saving on this pair.
@@ -342,8 +344,7 @@ and the theorem holds with $C=2C'$.
 \end{proof}
 
 \subsection{The leading coefficient}
-The same construction with $p=\lfloor c\log n\rfloor$ for $c$ close to $1$
-gives a more precise bound.
+The same construction with larger $p$ gives a more precise bound.
 
 \begin{corollary}\label{cor:three}
 For every $\varepsilon>0$, there is an $a_0$ such that for every
@@ -844,8 +845,8 @@ for deterministic uniform processes remains open
 The Python planner in the accompanying
 repository\footnote{\url{https://github.com/jasondavies/euclid-uniform-processes}}
 chooses instructions offline with unrestricted arithmetic, using the
-parameters of Section~\ref{sec:construction}; below a base size (256 bits by
-default) it uses Euclid's algorithm. An independent replay then checks
+parameters of Theorem~\ref{thm:main} from Section~\ref{sec:construction};
+below a base size (256 bits by default) it uses Euclid's algorithm. An independent replay then checks
 operand availability, nonzero divisors, every remainder equation and the
 final gcd.
 
@@ -871,9 +872,8 @@ All $78$ derivations and the example of Section~\ref{sec:contractions} pass
 replay. On the Fibonacci pairs, Euclid's worst case, the bits
 removed by successive contractions roughly double (32, 66, 131 and 248
 at 512 bits), so few contractions are needed. These samples illustrate the construction; the
-asymptotic claim rests on the proof. The table uses the parameters of
-Theorem~\ref{thm:main}; with those of Corollary~\ref{cor:three} and $c$ near $1$,
-the prefix exceeds the whole Euclidean sequence at these sizes, so the
+asymptotic claim rests on the proof. With the parameters of
+Corollary~\ref{cor:three} and $c$ near $1$, the prefix exceeds the whole Euclidean sequence at these sizes, so the
 coefficient $3$ is asymptotic only. The
 accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and tests the prefix
 lemma over a finite range. The repository README gives scripts, commands,
@@ -928,7 +928,7 @@ Paper & Lean declaration(s)\\\midrule
 Theorem~\ref{thm:main} & \lean{uniform_real_bound}\\
 Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
 Lemma~\ref{lem:gap} & \lean{small_remainder}\\
-Lemma~\ref{lem:prefix} & \lean{prefix_class_card_le_three}, \lean{residue_card_three}\\
+Lemma~\ref{lem:prefix} & \lean{prefix_class_card_le_three}, \lean{residue_card_three}; for \eqref{eq:contract}, \lean{prefix_reservoir}\\
 Lemma~\ref{lem:fact-representation} & \lean{Book.callsCoprimeness_eq}${}^\dagger$,
 \lean{Book.callsRemGcd_eq}${}^\dagger$, \lean{Book.callsGcd_eq}${}^\dagger$\\
 Corollary~\ref{cor:three} & \lean{uniform_real_bound_three}${}^\dagger$, \lean{uniform_intrinsic_bound_three}${}^\dagger$\\
@@ -966,7 +966,8 @@ Costs are lengths of explicit remainder derivations. The finite theorem
 \lean{sizeCost_step} proves the recurrence from natural-number size
 parameters; it does not assume a recurrence for the cost function.
 For the initial Big-O proof, Lean uses the parameters of
-Section~\ref{sec:construction}, with $p=\lfloor\lfloor\log n\rfloor/2\rfloor$,
+Section~\ref{sec:construction}, computing $p$ as
+$\lfloor\lfloor\log n\rfloor/2\rfloor$, which equals $\lfloor(\log n)/2\rfloor$,
 and checks the integer rounding estimates before passing to real
 logarithms. The refinement uses the
 tunable parameters of Corollary~\ref{cor:three} and checks the rounding limits
@@ -999,7 +1000,7 @@ terms with variables, remainder, a zero-test conditional and calls of
 internal symbols, each symbol with a set of alternative bodies, evaluated
 call by value. The compiler (\lean{Register.compile}) follows the book's
 reduction of iteration to tail recursion \cite[\S2C]{moschovakis2019}: each
-line becomes a function of the $k$ registers, an assignment a tail call with
+line becomes a function of the $W$ registers, an assignment a tail call with
 one argument replaced, a branching on $\eq_0(x_i)$ a zero-test conditional
 between two tail calls and one on $\mathrm{tt}$ or $\mathrm{ff}$ a single tail
 call, a halt its term, and alternative commands alternative bodies. For
@@ -1007,12 +1008,12 @@ every register program, \lean{Register.eval_iff_halts} matches evaluations
 exactly, in value and remainder cost, with convergent computations; every
 call is a tail call, whose arguments, remainder operands and conditional
 guards contain no internal calls (\lean{Register.compile_tailRecursive});
-and the machine's control and value stacks never hold more than $2k+4$
+and the machine's control and value stacks never hold more than $2W+4$
 entries in all, on any input and however long the computation runs
-(\lean{Register.stacks_bounded}). For Theorem~\ref{thm:registers}, $k=3\cdot2^p+6$,
+(\lean{Register.stacks_bounded}). For Theorem~\ref{thm:registers}, $W=3\cdot2^p+6$,
 so the stacks never exceed $6\cdot2^p+16$ entries
 (\lean{TailRecursive.stacks_bounded}); each closure environment has at most
-$k$ entries (those of the head and its arguments have the two inputs). For
+$W$ entries (those of the head and its arguments have the two inputs). For
 every program in the language, \lean{Recursive.Machine.eval_iff_steps}
 proves exact-cost equivalence with a specialisation of the book's two-stack
 machine: arguments are evaluated right to left, zero tests and branches are
