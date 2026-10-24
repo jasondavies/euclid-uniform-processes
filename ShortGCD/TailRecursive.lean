@@ -89,7 +89,7 @@ theorem stacks_bounded {w a b k} {t : Machine.State (arity (2+w) (Sym w))}
 
 /-- **Arbitrarily small coefficients for recursive programs**: for every `ε > 0` there are
 `p > 0` and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the machine model running the
-fixed tail-recursive program for width `4^p + 5` halts with output `gcd(a, b)` at remainder
+fixed tail-recursive program for width `3·2^p + 4` halts with output `gcd(a, b)` at remainder
 cost at most `ε log₂ a + B`. -/
 theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :
     ∃ p : ℕ, 0 < p ∧ ∃ B : ℝ, 0 ≤ B ∧ ∀ a b : ℕ, 1 ≤ b → b ≤ a →

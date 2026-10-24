@@ -7,7 +7,7 @@ public import ShortGCD.SharpBound
 
 /-! # Tail-recursive programs with arbitrarily small coefficients
 
-For each `p > 0`, one generator of width `W = 4^p + 5` is fixed. Iterating `maxCost_step`
+For each `p > 0`, one generator of width `W = 3·2^p + 4` is fixed. Iterating `maxCost_step`
 gives `limsup T_W(n)/n ≤ 3/p` (`Fixed.limsup_profile_le`), hence accepting runs with at most
 `C log₂ a` remainder calls for every `C > 3/p` and large `a`. Taking `p > 3/ε` gives the
 stack-free strengthening `Fixed.arbitrarily_small_coefficient`. `TailSource` proves
@@ -20,21 +20,18 @@ noncomputable section
 namespace ShortGCD.TailProgram
 namespace Fixed
 
-/-- The prefix length `h = k² + 1`, with contraction ratio `k = 2^p`. -/
-def prefixLength (p : ℕ) := (2^p)^2+1
+/-- The prefix length `h = 3k`, with contraction ratio `k = 2^p` (by the three-per-class
+count of `prefix_reservoir_three`). -/
+def prefixLength (p : ℕ) := 3*2^p
 /-- The width `W = h + 4`: `h + 1` prefix slots, the modulus, and two scratch residues. It
-equals `4^p + 5` (`width_eq`). -/
+equals `3·2^p + 4` (`width_eq`). -/
 def width (p : ℕ) := prefixLength p+4
 /-- The number of contractions `J = ⌈n/p⌉`, so that `k^J ≥ 2^n`. -/
 def steps (p n : ℕ) := Sharp.scale (1/(p:ℝ)) n
 /-- The normalized cost `T_W(n)/n`, where `T_W(n) = maxCost W (2^n)`. -/
 def profile (p n : ℕ) : ℝ := maxCost (width p) (2^n) / n
 
-lemma width_eq (p : ℕ) : width p = 4^p+5 := by
-  have he : (2^p)^2 = (4:ℕ)^p := by
-    rw [← pow_mul, Nat.mul_comm p 2, pow_mul]
-    norm_num
-  simp [width, prefixLength, he]
+lemma width_eq (p : ℕ) : width p = 3*2^p+4 := rfl
 
 lemma width_ge (p : ℕ) : 2 ≤ width p := by unfold width prefixLength; omega
 lemma profile_nonneg (p n : ℕ) : 0 ≤ profile p n := by unfold profile; positivity
@@ -59,8 +56,8 @@ lemma recurrence {p : ℕ} (hp : 0 < p) {β : ℝ} (hβ : 0 < β) :
     Tendsto (fun n : ℕ => (n : ℝ)) atTop atTop).const_mul_atTop (show 0 < β/2 by positivity)
   filter_upwards [ht.eventually (eventually_ge_atTop 1)] with n hn
   apply maxCost_pow_step (hL := Nat.one_le_pow _ _ (by omega))
-    (hh := by omega) (hk := Nat.one_le_pow _ _ (by omega))
-    (hkh := Nat.lt_succ_self _)
+    (hh := show 0 < prefixLength p by unfold prefixLength; positivity) (hk := Nat.one_le_pow _ _ (by omega))
+    (hkh := le_rfl)
   · have h1 := Nat.le_ceil ((1-β/2)*(n:ℝ))
     have h2 := Nat.le_ceil (β*(n:ℝ))
     have he : n+1 ≤ Sharp.scale β n + Sharp.scale (1-β/2) n := by
@@ -147,7 +144,7 @@ lemma limsup_recurrence {p : ℕ} (hp : 0 < p) {β : ℝ} (hβ0 : 0 < β) (hβ :
   filter_upwards [self_mem_nhdsWithin] with u hu
   exact hbound u hu
 
-/-- For each `p > 0`, the fixed generator of width `W = 4^p + 5` satisfies
+/-- For each `p > 0`, the fixed generator of width `W = 3·2^p + 4` satisfies
 `limsup_{n → ∞} T_W(n)/n ≤ 3/p`, where `T_W(n) = maxCost W (2^n)`. -/
 theorem limsup_profile_le {p : ℕ} (hp : 0 < p) : limsup (profile p) atTop ≤ 3/(p:ℝ) := by
   have hnonneg : 0 ≤ limsup (profile p) atTop := by
@@ -189,7 +186,7 @@ lemma input_ratio : Tendsto (fun a : ℕ => (Nat.clog 2 a:ℝ)/Real.logb 2 a)
   simpa only [Function.comp_def, Sharp.ceil_log_nat] using h
 
 /-- For `p > 0` and `C > 3/p`: for all sufficiently large `a` and every `b ≤ a`, the program of
-width `4^p + 5` has an accepting run on `(a, b)` returning `gcd(a, b)` with at most `C log₂ a`
+width `3·2^p + 4` has an accepting run on `(a, b)` returning `gcd(a, b)` with at most `C log₂ a`
 remainder calls, counting the two verification calls. -/
 theorem eventually_accepts_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ) < C) :
     ∀ᶠ a : ℕ in atTop, ∀ b, b ≤ a → ∃ n,
@@ -223,7 +220,7 @@ theorem eventually_accepts_bound {p : ℕ} (hp : 0 < p) {C : ℝ} (hC : 3/(p:ℝ
   linarith
 
 /-- **Fixed programs with arbitrarily small coefficients.** For every `ε > 0` there are `p > 0`
-and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the program of width `4^p + 5` has an accepting run
+and `B ≥ 0` such that, for all `1 ≤ b ≤ a`, the program of width `3·2^p + 4` has an accepting run
 on `(a, b)` returning `gcd(a, b)` with at most `ε log₂ a + B` remainder calls. The program
 depends on `ε` and `B` covers small inputs; this is not a single sublogarithmic program. -/
 theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :

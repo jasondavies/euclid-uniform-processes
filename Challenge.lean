@@ -357,9 +357,9 @@ end Register
 
 namespace TailProgram.Fixed
 
-/-- The prefix length `h = k² + 1` for contraction ratio `k = 2^p`. -/
-def prefixLength (p : ℕ) := (2^p)^2+1
-/-- The number of work registers, `h + 4 = 4^p + 5`. -/
+/-- The prefix length `h = 3k` for contraction ratio `k = 2^p`. -/
+def prefixLength (p : ℕ) := 3*2^p
+/-- The number of work registers, `h + 4 = 3·2^p + 4`. -/
 def width (p : ℕ) := prefixLength p+4
 
 end TailProgram.Fixed
@@ -424,7 +424,7 @@ theorem executes_total {w} (hw : 2 ≤ w) (a b : ℕ) :
   sorry
 
 /-- **Arbitrarily small coefficients.** For every `ε > 0` there are `p > 0` and `B ≥ 0` such
-that the fixed program with `4^p + 5` work registers has, on every input `1 ≤ b ≤ a`, a
+that the fixed program with `3·2^p + 4` work registers has, on every input `1 ≤ b ≤ a`, a
 convergent computation returning `gcd(a, b)` with at most `ε log₂ a + B` remainder calls. -/
 theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :
     ∃ p : ℕ, 0 < p ∧ ∃ B : ℝ, 0 ≤ B ∧ ∀ a b : ℕ, 1 ≤ b → b ≤ a →

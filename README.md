@@ -144,8 +144,7 @@ remainder-only algorithm, deterministic or nondeterministic, with this cost: cho
 which two stored residues to combine is not charged, and a program would still need to
 implement reusable access to the growing stored prefix within the claimed cost. The
 [program family](#program-family) shows that the obstacle is memory, not recursion:
-W registers give coefficient about 6 / log₂ W (about 3 / log₂ W with the paper's
-three-per-class count, not formalised). Whether every W-register program needs
+W registers give coefficient about 3 / log₂ W. Whether every W-register program needs
 c log a / log W calls is open. (Pratt's algorithm, as presented in the book, is also a
 nondeterministic register program; we did not obtain his unpublished manuscript.)
 
@@ -378,8 +377,8 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
 
 ## Program family
 
-For each p ≥ 1, a nondeterministic register program over (ℕ, rem, eq0) with 4ᵖ + 7
-registers (the two inputs and 4ᵖ + 5 work registers) and no stack has worst-case cost at most
+For each p ≥ 1, a nondeterministic register program over (ℕ, rem, eq0) with 3·2ᵖ + 6
+registers (the two inputs and 3·2ᵖ + 4 work registers) and no stack has worst-case cost at most
 (3/p + o(1)) log₂ a, uniformly in b ≤ a (paper, §7). Cost is the minimum number of
 remainder calls over convergent computations; every convergent computation returns the
 gcd, and every input has one. **This does not give one sublogarithmic program**: the
@@ -414,8 +413,8 @@ Lean checks the result for formal versions of two of the book's models of comput
   computations; `Register.compile_tailRecursive` proves that every call is in tail
   position; and `Register.stacks_bounded` that on the machine the control and value
   stacks never hold more than 2k + 4 entries, on any input and however long the
-  computation runs. `TailRecursive` applies this to the gcd program, with k = 4ᵖ + 7
-  registers, so its stacks never exceed 2·4ᵖ + 18 entries.
+  computation runs. `TailRecursive` applies this to the gcd program, with k = 3·2ᵖ + 6
+  registers, so its stacks never exceed 6·2ᵖ + 16 entries.
 
 The result concerns the minimum successful cost of nondeterministic programs. It does
 not settle the book's Problem x2G.6, which asks whether every recursive function in
@@ -454,10 +453,10 @@ entries.
 | Every accepted computation returns the gcd | `TailProgram.Accepts.correct` |
 | An accepted computation exists on every input | `TailProgram.exists_accepts` |
 | The fixed-width recurrence, finishing with two in-place Euclidean loops | `TailProgram.maxCost_step` |
-| For each p ≥ 1, the worst-case cost with 4ᵖ + 5 work registers is at most (3/p + o(1)) log₂ a | `TailProgram.Fixed.limsup_profile_le` |
+| For each p ≥ 1, the worst-case cost with 3·2ᵖ + 4 work registers is at most (3/p + o(1)) log₂ a | `TailProgram.Fixed.limsup_profile_le` |
 | For each p ≥ 1 and C > 3/p: once a is large enough, every b ≤ a has an accepted computation with at most C log₂ a remainder calls | `TailProgram.Fixed.eventually_accepts_bound` |
 | Numbering the lines of a program written with labels changes no computation | `Register.ofLabels_returns` |
-| The register program has 4ᵖ + 7 registers in all | `TailSource.total_registers` |
+| The register program has 3·2ᵖ + 6 registers in all | `TailSource.total_registers` |
 | Relabelling the registers is never needed: a generator run is replayed by single-register commands at the same cost | `TailSource.run_trace_relabel` |
 | Exact-cost equivalence between register-program computations and accepted computations | `TailSource.executes_iff` |
 | Every convergent execution of the register program returns the gcd | `TailSource.executes_correct` |
@@ -469,7 +468,7 @@ entries.
 | For every compiled program with k registers, the machine's stacks never exceed 2k + 4 entries | `Register.stacks_bounded` |
 | The tail-recursive gcd program is finite | `TailRecursive.bodies_finite` |
 | The head and every alternative body have only tail-position internal calls | `TailRecursive.program_tailRecursive` |
-| For this program, the machine's control and value stacks never exceed 2w + 8 entries, w = 4ᵖ + 5 | `TailRecursive.stacks_bounded` |
+| For this program, the machine's control and value stacks never exceed 2w + 8 entries, w = 3·2ᵖ + 4 | `TailRecursive.stacks_bounded` |
 | Exact-cost equivalence between register-program executions and evaluations of the tail-recursive program | `TailRecursive.executes_iff_eval` |
 | Exact-cost equivalence between evaluation and the two-stack machine, for every program | `Recursive.Machine.eval_iff_steps` |
 | The same for the tail-recursive program's machine computations | `TailRecursive.executes_iff_steps` |

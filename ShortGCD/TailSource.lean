@@ -72,7 +72,7 @@ def init (w a b : ℕ) : Fin (2+w) → ℕ := fun x => if x.val = 1 ∨ x.val = 
 calls. -/
 def Executes (w a b c z : ℕ) : Prop := (program w).Returns (init w a b) c z
 
-lemma total_registers (p : ℕ) : 2+Fixed.width p = 4^p+7 := by
+lemma total_registers (p : ℕ) : 2+Fixed.width p = 3*2^p+6 := by
   rw [Fixed.width_eq]; omega
 
 /-! ## Correspondence with the generator -/
@@ -339,7 +339,7 @@ theorem executes_total {w} (hw : 2 ≤ w) (a b : ℕ) :
   exact ⟨c,(executes_iff _ _ _ _ _).mpr hc⟩
 
 /-- Every requested coefficient is achieved by one fixed register program with
-`4^p+7` registers. No numerical constants or size tests are supplied to the program. -/
+`3·2^p+6` registers. No numerical constants or size tests are supplied to the program. -/
 theorem arbitrarily_small_coefficient {ε : ℝ} (hε : 0 < ε) :
     ∃ p : ℕ, 0 < p ∧ ∃ B : ℝ, 0 ≤ B ∧ ∀ a b : ℕ, 1 ≤ b → b ≤ a →
       ∃ c, Executes (Fixed.width p) a b c (Nat.gcd a b) ∧

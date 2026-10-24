@@ -746,7 +746,7 @@ exactly the tail-recursive functions \cite[Proposition~2F.1]{moschovakis2019}.
 
 \begin{theorem}\label{thm:registers}
 For each integer $p\geq1$, there is a finite nondeterministic register
-program $P_p$ over $\mathcal N_0$ with $4^p+7$ registers that computes the
+program $P_p$ over $\mathcal N_0$ with $3\cdot2^p+6$ registers that computes the
 gcd and satisfies
 \[
 \limsup_{a\to\infty}\ \max_{1\leq b\leq a}\frac{c_{P_p}(a,b)}{\log a}\leq\frac3p.
@@ -759,7 +759,7 @@ $P$ and a constant $B\geq0$ such that
 \end{theorem}
 
 \begin{proof}
-Put $k=2^p$, $h=k^2+1$ and $W=h+6$: two inputs, $h+1$ prefix values, a
+Put $k=2^p$, $h=3k$ and $W=h+6$: two inputs, $h+1$ prefix values, a
 modulus and two scratch registers. Initialise the registers
 $x_0,\ldots,x_{W-1}$ at $(a,b,a,b,a,\ldots,a)$. If $b=0$, return $a$;
 otherwise enter the main line. There the program
@@ -786,7 +786,7 @@ one further remainder gives the positive coprime pair $r_j,r_{j+1}$,
 bounded by $N^\alpha$, at total cost at most $h$; continue with that pair.
 Otherwise $r_h>N^\alpha$. As in the late case of Corollary~\ref{cor:three}, now
 with $p$ fixed, the prefix lemma applies to every modulus above $N^\beta$
-for large $n$, the prefix occupies $t$ residue classes with $t^2\geq h>k^2$, so
+for large $n$, the prefix occupies $t$ residue classes with $3t\geq h+1$, so
 $t\geq k+1$, and at
 most $\lceil n/p\rceil$ contractions, using a modulus register and two
 scratch registers, produce a positive $m\leq N^\beta$. Then put
@@ -833,11 +833,8 @@ For this construction, the obstacle to one sublogarithmic program is reusable
 access to a prefix whose length grows with the input. A nondeterministic
 program can guess the close pair, but it must hold all $h+1$ prefix values;
 regenerating them would cost about $h$ calls per contraction. By
-Theorem~\ref{thm:registers}, $W=4^p+7$ registers give coefficient $3/p$.
-With the three-per-class count of Lemma~\ref{lem:prefix}, the same proof
-works with $h=3\cdot2^p$, so $W=h+6=3\cdot2^p+6$ registers
-also give coefficient $3/p$, roughly $3/\log W$ (this variant is not
-formalised). So no bound $c\log a$ with $c$ independent of the number
+Theorem~\ref{thm:registers}, $W=3\cdot2^p+6$ registers give coefficient
+$3/p$, roughly $3/\log W$, so no bound $c\log a$ with $c$ independent of the number
 of registers holds for nondeterministic register programs. A register
 program has only a fixed number of slots for prefix values. Does every
 nondeterministic register program computing gcd with $W$ registers make at
@@ -1029,8 +1026,8 @@ call is a tail call, whose arguments, remainder operands and conditional
 guards contain no internal calls (\lean{Register.compile_tailRecursive});
 and the machine's control and value stacks never hold more than $2k+4$
 entries in all, on any input and however long the computation runs
-(\lean{Register.stacks_bounded}). For Theorem~\ref{thm:registers}, $k=4^p+7$,
-so the stacks never exceed $2\cdot4^p+18$ entries
+(\lean{Register.stacks_bounded}). For Theorem~\ref{thm:registers}, $k=3\cdot2^p+6$,
+so the stacks never exceed $6\cdot2^p+16$ entries
 (\lean{TailRecursive.stacks_bounded}); each closure environment has at most
 $k$ entries (those of the head and its arguments have the two inputs). For
 every program in the language, \lean{Recursive.Machine.eval_iff_steps}

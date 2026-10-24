@@ -77,7 +77,7 @@ lemma reservoir_stored (h a b : ℕ) :
 `h+4` parameters throughout every recursive invocation. -/
 theorem register_coprime_step {a b A L M h k J : ℕ}
     (hab : b < a) (hb : 0 < b) (ha : a ≤ A) (hcop : Nat.Coprime a b)
-    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : k^2 < h)
+    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : 3*k ≤ h)
     (hthreshold : 2*A ≤ M*L) (hpower : A ≤ M*k^J) :
     Computes (inputs (h+4) a b)
       (max (h+1+maxCost (h+4) L) (h+3*J+2+4*Nat.clog 2 M)) 1 := by
@@ -132,7 +132,7 @@ theorem register_coprime_step {a b A L M h k J : ℕ}
     have hpos' : ∀ i, i < h → 0 < r (i+1) := fun i hi => hpos (i+1) (by omega)
     have hdesc := remainder_desc hab hpos'
     have hR : Reservoir ((Finset.range (h+1)).image r) M k := by
-      apply prefix_reservoir r (fun i => r i / r (i+1)) a h M k hpos
+      apply prefix_reservoir_three r (fun i => r i / r (i+1)) a h M k (hpos h le_rfl)
         (fun i _ => remainder_bound hab.le i) (remainder_lower hab hpos')
         (fun i _ => (remainder_gcd a b i).trans hcop.gcd_eq_one)
       · intro i hi
@@ -180,10 +180,10 @@ theorem register_coprime_step {a b A L M h k J : ℕ}
       h+3*J+2+4*Nat.clog 2 M by omega).trans (le_max_right _ _))
 
 /-- **The fixed-width recurrence**, the analogue of `sizeCost_step` for one generator of width
-`h + 4`: if `L ≥ 1`, `h > 0`, `k ≥ 1`, `k² < h`, `2A ≤ ML` and `A ≤ M k^J`, then
+`h + 4`: if `L ≥ 1`, `h > 0`, `k ≥ 1`, `3k ≤ h`, `2A ≤ ML` and `A ≤ M k^J`, then
 `maxCost (h+4) A ≤ max(h + 1 + maxCost (h+4) L, h + 3J + 2 + 4 clog₂ M)`. -/
 theorem maxCost_step {A L M h k J : ℕ}
-    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : k^2 < h)
+    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : 3*k ≤ h)
     (hthreshold : 2*A ≤ M*L) (hpower : A ≤ M*k^J) :
     maxCost (h+4) A ≤ max (h+1+maxCost (h+4) L) (h+3*J+2+4*Nat.clog 2 M) := by
   let K := max (h+1+maxCost (h+4) L) (h+3*J+2+4*Nat.clog 2 M)
@@ -217,7 +217,7 @@ theorem maxCost_step {A L M h k J : ℕ}
 
 
 theorem maxCost_pow_step {A L m h k J : ℕ}
-    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : k^2 < h)
+    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : 3*k ≤ h)
     (hthreshold : 2*A ≤ 2^m*L) (hpower : A ≤ 2^m*k^J) :
     maxCost (h+4) A ≤ max (h+1+maxCost (h+4) L) (h+3*J+2+4*m) := by
   simpa only [Nat.clog_pow 2 m (by omega)] using
