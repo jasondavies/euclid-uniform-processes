@@ -430,10 +430,10 @@ $S_{k+1}$, by induction on $k$: its operands are $a$, $r$ or earlier values,
 all in $S_k$, and every divisor in the derivation is positive.
 Theorem~\ref{thm:main} bounds $G(a,r)$.
 \end{proof}
-In the bit model of parallel computation, Kannan, Miller and Rudolph
-\cite{kmr1987} and Chor and Goldreich \cite{chorgoldreich1990} compute the
-gcd of $n$-bit integers in parallel time $O(n\log\log n/\log n)$ and
-$O(n/\log n)$, counting bit operations. Van den Dries and Moschovakis posed
+On a concurrent-read concurrent-write PRAM, counting bit operations,
+Kannan, Miller and Rudolph \cite{kmr1987} and Chor and Goldreich
+\cite{chorgoldreich1990} compute the gcd of $n$-bit integers in parallel
+time $O(n\log\log n/\log n)$ and $O(n/\log n)$ respectively. Van den Dries and Moschovakis posed
 their question later, for the closure under exact integer operations, where
 each operation on whole integers is one step;
 Corollary~\ref{cor:closure-depth} gives depth of the same order there.
