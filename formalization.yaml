@@ -106,7 +106,8 @@ status:
     Moschovakis's closure-depth question (ShortGCD.ClosureDepth.no_logarithmic_sequences,
     with g(a, b) ≤ 1 + G(a, rem(b, a))), and, for each p, a fixed nondeterministic register
     program with 4^p + 7 registers and no recursion stack whose cost is
-    (3/p + o(1)) log₂ a, both as a register program and, written one function per line, as
+    (3/p + o(1)) log₂ a, both as a register program in the book's syntax (§2F, with prime
+    terms) and, written one function per line, as
     a tail-recursive program on the book's recursive machine
     (TailSource.arbitrarily_small_coefficient, TailRecursive.arbitrarily_small_coefficient).
     The register-program form is compared (correctness, totality and the ε log₂ a + B
@@ -263,8 +264,8 @@ alignment:
       module: "ShortGCD.TailSource"
       status: proved
       note: >-
-        For every ε > 0, one fixed register program with 4^p + 5 work registers and two
-        read-only input registers, and no stack, has cost at most ε log₂ a + B on all
+        For every ε > 0, one fixed register program with 4^p + 7 registers (the two
+        inputs and 4^p + 5 work registers), and no stack, has cost at most ε log₂ a + B on all
         1 ≤ b ≤ a. The paper's lim sup form (coefficient 3/p) is TailProgram.Fixed.limsup_profile_le.
     - source: "van den Dries and Moschovakis 2009, Open Problem (p. 2:11); paper, closure-depth corollary"
       lean: "ShortGCD.ClosureDepth.no_logarithmic_sequences"

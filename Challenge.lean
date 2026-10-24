@@ -236,81 +236,181 @@ theorem tendsto_card_callsCoprimeness_loglog {ε : ℝ} (hε : 0 < ε) (hε1 : �
 
 /-! ## Bounded-memory register programs
 
-A finite nondeterministic register program, in the sense of the book (§2F, with the
-nondeterminism of §2E), over `(ℕ, rem, eq0)`. Its numeric state is `w` work registers and
-the two inputs `a, b`, which no command writes; there is no stack. At the main line `run` it
-may assign `u_d := rem(u_i, u_j)` to any work register (charged one remainder call), or
-choose a candidate `u_i`. A zero candidate is rejected; otherwise it checks
-`eq0(rem(a, u_i))` and `eq0(rem(b, u_i))` (one remainder call each) and halts with `u_i`
-if both hold. Rejected computations loop forever. `Executes w a b c z` says that some
-convergent computation on `(a, b)` returns `z` with exactly `c` remainder calls; if `b = 0`
-the program returns `a` at once.
+Register programs in the sense of the book (§2F, with the nondeterminism of §2E) over
+`(ℕ, rem, eq0)`. A program with `k` registers is a sequence of lines numbered `0, …, L`; each
+line is a halting command `halt, return t` or a list of alternative commands, each an
+assignment `uᵢ := t, goto l` or a branching `if t then goto l else goto l'`. Terms are the
+book's prime terms: `uᵢ`, `rem(uᵢ, uⱼ)`, `tt`, `ff` and `eq0(uᵢ)`. The remainder is partial,
+so an assignment of `rem(x, 0)` has no transition. A computation starts at line `0` and
+converges at a halting line, returning the value of its term; its cost is the number of
+remainder evaluations. `ofLabels` numbers lines written with labels from a finite type,
+putting the start line at `0`.
+
+The gcd program has `w + 2` registers: `u₀, u₁` hold the inputs `a, b` and the rest are
+work registers, initially `(a, b, a, …, a)`. Line `head` returns `a` if `b = 0`. At the main
+line `run` the program may assign `rem(uᵢ, uⱼ)` to any work register, or pass to the
+verification of a nonzero work register `uᵢ`: it sets `u₀ := rem(u₀, uᵢ)` and
+`u₁ := rem(u₁, uᵢ)`, and halts with `uᵢ` if both are zero. A zero candidate and a failed
+check go to `reject`, which loops. There is no stack. `Executes w a b c z` says that some
+convergent computation on `(a, b)` returns `z` with exactly `c` remainder calls.
 
 The theorems say that every convergent computation returns the gcd, that every input has
 one, and that for each `ε > 0` one fixed program of this kind has a computation of cost at
 most `ε log₂ a + B` on every input `1 ≤ b ≤ a`. -/
 
-namespace TailProgram
+namespace Register
 
-abbrev Registers (width : ℕ) := Fin width → ℕ
+/-- Prime terms of sort `ind` in the registers `u₀, …, u_{k-1}`. -/
+inductive Term (k : ℕ) where
+  | reg (i : Fin k)
+  | rem (i j : Fin k)
 
-/-- The work registers start with copies of the inputs. -/
-def inputs (width a b : ℕ) : Registers width := fun i => if i.val = 1 then b else a
+/-- Prime terms of sort `boole`. -/
+inductive Test (k : ℕ) where
+  | tt
+  | ff
+  | eq0 (i : Fin k)
 
-namespace Fixed
+/-- A non-halting command, jumping to lines in `ι`. -/
+inductive Cmd (k : ℕ) (ι : Type) where
+  | assign (i : Fin k) (t : Term k) (l : ι)
+  | branch (t : Test k) (l l' : ι)
+
+/-- A line: a halting command, or a list of alternative commands. -/
+inductive Line (k : ℕ) (ι : Type) where
+  | halt (t : Term k)
+  | cmds (cs : List (Cmd k ι))
+
+/-- A register program with `k` registers: lines numbered `0, …, L`. -/
+structure Program (k : ℕ) where
+  L : ℕ
+  line : Fin (L+1) → Line k (Fin (L+1))
+
+variable {k : ℕ} {ι κ : Type}
+
+/-- The value of a term, undefined for a remainder with divisor `0`. -/
+def Term.value : Term k → (Fin k → ℕ) → Option ℕ
+  | .reg i, u => some (u i)
+  | .rem i j, u => if u j = 0 then none else some (u i % u j)
+
+/-- The number of remainder calls made in evaluating a term. -/
+def Term.calls : Term k → ℕ
+  | .reg _ => 0
+  | .rem _ _ => 1
+
+/-- The value of a test. -/
+def Test.value : Test k → (Fin k → ℕ) → Bool
+  | .tt, _ => true
+  | .ff, _ => false
+  | .eq0 i, u => decide (u i = 0)
+
+/-- One transition, with its remainder cost, of the program whose lines are `P`. -/
+inductive Step (P : ι → Line k ι) : ι × (Fin k → ℕ) → ℕ → ι × (Fin k → ℕ) → Prop
+  | assign {l : ι} {u : Fin k → ℕ} {cs i t l' v} (hl : P l = .cmds cs)
+      (hc : Cmd.assign i t l' ∈ cs) (hv : t.value u = some v) :
+      Step P (l, u) t.calls (l', Function.update u i v)
+  | branch {l : ι} {u : Fin k → ℕ} {cs t l' l''} (hl : P l = .cmds cs)
+      (hc : Cmd.branch t l' l'' ∈ cs) :
+      Step P (l, u) 0 (cond (t.value u) l' l'', u)
+
+/-- Finite computations, with their total remainder cost. -/
+inductive Trace (P : ι → Line k ι) : ι × (Fin k → ℕ) → ℕ → ι × (Fin k → ℕ) → Prop
+  | refl (s) : Trace P s 0 s
+  | cons {s t u c c'} (hs : Step P s c t) (ht : Trace P t c' u) : Trace P s (c+c') u
+
+/-- From state `s`, some convergent computation returns `z` with `c` remainder calls. -/
+def Halts (P : ι → Line k ι) (s : ι × (Fin k → ℕ)) (c z : ℕ) : Prop :=
+  ∃ l u t c', Trace P s c' (l, u) ∧ P l = .halt t ∧ t.value u = some z ∧ c = c'+t.calls
+
+/-- Started at line `0` with registers `x`, some convergent computation of `P` returns `z`
+with `c` remainder calls. -/
+def Program.Returns (P : Program k) (x : Fin k → ℕ) (c z : ℕ) : Prop :=
+  Halts P.line (0, x) c z
+
+/-! ## Numbering the lines -/
+
+/-- Rename the lines a command jumps to. -/
+def Cmd.map (e : ι → κ) : Cmd k ι → Cmd k κ
+  | .assign i t l => .assign i t (e l)
+  | .branch t l l' => .branch t (e l) (e l')
+
+/-- Rename the lines of a line's commands. -/
+def Line.map (e : ι → κ) : Line k ι → Line k κ
+  | .halt t => .halt t
+  | .cmds cs => .cmds (cs.map (Cmd.map e))
+
+/-- A numbering of a finite type of labels with `s` at `0`. -/
+noncomputable def numbering [Fintype ι] (s : ι) : ι ≃ Fin (Fintype.card ι - 1 + 1) :=
+  have h : Fintype.card ι = Fintype.card ι - 1 + 1 :=
+    (Nat.sub_one_add_one (Fintype.card_pos_iff.mpr ⟨s⟩).ne').symm
+  let e := Fintype.equivFinOfCardEq h
+  e.trans (Equiv.swap (e s) 0)
+
+/-- The program whose lines are `P`, numbered with the start line `s` at `0`. -/
+noncomputable def ofLabels [Fintype ι] (P : ι → Line k ι) (s : ι) : Program k where
+  L := Fintype.card ι - 1
+  line m := (P ((numbering s).symm m)).map (numbering s)
+
+end Register
+
+namespace TailProgram.Fixed
 
 /-- The prefix length `h = k² + 1` for contraction ratio `k = 2^p`. -/
 def prefixLength (p : ℕ) := (2^p)^2+1
 /-- The number of work registers, `h + 4 = 4^p + 5`. -/
 def width (p : ℕ) := prefixLength p+4
 
-end Fixed
-
-end TailProgram
+end TailProgram.Fixed
 
 namespace TailSource
-open TailProgram
+open TailProgram Register
 
-inductive Control (w : ℕ) where
+/-- The lines of the program, by name. -/
+inductive Label (w : ℕ) where
+  | head
+  | ret
   | run
-  | left (i : Fin w)
-  | right (i : Fin w)
-  | done (i : Fin w)
   | reject
+  | left (i : Fin w)
+  | leftTest (i : Fin w)
+  | right (i : Fin w)
+  | rightTest (i : Fin w)
+  | done (i : Fin w)
   deriving DecidableEq, Fintype
 
-/-- The control line and the work registers; the inputs `a b` are parameters of `Step`. -/
-abbrev State (w : ℕ) := Control w × Registers w
+/-- The input registers `u₀, u₁` and the work register `u_{2+j}`. -/
+def inA {w} : Fin (2+w) := Fin.castAdd w 0
+def inB {w} : Fin (2+w) := Fin.castAdd w 1
+def work {w} (j : Fin w) : Fin (2+w) := Fin.natAdd 2 j
 
-/-- The commands, read on the inputs `a b`, with their remainder costs. -/
-inductive Step (a b : ℕ) : {w : ℕ} → State w → ℕ → State w → Prop
-  | rem {w} (r : Registers w) (i j d : Fin w) (hp : 0 < r j) :
-      Step a b (.run,r) 1 (.run,Function.update r d (r i % r j))
-  | choose {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) :
-      Step a b (.run,r) 0 (.left i,r)
-  | zero {w} (r : Registers w) (i : Fin w) (hz : r i = 0) :
-      Step a b (.run,r) 0 (.reject,r)
-  | left_ok {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : a % r i = 0) :
-      Step a b (.left i,r) 1 (.right i,r)
-  | left_bad {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : a % r i ≠ 0) :
-      Step a b (.left i,r) 1 (.reject,r)
-  | right_ok {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : b % r i = 0) :
-      Step a b (.right i,r) 1 (.done i,r)
-  | right_bad {w} (r : Registers w) (i : Fin w) (hp : 0 < r i) (h : b % r i ≠ 0) :
-      Step a b (.right i,r) 1 (.reject,r)
-  | loop {w} (r : Registers w) : Step a b (.reject,r) 0 (.reject,r)
+/-- The commands of the main line: any remainder assignment between work registers, or the
+verification of a nonzero candidate. -/
+def mainCmds (w : ℕ) : List (Cmd (2+w) (Label w)) :=
+  (List.finRange w).flatMap (fun i => (List.finRange w).flatMap fun j =>
+    (List.finRange w).map fun d => .assign (work d) (.rem (work i) (work j)) .run) ++
+  (List.finRange w).map fun i => .branch (.eq0 (work i)) .reject (.left i)
 
-/-- Finite computations, with their total remainder cost. -/
-inductive Trace (a b : ℕ) {w : ℕ} : State w → ℕ → State w → Prop
-  | refl (s) : Trace a b s 0 s
-  | cons {s t u c k} (hs : Step a b s c t) (ht : Trace a b t k u) :
-      Trace a b s (c+k) u
+/-- The lines of the program. -/
+def lines (w : ℕ) : Label w → Line (2+w) (Label w)
+  | .head => .cmds [.branch (.eq0 inB) .ret .run]
+  | .ret => .halt (.reg inA)
+  | .run => .cmds (mainCmds w)
+  | .reject => .cmds [.branch .tt .reject .reject]
+  | .left i => .cmds [.assign inA (.rem inA (work i)) (.leftTest i)]
+  | .leftTest i => .cmds [.branch (.eq0 inA) (.right i) .reject]
+  | .right i => .cmds [.assign inB (.rem inB (work i)) (.rightTest i)]
+  | .rightTest i => .cmds [.branch (.eq0 inB) (.done i) .reject]
+  | .done i => .halt (.reg (work i))
 
-/-- A convergent computation on `(a, b)` with `w` work registers returns `z` with `c`
-remainder calls. -/
-def Executes (w a b c z : ℕ) : Prop :=
-  (b=0 ∧ c=0 ∧ z=a) ∨
-  (0 < b ∧ ∃ r i, Trace a b (.run,inputs w a b) c (.done i,r) ∧ r i=z)
+/-- The register program, with its lines numbered from `head = 0`. -/
+noncomputable def program (w : ℕ) : Program (2+w) := ofLabels (lines w) .head
+
+/-- The initial registers `(a, b, a, b, a, …, a)`. -/
+def init (w a b : ℕ) : Fin (2+w) → ℕ := fun x => if x.val = 1 ∨ x.val = 3 then b else a
+
+/-- A convergent computation of the program on `(a, b)` returns `z` with `c` remainder
+calls. -/
+def Executes (w a b c z : ℕ) : Prop := (program w).Returns (init w a b) c z
 
 /-- Every convergent computation returns the gcd, whatever the choices. -/
 theorem executes_correct {w a b c z} (h : Executes w a b c z) : z = Nat.gcd a b := by

@@ -290,12 +290,13 @@ The book's certificates
 The program family
   Derivation → TailProgram → TailEuclid
   TailEuclid, Euclid → TailPrefix → TailRecurrence
-  TailRecurrence, SharpBound → TailAsymptotic → TailSource
+  TailRecurrence, SharpBound → TailAsymptotic → TailFlow
+  TailFlow, RegisterProgram → TailSource
   TailSource, Recursive → TailRecursive
 ```
 
-Recursive (finite nondeterministic first-order programs and the book's recursive
-machine) imports only Mathlib.
+RegisterProgram (the book's register programs) and Recursive (finite nondeterministic
+first-order programs and the book's recursive machine) import only Mathlib.
 
 - **The finite recurrence.** The core is `sizeCost_step` (in FiniteBound). Its
   hypotheses concern natural-number size parameters, not an assumed complexity bound.
@@ -368,8 +369,8 @@ The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
 
 ## Program family
 
-For each p ≥ 1, a nondeterministic register program over (ℕ, rem, eq0) with 4ᵖ + 5
-work registers, two read-only input registers and no stack has worst-case cost at most
+For each p ≥ 1, a nondeterministic register program over (ℕ, rem, eq0) with 4ᵖ + 7
+registers (the two inputs and 4ᵖ + 5 work registers) and no stack has worst-case cost at most
 (3/p + o(1)) log₂ a, uniformly in b ≤ a (paper, §7). Cost is the minimum number of
 remainder calls over convergent computations; every convergent computation returns the
 gcd, and every input has one. **This does not give one sublogarithmic program**: the
@@ -383,13 +384,15 @@ compute them.
 
 Lean checks the result for formal versions of two of the book's models of computation.
 
-- **Register programs** (§2F, with the nondeterminism of §2E): `TailSource.Step` has a
-  finite control line and the work registers; the two input registers are never
-  written, and there is no stack. Every command acts on single registers: an assignment
-  u_d := rem(u_i, u_j), a branch on eq0(u_i) choosing a candidate, the branches
-  eq0(rem(a, u_i)) and eq0(rem(b, u_i)), and halting. The generator used in the cost
-  proofs (`TailProgram.Run`) can also relabel all registers at once for free;
-  `TailSource.run_trace_relabel` removes this, replaying a relabelled run on the
+- **Register programs** (§2F, with the nondeterminism of §2E): `Register.Program` is
+  the book's syntax for programs over (ℕ, rem, eq0): numbered lines of assignments
+  u_i := t, branchings on a test and halts, with the book's prime terms (u_i,
+  rem(u_i, u_j), tt, ff, eq0(u_i)), several alternative commands per line, and the
+  book's iterator semantics. `TailSource.program` is the gcd program in this syntax. The
+  main line never writes the inputs u₀, u₁; the final verification sets
+  u₀ := rem(u₀, u_i) and u₁ := rem(u₁, u_i) and tests both for zero. The generator used
+  in the cost proofs (`TailProgram.Run`) can also relabel all registers at once for
+  free; `TailSource.run_trace_relabel` removes this, replaying a relabelled run on the
   physical registers with the same remainder calls and no extra registers.
 - **Recursive programs** (§§2A, 2E): `TailRecursive` writes the same program one
   function per line, as in the book's reduction of iteration to tail recursion (§2C).
@@ -438,9 +441,10 @@ cannot inspect them as data, and each closure environment has at most w + 2 entr
 | The fixed-width recurrence, finishing with two in-place Euclidean loops | `TailProgram.maxCost_step` |
 | For each p ≥ 1, the worst-case cost with 4ᵖ + 5 work registers is at most (3/p + o(1)) log₂ a | `TailProgram.Fixed.limsup_profile_le` |
 | For each p ≥ 1 and C > 3/p: once a is large enough, every b ≤ a has an accepted computation with at most C log₂ a remainder calls | `TailProgram.Fixed.eventually_accepts_bound` |
+| Numbering the lines of a program written with labels changes no computation | `Register.ofLabels_returns` |
 | The register program has 4ᵖ + 7 registers in all | `TailSource.total_registers` |
 | Relabelling the registers is never needed: a generator run is replayed by single-register commands at the same cost | `TailSource.run_trace_relabel` |
-| Exact-cost equivalence between register-program traces and accepted computations | `TailSource.executes_iff` |
+| Exact-cost equivalence between register-program computations and accepted computations | `TailSource.executes_iff` |
 | Every convergent execution of the register program returns the gcd | `TailSource.executes_correct` |
 | A convergent execution exists on every input | `TailSource.executes_total` |
 | The ε log₂ a + Bε bound for the register program, with the program chosen before the inputs | `TailSource.arbitrarily_small_coefficient` |
@@ -457,8 +461,8 @@ cannot inspect them as data, and each closure environment has at most w + 2 entr
 These declarations are in the main [axiom audit](validation/Axioms.lean), with output
 recorded in [axioms.txt](validation/axioms.txt). `TailSource.executes_correct`,
 `TailSource.executes_total` and `TailSource.arbitrarily_small_coefficient` are also
-compared against [Challenge.lean](Challenge.lean), which states the register program in
-full.
+compared against [Challenge.lean](Challenge.lean), which states the book's register
+programs and this program in full.
 
 </details>
 

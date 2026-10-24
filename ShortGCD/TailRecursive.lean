@@ -14,16 +14,16 @@ registers as parameters. Its bodies are `run(u[d := rem(u_i, u_j)])`, one for ea
 work registers `i, j, d`, and `accept(a, b, u_i)`, one for each work register `i`; every call
 of `run` is in tail position. `accept` and `loop` perform and reject the final verification.
 
-`executes_iff_eval` proves that evaluations of the head correspond exactly, with the same
-value and remainder cost, to executions of the register program, and `executes_iff_steps`
-transfers this to the Lean model of the book's recursive machine (`Recursive.Machine`, a
-specialisation of its Table 1). Neither direction uses the cost proofs'
-relabelling generator. `program_tailRecursive` certifies syntactically that the head
+`flow_iff_eval` matches evaluations of the head exactly, with the same value and remainder
+cost, with executions of the program's control flow (`TailFlow`), and `executes_iff_eval`
+composes this with the register program itself (`TailSource`). `executes_iff_steps`
+transfers it to the Lean model of the book's recursive machine (`Recursive.Machine`, a
+specialisation of its Table 1). `program_tailRecursive` certifies syntactically that the head
 and every body have only tail-position internal calls.
 -/
 
 namespace ShortGCD.TailRecursive
-open TailProgram TailSource Recursive
+open TailProgram TailFlow Recursive
 
 inductive Fn where
   | run | accept | loop
@@ -351,10 +351,10 @@ lemma eval_trace {w a b} : ∀ K (r : Registers w) z (body : Term w (2+w)),
 
 /-! ## Exact-cost correspondence -/
 
-/-- Executions of the register program and evaluations of the recursive program correspond
+/-- Executions of the control flow and evaluations of the recursive program correspond
 exactly, with the same value and remainder cost. -/
-theorem executes_iff_eval (w a b c z : ℕ) :
-    Executes w a b c z ↔ Eval (bodies w) ![a,b] (head w) c z := by
+theorem flow_iff_eval (w a b c z : ℕ) :
+    TailFlow.Executes w a b c z ↔ Eval (bodies w) ![a,b] (head w) c z := by
   constructor
   · rintro (⟨hb0, hc0, hza⟩ | ⟨hb, r, i, ht, hz⟩)
     · subst hb0 hc0 hza
@@ -392,24 +392,31 @@ theorem executes_iff_eval (w a b c z : ℕ) :
       refine Or.inr ⟨by rw [hb'.2] at hp; exact hp, t, i, ?_, hti⟩
       simpa [hb'.1, hK, hsum] using ht
 
+/-- Executions of the register program and evaluations of the recursive program correspond
+exactly, with the same value and remainder cost. -/
+theorem executes_iff_eval (w a b c z : ℕ) :
+    TailSource.Executes w a b c z ↔ Eval (bodies w) ![a,b] (head w) c z :=
+  ((TailSource.executes_iff w a b c z).trans (TailFlow.executes_iff w a b c z).symm).trans
+    (flow_iff_eval w a b c z)
+
 /-- The initial machine state evaluating the head on `a, b`, and the halting state. -/
 def start (w a b : ℕ) : Machine.State (arity w) := ⟨[.eval (.mk ![a,b] (head w))], []⟩
 def halt (w z : ℕ) : Machine.State (arity w) := ⟨[], [.nat z]⟩
 
 /-- The same correspondence for the Lean model of the book's recursive machine. -/
 theorem executes_iff_steps (w a b c z : ℕ) :
-    Executes w a b c z ↔ Machine.Steps (bodies w) (start w a b) c (halt w z) :=
+    TailSource.Executes w a b c z ↔ Machine.Steps (bodies w) (start w a b) c (halt w z) :=
   (executes_iff_eval w a b c z).trans Machine.eval_iff_steps
 
 /-- Every halting machine computation returns the gcd. -/
 theorem steps_correct {w a b c z} (h : Machine.Steps (bodies w) (start w a b) c (halt w z)) :
     z = Nat.gcd a b :=
-  executes_correct ((executes_iff_steps w a b c z).mpr h)
+  TailSource.executes_correct ((executes_iff_steps w a b c z).mpr h)
 
 /-- Every input has a halting machine computation. -/
 theorem steps_total {w} (hw : 2 ≤ w) (a b : ℕ) :
     ∃ c, Machine.Steps (bodies w) (start w a b) c (halt w (Nat.gcd a b)) := by
-  obtain ⟨c, hc⟩ := executes_total hw a b
+  obtain ⟨c, hc⟩ := TailSource.executes_total hw a b
   exact ⟨c, (executes_iff_steps w a b c _).mp hc⟩
 
 /-! ## Bounded stacks -/

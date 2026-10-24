@@ -738,9 +738,9 @@ Put $k=2^p$, $h=k^2+1$ and $W=h+6$. If $b=0$, return $a$.
 Otherwise initialise the registers $x_0,\ldots,x_{W-1}$ at
 $(a,b,a,b,a,\ldots,a)$ and enter the main line. There the program
 may perform any assignment $x_l:=\rem(x_i,x_j)$ with $i,j,l\geq2$, or pass to
-verification with a candidate $x_i$, $i\geq2$. Verification halts with $x_i$
-if $x_i\neq0$, $\rem(x_0,x_i)=0$ and $\rem(x_1,x_i)=0$, and loops otherwise.
-The inputs $x_0,x_1$ are never overwritten. Every register value is
+verification with a candidate $x_i\neq0$, $i\geq2$. Verification sets
+$x_0:=\rem(x_0,x_i)$ and $x_1:=\rem(x_1,x_i)$, halts with $x_i$ if both are
+$0$, and loops otherwise; the main line never writes $x_0,x_1$. Every register value is
 divisible by $\gcd(a,b)$, so a candidate that passes verification is the
 gcd, and Euclid's algorithm gives a convergent computation. The computations
 below move values between registers for readability; copying is never needed
@@ -967,13 +967,15 @@ $0<\varepsilon\leq1$ (larger $\varepsilon$ are trivial), with threshold
 $(1-\varepsilon)\log\log N$.
 
 \paragraph{Programs and machine computations.}
-For Theorem~\ref{thm:registers}, Lean defines the register program itself
-(\lean{TailSource.Step}): finitely many lines, work registers, two input
-registers that no command writes, and no stack. Each command is an
-assignment $x_l:=\rem(x_i,x_j)$, a branch on $\eq_0(x_i)$,
-$\eq_0(\rem(x_0,x_i))$ or $\eq_0(\rem(x_1,x_i))$, or a halt, and each
-remainder evaluation is charged once, including the two verification calls. Every convergent execution returns the gcd, and one
-exists on every input. The cost proofs use a generator that may also
+For Theorem~\ref{thm:registers}, Lean defines the book's register programs
+over $\mathcal N_0$ (\lean{Register.Program}): lines numbered from $0$, each
+a halt or a list of alternative assignments and branchings, with the book's
+prime terms $x_i$, $\rem(x_i,x_j)$, $\mathrm{tt}$, $\mathrm{ff}$ and
+$\eq_0(x_i)$, and the book's iterator semantics, in which $\rem(x,0)$ is
+undefined. The program $P_p$ is written in this syntax
+(\lean{TailSource.program}), with no stack, and each remainder evaluation is
+charged once, including the two verification calls. Every convergent
+execution returns the gcd, and one exists on every input. The cost proofs use a generator that may also
 relabel all registers at once. \lean{TailSource.run_trace_relabel} replays
 such runs by single-register commands at the same cost and with no extra
 registers: it tracks the relabelling in the proof, and writes each new
