@@ -76,6 +76,8 @@ class Certificate:
             residues = sorted(residue_witness)
             t = len(residues)
             assert t*t >= h, (n,h,t)
+            # Each residue class holds at most three of the h+1 prefix values.
+            assert 3*t >= len(R), (n,h,t)
             assert (m//g)*R[-1] > 2*a
             lo,hi = min(zip(residues,residues[1:]), key=lambda z:z[1]-z[0])
             gap=hi-lo
