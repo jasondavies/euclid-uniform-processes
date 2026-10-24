@@ -194,7 +194,7 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | For every ε > 0: `callsCoprimeness`, `callsGcd` and `callsRemGcd` are at most (3 + ε) log₂ a / log₂ log₂ a for all 1 ≤ b ≤ a, once a is large enough | `uniform_intrinsic_bound_three` |
 | Euclidean-prefix lemma: modulo every m > 2a/r_h, each residue class contains r_i for at most three indices i ≤ h | `prefix_class_card_le_three` |
 | Hence the number t of residues of r_0, …, r_h satisfies h + 1 ≤ 3t | `residue_card_three` |
-| So a prefix with 3k ≤ h has at least k + 1 residues modulo every m > 2a/r_h, and each contraction shrinks the modulus below m/k | `prefix_reservoir` |
+| So a prefix with 3k ≤ h has at least k + 1 residues modulo every m > 2a/r_h, and each contraction shrinks the modulus below m/k | `prefix_reservoir`, `Reservoir.contract` |
 | The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 3 | `Sharp.limsup_profile_le_three` |
 | For every fixed K and every C > 3: sizeCost(a) + K ≤ C · log₂ a / log₂ log₂ a once a is large enough | `eventually_sizeCost_add_le_three` |
 | For one real constant C: G(a, b) ≤ C · log₂ a / log₂ log₂ a for every a ≥ 4 and b ≤ a | `uniform_real_bound` |
@@ -222,7 +222,7 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | --- | --- |
 | Every generated gcd certificate has at least G(a, b) remainder facts | `gcd_certificate_lower` |
 | At most 40 (2 + ln N) N^(2 − 2^(−d)) pairs 2 ≤ b < a ≤ N have a derivation of 1 of length at most d | `AlmostAll.card_within_le` |
-| For every ε > 0, D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs b < a ≤ N | `AlmostAll.tendsto_card_within_loglog` |
+| For every ε > 0, D(a, b) > (1 − ε) log₂ log₂ N for all but o(N²) coprime pairs 2 ≤ b < a ≤ N | `AlmostAll.tendsto_card_within_loglog` |
 | Certificates exist: for coprimeness when a, b ≥ 1, and for gcd (without eq1 facts) for every pair, so no complexity is the empty infimum 0 | `exists_certifiesCoprimeness`, `exists_certifiesGcd` |
 | Both gcd complexities are at least G(a, b) | `G_le_callsRemGcd`, `G_le_callsGcd` |
 | On positive coprime inputs, `callsCoprimeness` equals G(a, b) | `callsCoprimeness_eq_G` |
@@ -325,9 +325,10 @@ RegisterRecursion compiles every register program into a tail-recursive program.
 The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
 Lean-verified results. It is registered as
 [PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1),
-which records the verification of commit `40279dd` for the first thirteen compared
-theorems; the program-family, closure-depth and book-certificate theorems were added
-afterwards.
+which records the verification of commit `40279dd` for thirteen statements: the earlier
+coefficient-6 forms of the two leading-coefficient theorems and eleven others. The
+coefficient-3 forms and the program-family, closure-depth and book-certificate theorems
+were added afterwards.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
   defines every notion the theorems use, and states the twenty compared theorems (listed
@@ -436,7 +437,7 @@ For every such program, `Recursive.Machine.eval_iff_steps` proves exact-cost equ
 with a specialisation of the book's two-stack machine (Table 1, p. 75): arguments are
 evaluated right to left, zero tests and branches are separate transitions, and only
 remainder transitions are charged. Machine closures implement substitution; programs
-cannot inspect them as data; for the gcd program each closure environment has at most w + 2
+cannot inspect them as data; for the gcd program each closure environment has at most W = 3·2ᵖ + 6
 entries.
 
 </details>

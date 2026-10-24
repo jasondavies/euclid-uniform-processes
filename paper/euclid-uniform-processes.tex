@@ -35,7 +35,9 @@ The Main Conjecture for algorithms remains open. We also prove an
 $\Omega(\log\log a)$ lower bound for almost all coprime pairs and give,
 for each $\varepsilon>0$, a nondeterministic register program computing gcd
 that, on every input $a\geq b\geq1$, has a successful computation using at
-most $\varepsilon\log a+O(1)$ remainder calls. The main bounds and the
+most $\varepsilon\log a+O(1)$ remainder calls. The upper bound also answers
+negatively an open problem of van den Dries and Moschovakis on the closure
+depth of the gcd. The main bounds and the
 refutations are formalised in Lean~4; the best-uniform-process theorem is cited.
 \end{abstract}
 
@@ -101,7 +103,9 @@ and then of $\gcd(d,\rem(b,m))$.
 If $T(n)$ is the worst derivation cost for inputs at most $2^n$, the
 resulting recurrence \eqref{eq:recurrence} gives $T(n)=O(n/\log n)$.
 Taking $k$ about $n^c$ with $c$ close to $1$ instead sharpens the upper
-coefficient to $3+o(1)$ (Corollary~\ref{cor:three}).
+coefficient to $3+o(1)$ (Corollary~\ref{cor:three}): each contraction costs
+three calls and removes about $\log k\approx\log n$ bits, while the prefix
+stays negligible.
 
 \paragraph{Consequences and further results.}
 Section~\ref{sec:certificates} shows that $G(a,b)$ equals the intrinsic
@@ -119,7 +123,7 @@ We also prove that $G(a,b)\geq(1-o(1))\log\log N$ for all but $o(N^2)$
 coprime pairs $2\leq b<a\leq N$ (Proposition~\ref{prop:loglog}).
 Finally, fixing the prefix length gives, for each $\varepsilon>0$, a
 nondeterministic register program with a successful computation costing at
-most $\varepsilon\log a+B$ on each input $a\geq b\geq1$
+most $\varepsilon\log a+O(1)$ on each input $a\geq b\geq1$
 (Theorem~\ref{thm:registers}). The
 number of registers grows as $\varepsilon$ decreases.
 
@@ -232,7 +236,7 @@ Consecutive remainders are coprime, so B\'ezout's identity gives $m\mid D$.
 If $\det M_{u,v}=-1$, then $D\geq\tau>0$. If it is $1$, then $E\geq1$ as
 $AE=1+BC$, and $\sigma\geq2$ because $M_{s,u}$ has $u-s\geq2$ factors, so
 $D\geq B>0$. In both cases $D\leq\tau+B'-B\leq\tau+A'-B<2A'$, since
-$B'\leq A'$ (as $A\geq B$ and $C\geq E$) and $\tau\leq\sigma A<A'$. Finally
+$B'\leq A'$ (as $A\geq B$ and $C\geq E$) and $\tau\leq\sigma\leq\sigma A<A'$. Finally
 $A'r_v\leq r_s\leq a$ gives $2A'\leq2a/r_h<m$, so $0<D<m$, a
 contradiction. Hence each class contains at most three of
 $r_0,\ldots,r_h$, and $t$ classes hold at most $3t$ of them.
@@ -293,8 +297,8 @@ h+1+T(\lceil3n/4\rceil).
 Otherwise $r_h>N^{3/4}$, so $2a/r_h<2N^{1/4}<N^{1/3}$ (as $n>12$), and
 Lemma~\ref{lem:prefix} applies to every available
 $m>N^{1/3}$. Starting at $m=r_h$, repeatedly replace $m$ by the value $w$ of
-\eqref{eq:contract} until $0<m\leq N^{1/3}$. There are at most $J$
-contractions, since $J$ of them would give $m<N/k^J\leq1$. Since
+\eqref{eq:contract} until $0<m\leq N^{1/3}$. After $j$ contractions
+$m<N/k^j$; since $k^J\geq N$ and $m\geq1$, fewer than $J$ contractions occur. Since
 $p=\tfrac12\log n+O(1)$, their cost is $3J=O(n/\log n)$.
 This is the source of the saving: the prefix costs only $O(\sqrt n)$
 instructions, and every contraction reuses it.
@@ -387,7 +391,8 @@ Taking upper limits in the recurrence yields
 \Lambda\leq\max\{\alpha \Lambda,\ 2\beta \Lambda+3/c\}.
 \]
 Since $\alpha<1$ and $\Lambda\geq0$, this implies
-$(1-2\beta)\Lambda\leq3/c$. First let $\beta\downarrow0$ and then $c\uparrow1$ to obtain
+$(1-2\beta)\Lambda\leq3/c$. As $T$, and hence $\Lambda$, does not depend on
+$c$ or $\beta$, this holds for all $0<c<1$ and $0<\beta<1/2$, so
 $\Lambda\leq3$. Finally, $n=\lceil\log a\rceil$ satisfies
 $f(n)\sim\log a/\log\log a$, proving the assertion. All upper limits concern
 the worst-case function $T$, so the resulting threshold is independent of $b$.
@@ -487,7 +492,8 @@ tests on $V$, and values outside $V$ are irrelevant; this gives the second
 assertion. For the last, start from $a,b$ and repeatedly apply a remainder
 fact of $F$ whose operands are available and whose value is new. While some
 element of $V$ is unavailable such a fact exists: take the first
-unavailable value in a generation of that element. Each fact is applied at
+unavailable value in a sequence of remainder facts of $F$ that generates
+that element. Each fact is applied at
 most once.
 \end{proof}
 
@@ -669,7 +675,8 @@ Producing $1$ within $d$ instructions therefore forces
 To count irregular pairs below $N$, choose a witness
 $0<|qb-pa|<a/(Bq)$. Dividing $p,q$ by their gcd preserves this inequality,
 so assume $\gcd(p,q)=1$. The nonzero integer $e=qb-pa$ then gives
-$q<a/B\leq N/B$ and $0\leq p\leq q$.
+$q<a/B\leq N/B$ and $0\leq p\leq q$ (as $pa=qb-e$ with $0<b<a$ and
+$|e|<a$).
 For each $q$, there are at most $2q$ choices of $p$ and $2N/(Bq)$ choices
 of the signed integer $e$. Given $p,q,e$, the equation
 $pa\equiv-e\pmod q$ determines one residue class for $a$, leaving at most
@@ -700,7 +707,8 @@ $X=N/2^j\geq3$, and bounding their logarithmic factors by $2+\ln N$, gives
 (The factor is below $13$; we state $40$, the constant proved in Lean,
 which bounds each pair separately; see Appendix~\ref{app:lean}.)
 For the second assertion, take
-$d=\lfloor\log\ln N-2\log\ln\ln N\rfloor$ for sufficiently large $N$.
+$d=\lfloor\log\ln N-2\log\ln\ln N\rfloor$ for sufficiently large $N$
+(with $\log$ to base $2$ and $\ln$ natural).
 Then $N^{-2^{-d}}\leq\exp(-(\ln\ln N)^2)$, so the exceptional set has
 size $o(N^2)$, while $d=(1-o(1))\log\log N$, so eventually
 $d\geq(1-\varepsilon)\log\log N$.
@@ -765,7 +773,10 @@ Compute the Euclidean remainders $r_0=a,r_1=b,r_2,\ldots$ in working
 registers, stopping at $r_h$ or at the first $r_j\leq N^\alpha$.
 If $1$ has been reached, no further generation is needed. In the remaining early case,
 one further remainder gives the positive coprime pair $r_j,r_{j+1}$,
-bounded by $N^\alpha$, at total cost at most $h$; continue with that pair.
+bounded by $N^\alpha$, at total cost at most $h$; continue with that pair,
+in the same registers. This restart needs no stack, but the two recursive
+derivations of Phase~(iii) in Section~\ref{sec:construction} would, so the
+final step below uses Euclid's algorithm instead.
 Otherwise $r_h>N^\alpha$. As in the late case of Corollary~\ref{cor:three}, now
 with $p$ fixed, the prefix lemma applies to every modulus above $N^\beta$
 for large $n$, and by \eqref{eq:contract} at
@@ -778,8 +789,8 @@ calls, and the result is $\gcd(d,v)=\gcd(m,a,b)=1$. Thus, eventually in $n$,
 S(n)\leq\max\left\{S(\lceil\alpha n\rceil)+h,\quad
  h+3\lceil n/p\rceil+4\beta n+7\right\}.
 \]
-Euclid gives $S(n)=O(n)$, so $\Lambda$ below is finite. Passing to upper limits,
-$\Lambda=\limsup_{n\to\infty}S(n)/n$ satisfies
+Let $\Lambda=\limsup_{n\to\infty}S(n)/n$, which is finite since Euclid gives
+$S(n)=O(n)$. Passing to upper limits, $\Lambda$ satisfies
 $\Lambda\leq\max\{\alpha\Lambda,\ 3/p+4\beta\}$, and since $\alpha<1$,
 $\Lambda\leq3/p+4\beta$. The program does not depend on $\beta$, so
 $\Lambda\leq3/p$. Take $n=\lceil\log a\rceil$ and add the two verification
@@ -791,12 +802,10 @@ Conjecture lets its coefficient $r$ depend on the program, so the family is
 consistent with it; no single sublogarithmic program is obtained.
 
 \paragraph{Recursive programs.}
-Theorem~\ref{thm:registers} also holds for the book's recursive programs.
-With the prefix length fixed, Euclid's algorithm replaces the recursive
-completion of Section~\ref{sec:construction}, since its cost, at most about
-$4\beta n$, is negligible as $\beta\to0$; and writing one
-function per line yields a finite nondeterministic tail-recursive program
-with the same remainder cost \cite[\S\S2A, 2C, 2E]{moschovakis2019}.
+Theorem~\ref{thm:registers} also holds for the book's recursive programs:
+writing one function per line of $P_p$ yields a finite nondeterministic
+tail-recursive program with the same remainder cost
+\cite[\S\S2A, 2C, 2E]{moschovakis2019}.
 Lean verifies this translation for every register program on its model of
 the book's recursive machine, a specialisation of the book's Table~1, and
 proves an input-independent bound on the stacks (Appendix~\ref{app:lean}).
@@ -815,8 +824,8 @@ access to a prefix whose length grows with the input. A nondeterministic
 program can guess the close pair, but it must hold all $h+1$ prefix values;
 regenerating them would cost about $h$ calls per contraction. By
 Theorem~\ref{thm:registers}, $W=3\cdot2^p+6$ registers give coefficient
-$3/p$, roughly $3/\log W$, so no bound $c\log a$ with $c$ independent of the number
-of registers holds for nondeterministic register programs. A register
+$3/p$, roughly $3/\log W$, so no lower bound $c\log a$ with $c>0$ independent of
+the number of registers holds for nondeterministic register programs. A register
 program has only a fixed number of slots for prefix values. Does every
 nondeterministic register program computing gcd with $W$ registers make at
 least $c\log a/\log W$ remainder calls on infinitely many inputs, for an
@@ -895,7 +904,9 @@ The general theory of uniform processes, including Theorem~4F.1 used in
 Corollary~\ref{cor:uniform}, and the historical lower bounds are cited,
 not formalised. The certificate bounds and conjecture refutations are
 formalised independently of that theory, with certificates represented by
-their facts. Lemma~\ref{lem:fact-representation} is formalised too: Lean
+their facts. The consequence of Lemma~\ref{lem:fact-representation} that we
+use, equality of the book-style and fact-based complexities, is formalised
+too: Lean
 states the book's definitions for $\mathcal N_\varepsilon$ and
 $\mathcal N_0$ directly (finite partial substructures with partial
 operations, generation, homomorphisms on the universe, certification and
@@ -913,10 +924,11 @@ Palomar's comparator checks that the proved statements are exactly those of
 \texttt{Challenge.lean} and replays the proofs through Lean's kernel and
 independent kernels. \texttt{comparator.json} lists all twenty compared
 theorems; Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
-Version~1 of the registry entry \cite{palomar2026}
-records this verification of the first thirteen, for commit
-\texttt{40279dd}; the program, closure-depth and book-certificate statements
-were added afterwards.
+Version~1 of the registry entry \cite{palomar2026} records this
+verification for commit \texttt{40279dd}, covering thirteen statements: the
+earlier coefficient-$6$ forms of the two leading-coefficient theorems and
+eleven others. The coefficient-$3$ forms and the program, closure-depth and
+book-certificate statements were added afterwards.
 
 \begin{table}[htbp]
 \centering\small
@@ -939,7 +951,9 @@ Proposition~\ref{prop:certificates} &
 Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
 Corollary~\ref{cor:refute} &
 \lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
-\lean{not_main_conjecture_4F5_Neps}${}^\dagger$\\
+\lean{not_main_conjecture_4F5_Neps}${}^\dagger$, and the literal readings
+\lean{not_conjecture_3_4_literal}${}^\dagger$,
+\lean{not_main_conjecture_4F5_literal}${}^\dagger$\\
 Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
 Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le},
 \lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}${}^\dagger$\\
@@ -1013,7 +1027,7 @@ entries in all, on any input and however long the computation runs
 (\lean{Register.stacks_bounded}). For Theorem~\ref{thm:registers}, $W=3\cdot2^p+6$,
 so the stacks never exceed $6\cdot2^p+16$ entries
 (\lean{TailRecursive.stacks_bounded}); each closure environment has at most
-$W$ entries (those of the head and its arguments have the two inputs). For
+$W$ entries. For
 every program in the language, \lean{Recursive.Machine.eval_iff_steps}
 proves exact-cost equivalence with a specialisation of the book's two-stack
 machine: arguments are evaluated right to left, zero tests and branches are

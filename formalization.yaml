@@ -188,12 +188,12 @@ review:
 alignment:
   namespace: "ShortGCD"
   statements:
-    - source: "Paper, main theorem and its leading-coefficient corollary"
+    - source: "Paper, leading-coefficient corollary (Corollary 4)"
       lean: "ShortGCD.uniform_real_bound_three"
       module: "ShortGCD.SharpBound"
       status: proved
       note: "G(a, b) ≤ (3 + ε) log₂ a / log₂ log₂ a for all large a and every b ≤ a."
-    - source: "Paper, refutation corollary and certificates proposition"
+    - source: "Paper, Corollary 4 with the certificates proposition and the noncoprime remark"
       lean: "ShortGCD.uniform_intrinsic_bound_three"
       module: "ShortGCD.SharpCertificates"
       status: proved

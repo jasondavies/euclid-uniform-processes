@@ -5,7 +5,7 @@ Python arithmetic to choose a short derivation. Its returned certificate, howeve
 contains only remainder facts with operands available from the two inputs.
 Only those certificate facts are counted. Independent verify() checks them.
 
-Proposed upper bound: O(log(max(a,b)) / log(log(max(a,b)))) certificate length.
+Proved upper bound (paper, Theorem 1): O(log(max(a,b)) / log(log(max(a,b)))) certificate length.
 """
 from __future__ import annotations
 from dataclasses import dataclass, field

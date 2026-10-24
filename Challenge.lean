@@ -138,9 +138,9 @@ noncomputable def callsRemGcd (a b : ℕ) : ℕ :=
 
 /-! ## Upper bounds -/
 
-/-- **Main theorem.** For every `ε > 0`, for all sufficiently large `a` and every `b ≤ a`,
-`G a b ≤ (3 + ε) log₂ a / log₂ log₂ a`. Euclid's algorithm needs about `1.44 log₂ a` calls in
-the worst case. -/
+/-- **Leading coefficient 3** (the paper's Corollary 4). For every `ε > 0`, for all sufficiently
+large `a` and every `b ≤ a`, `G a b ≤ (3 + ε) log₂ a / log₂ log₂ a`. Euclid's algorithm needs
+about `1.44 log₂ a` calls in the worst case. -/
 theorem uniform_real_bound_three {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ a : ℕ in atTop, ∀ b : ℕ, b ≤ a →
       (G a b : ℝ) ≤ (3+ε) * (Real.logb 2 a / Real.logb 2 (Real.logb 2 a)) := by

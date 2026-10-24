@@ -7,8 +7,8 @@ public import ShortGCD.SharpBound
 
 /-! # Tail-recursive programs with arbitrarily small coefficients
 
-For each `p > 0`, one generator of width `W = 3·2^p + 4` is fixed. Iterating `maxCost_step`
-gives `limsup T_W(n)/n ≤ 3/p` (`Fixed.limsup_profile_le`), hence accepting runs with at most
+For each `p > 0`, one generator of width `w = 3·2^p + 4` is fixed. Iterating `maxCost_step`
+gives `limsup T_w(n)/n ≤ 3/p` (`Fixed.limsup_profile_le`), hence accepting runs with at most
 `C log₂ a` remainder calls for every `C > 3/p` and large `a`. Taking `p > 3/ε` gives the
 stack-free strengthening `Fixed.arbitrarily_small_coefficient`. `TailSource` proves
 an exact-cost correspondence with a machine whose entire state is a fixed register
@@ -23,12 +23,12 @@ namespace Fixed
 /-- The prefix length `h = 3k`, with contraction ratio `k = 2^p` (by the three-per-class
 count of `prefix_reservoir`). -/
 def prefixLength (p : ℕ) := 3*2^p
-/-- The width `W = h + 4`: `h + 1` prefix slots, the modulus, and two scratch residues. It
+/-- The width `w = h + 4`: `h + 1` prefix slots, the modulus, and two scratch residues. It
 equals `3·2^p + 4` (`width_eq`). -/
 def width (p : ℕ) := prefixLength p+4
 /-- The number of contractions `J = ⌈n/p⌉`, so that `k^J ≥ 2^n`. -/
 def steps (p n : ℕ) := Sharp.scale (1/(p:ℝ)) n
-/-- The normalized cost `T_W(n)/n`, where `T_W(n) = maxCost W (2^n)`. -/
+/-- The normalized cost `T_w(n)/n`, where `T_w(n) = maxCost w (2^n)`. -/
 def profile (p n : ℕ) : ℝ := maxCost (width p) (2^n) / n
 
 lemma width_eq (p : ℕ) : width p = 3*2^p+4 := rfl
@@ -144,8 +144,8 @@ lemma limsup_recurrence {p : ℕ} (hp : 0 < p) {β : ℝ} (hβ0 : 0 < β) (hβ :
   filter_upwards [self_mem_nhdsWithin] with u hu
   exact hbound u hu
 
-/-- For each `p > 0`, the fixed generator of width `W = 3·2^p + 4` satisfies
-`limsup_{n → ∞} T_W(n)/n ≤ 3/p`, where `T_W(n) = maxCost W (2^n)`. -/
+/-- For each `p > 0`, the fixed generator of width `w = 3·2^p + 4` satisfies
+`limsup_{n → ∞} T_w(n)/n ≤ 3/p`, where `T_w(n) = maxCost w (2^n)`. -/
 theorem limsup_profile_le {p : ℕ} (hp : 0 < p) : limsup (profile p) atTop ≤ 3/(p:ℝ) := by
   have hnonneg : 0 ≤ limsup (profile p) atTop := by
     apply le_limsup_of_le (profile_bounded p)
