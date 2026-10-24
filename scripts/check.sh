@@ -2,8 +2,8 @@
 # Run the repository checks; CI runs this script on each push and pull request.
 # Each check fails the script on a mismatch. Audits and finite checks are compared with the
 # recorded outputs in validation/, so a change in any of them must be recorded.
-# The exhaustive prefix-lemma check (scripts/check_prefix_lemma.py, about a minute) is not run
-# here: Lean proves the lemma in general (prefix_pairs_distinct).
+# The exhaustive prefix-lemma check (scripts/check_prefix_lemma.py, about three minutes) is not run
+# here: Lean proves the lemma in general (prefix_class_card_le_three).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

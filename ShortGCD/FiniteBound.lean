@@ -18,7 +18,7 @@ namespace ShortGCD
 natural numbers; the size and contraction hypotheses involve no real arithmetic. -/
 theorem coprime_step {a b A L M h k J : ℕ}
     (hab : b < a) (hb : 0 < b) (ha : a ≤ A) (hcop : Nat.Coprime a b)
-    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : k^2 < h ∨ 3*k ≤ h)
+    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : 3*k ≤ h)
     (hthreshold : 2*A ≤ M*L) (hpower : A ≤ M*k^J) :
     Generates {a,b}
       (max (h+1+sizeCost L) (h+3*J+2+2*sizeCost M)) 1 := by
@@ -47,16 +47,11 @@ theorem coprime_step {a b A L M h k J : ℕ}
       Nat.div_pos (hdesc i (by omega)).le (hpos (i+1) (by omega))
     have hthr : 2*a ≤ M*r h :=
       (Nat.mul_le_mul_left 2 ha).trans (hthreshold.trans (Nat.mul_le_mul_left M (hlarge h le_rfl).le))
-    have hR : Reservoir ((Finset.range (h+1)).image r) M k := by
-      rcases hkh with hkh | hkh
-      · exact prefix_reservoir r q a h M k hpos
-          (fun i _ => remainder_bound hab.le i) (remainder_lower hab hpos')
-          (fun i _ => (remainder_gcd a b i).trans hcop.gcd_eq_one)
-          (fun i hi => hqpos i (by omega)) (fun i _ => hrec i) hthr hkh
-      · exact prefix_reservoir_three r q a h M k (hpos h le_rfl)
-          (fun i _ => remainder_bound hab.le i) (remainder_lower hab hpos')
-          (fun i _ => (remainder_gcd a b i).trans hcop.gcd_eq_one)
-          hqpos (fun i _ => hrec i) hthr hkh
+    have hR : Reservoir ((Finset.range (h+1)).image r) M k :=
+      prefix_reservoir r q a h M k (hpos h le_rfl)
+        (fun i _ => remainder_bound hab.le i) (remainder_lower hab hpos')
+        (fun i _ => (remainder_gcd a b i).trans hcop.gcd_eq_one)
+        hqpos (fun i _ => hrec i) hthr hkh
     have hfinish := large_branch hder
       (a := a) (b := b) (m := r h) (L := M) (k := k) (J := J)
       (by simpa using mem_euclidStore (a := a) (b := b) (n := h) (i := 0) (by omega))
@@ -81,12 +76,12 @@ theorem G_symm (a b : ℕ) : G a b = G b a := by
   apply G_le
   simpa using (Generates.available (S := {a,0}) (k := 0) (w := a) (by simp))
 
-/-- **The recurrence.** If `L ≥ 1`, `h > 0`, `k ≥ 1`, `k² < h` or `3k ≤ h`, `2A ≤ ML` and
+/-- **The recurrence.** If `L ≥ 1`, `h > 0`, `k ≥ 1`, `3k ≤ h`, `2A ≤ ML` and
 `A ≤ M k^J`, then
 `T̂(A) ≤ max(h + 1 + T̂(L), h + 3J + 2 + 2T̂(M))`. Non-coprime and zero inputs are covered
 through normalization. -/
 theorem sizeCost_step {A L M h k J : ℕ}
-    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : k^2 < h ∨ 3*k ≤ h)
+    (hL : 1 ≤ L) (hh : 0 < h) (hk : 1 ≤ k) (hkh : 3*k ≤ h)
     (hthreshold : 2*A ≤ M*L) (hpower : A ≤ M*k^J) :
     sizeCost A ≤ max (h+1+sizeCost L) (h+3*J+2+2*sizeCost M) := by
   have hordered : ∀ a b, b < a → a ≤ A → G a b ≤

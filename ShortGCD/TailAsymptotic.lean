@@ -21,7 +21,7 @@ namespace ShortGCD.TailProgram
 namespace Fixed
 
 /-- The prefix length `h = 3k`, with contraction ratio `k = 2^p` (by the three-per-class
-count of `prefix_reservoir_three`). -/
+count of `prefix_reservoir`). -/
 def prefixLength (p : ℕ) := 3*2^p
 /-- The width `W = h + 4`: `h + 1` prefix slots, the modulus, and two scratch residues. It
 equals `3·2^p + 4` (`width_eq`). -/

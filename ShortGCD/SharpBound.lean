@@ -8,7 +8,7 @@ public import ShortGCD.Asymptotic
 
 The finite construction is reused with a prefix of size roughly `3 n^c`, where `0 < c < 1`,
 and arbitrarily small fixed recursive size ratios. By the three-per-class bound
-(`prefix_reservoir_three`), such a prefix shrinks the modulus by more than a factor `2^⌊c log₂ n⌋`
+(`prefix_reservoir`), such a prefix shrinks the modulus by more than a factor `2^⌊c log₂ n⌋`
 per contraction.
 The original Big-O theorem supplies boundedness before taking upper limits.
 -/
@@ -200,7 +200,7 @@ lemma recurrence {c β : ℝ} (hc : 0 < c) (hβ : 0 < β) :
     hthreshold.eventually (eventually_ge_atTop 1)] with n hp hn
   apply sizeCost_step (hL := Nat.one_le_pow _ _ (by omega))
     (hh := by positivity) (hk := Nat.one_le_pow _ _ (by omega))
-    (hkh := .inr le_rfl)
+    (hkh := le_rfl)
   · have h1 := Nat.le_ceil ((1-β/2)*(n:ℝ))
     have h2 := Nat.le_ceil (β*(n:ℝ))
     have he : n+1 ≤ scale β n + scale (1-β/2) n := by

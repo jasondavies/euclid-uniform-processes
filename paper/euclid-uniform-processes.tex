@@ -88,10 +88,10 @@ Store a Euclidean prefix
 $r_0=a,r_1=b,\ldots,r_h$, where $h=\lceil\sqrt n\rceil$.
 If the prefix reaches a positive remainder at most $N^{3/4}$, take one
 further remainder and recurse on the resulting smaller pair.
-Otherwise its consecutive pairs stay distinct modulo every $m>N^{1/3}$, so
-the prefix occupies at least $\sqrt h$ residue classes modulo $m$
-(Lemma~\ref{lem:prefix}). A close pair of residues lets three remainder
-calls produce a positive value below $m/(\sqrt h-1)$
+Otherwise, modulo every $m>N^{1/3}$, each residue class contains at most
+three prefix values, so the prefix occupies at least $(h+1)/3$ residue
+classes (Lemma~\ref{lem:prefix}). A close pair of residues lets three
+remainder calls produce a positive value below $3m/(h-2)$
 (Lemma~\ref{lem:gap}). Reusing the same prefix, we repeatedly shrink the
 modulus from $r_h$ to at most $N^{1/3}$ in $O(n/\log n)$ calls.
 Since $m$ need not be coprime to $a$ or $b$, two recursive gcd
@@ -99,9 +99,8 @@ derivations on inputs at most $N^{1/3}$ finish: of $d=\gcd(m,\rem(a,m))$,
 and then of $\gcd(d,\rem(b,m))$.
 If $T(n)$ is the worst derivation cost for inputs at most $2^n$, the
 resulting recurrence \eqref{eq:recurrence} gives $T(n)=O(n/\log n)$.
-Since in fact each residue class modulo such $m$ contains at most three prefix
-values (Lemma~\ref{lem:prefix}), a longer prefix sharpens the upper
-coefficient to $3+o(1)$ (Corollary~\ref{cor:three}).
+A longer prefix sharpens the upper coefficient to $3+o(1)$
+(Corollary~\ref{cor:three}).
 
 \paragraph{Consequences and further results.}
 Section~\ref{sec:certificates} shows that $G(a,b)$ equals the intrinsic
@@ -196,74 +195,54 @@ instructions.
 \begin{lemma}[Euclidean-prefix lemma]\label{lem:prefix}
 Let $r_0=a>r_1=b>\cdots>r_h>0$ be a Euclidean prefix of a coprime pair, with
 $r_{i-1}=q_i r_i+r_{i+1}$ and $q_i\geq1$ for $1\leq i<h$. For every integer
-$m>2a/r_h$, the
-$h$ pairs
-\[
-(r_i\bmod m,r_{i+1}\bmod m),\qquad 0\leq i<h,
-\]
-are distinct. The prefix therefore occupies $t$ residue classes with $t^2\geq h$.
-Moreover, each residue class modulo $m$ contains $r_i$ for at most three
-indices $0\leq i\leq h$, so $3t\geq h+1$.
+$m>2a/r_h$, each residue class modulo $m$ contains $r_i$ for at most three
+indices $0\leq i\leq h$. The prefix therefore occupies $t$ residue classes
+with $3t\geq h+1$.
 \end{lemma}
 \begin{proof}
-Suppose the pairs at $i<j$ coincide. Set
+Let $q_h=\lfloor r_{h-1}/r_h\rfloor\geq1$ and $r_{h+1}=\rem(r_{h-1},r_h)$,
+so that the recurrence also holds for $i=h$. For $i<j\leq h$ set
 \[
-M=\prod_{\ell=i+1}^{j}\begin{pmatrix}q_\ell&1\\1&0\end{pmatrix}
- =\begin{pmatrix}A&B\\C&E\end{pmatrix},\qquad
-\binom{r_i}{r_{i+1}}=M\binom{r_j}{r_{j+1}}.
+M_{i,j}=\prod_{\ell=i+1}^{j}\begin{pmatrix}q_\ell&1\\1&0\end{pmatrix},
+\qquad
+\binom{r_i}{r_{i+1}}=M_{i,j}\binom{r_j}{r_{j+1}}.
 \]
 Right multiplication by
 $\bigl(\begin{smallmatrix}q&1\\1&0\end{smallmatrix}\bigr)$ sends
 $(A,B,C,E)$ to $(qA+B,\,A,\,qC+E,\,C)$, starting from $(q,1,1,0)$ for a single
-factor. By induction, all entries are nonnegative, $A\geq B\geq E$,
-$A\geq C\geq E$, $B,C\geq1$, and $\det M=(-1)^{j-i}$.
-Also $Ar_j\leq r_i\leq a$ and $r_j>r_h$ (as $j<h$), whence $A<a/r_h$.
-Write
-\[
-\Delta=\det(M-I)=1+\det M-A-E.
-\]
-For an odd number of factors, $\Delta=-A-E<0$. By the same recursion, a
-product of at least two factors has $A\geq2$ and $E\geq1$; thus for an even
-positive number of factors,
-$\Delta=2-A-E<0$. In either case,
-\[
-0<|\Delta|\leq A+E\leq2A\leq2a/r_h<m.
-\]
-The presumed congruence gives $(M-I)(r_j,r_{j+1})^{\mathsf T}\equiv0\pmod m$.
-Multiplication by the adjugate shows that $m$ divides both $\Delta r_j$ and
-$\Delta r_{j+1}$. Consecutive remainders are coprime, so B\'ezout's identity
-implies $m\mid\Delta$, a contradiction. Finally, $t$ individual residue classes
-give at most $t^2$ ordered pairs.
+factor. By induction, the entries of
+$M_{i,j}=\bigl(\begin{smallmatrix}A&B\\C&E\end{smallmatrix}\bigr)$ are
+nonnegative, $A\geq B\geq E$, $A\geq C\geq E$, $B,C\geq1$, and
+$\det M_{i,j}=(-1)^{j-i}$; a product of at least two factors has $A\geq2$.
 
-For the second statement, let $q_h=\lfloor r_{h-1}/r_h\rfloor\geq1$ and
-$r_{h+1}=\rem(r_{h-1},r_h)$, so that the recurrence also holds for $i=h$,
-and suppose $r_s\equiv r_u\equiv r_v\pmod m$ with $s+2\leq u<v\leq h$; a
+Suppose $r_s\equiv r_u\equiv r_v\pmod m$ with $s+2\leq u<v\leq h$; a
 class with four indices $i<j<k<l$ contains such $s=i$, $u=k$ and $v=l$.
-Write $\bigl(\begin{smallmatrix}\sigma&\tau\\\ast&\ast\end{smallmatrix}\bigr)$ and
-$\bigl(\begin{smallmatrix}A&B\\C&E\end{smallmatrix}\bigr)$ for the products
-of the factors with $\ell=s+1,\ldots,u$ and $\ell=u+1,\ldots,v$, so that
+Write $M_{s,u}=\bigl(\begin{smallmatrix}\sigma&\tau\\\ast&\ast\end{smallmatrix}\bigr)$ and
+$M_{u,v}=\bigl(\begin{smallmatrix}A&B\\C&E\end{smallmatrix}\bigr)$, so that
 $r_u=Ar_v+Br_{v+1}$ and $r_s=A'r_v+B'r_{v+1}$ with $A'=\sigma A+\tau C$
 and $B'=\sigma B+\tau E$. Then $m$ divides $r_s-r_v=(A'-1)r_v+B'r_{v+1}$
 and $r_u-r_v=(A-1)r_v+Br_{v+1}$. Eliminating $r_{v+1}$, and then $r_v$,
 shows that $m$ divides $Dr_v$ and $Dr_{v+1}$, where
 \[
-D=(A'-1)B-B'(A-1)=-\tau\det\begin{pmatrix}A&B\\C&E\end{pmatrix}+(\sigma-1)B+\tau E;
+D=(A'-1)B-B'(A-1)=-\tau\det M_{u,v}+(\sigma-1)B+\tau E.
 \]
-as $r_v,r_{v+1}$ are coprime, $m\mid D$. If the determinant is $-1$, then
-$D\geq\tau>0$. If it is $1$, then $E\geq1$ as $AE=1+BC$, and $\sigma\geq2$
-because the first product has $u-s\geq2$ factors, so $D\geq B>0$. In both
-cases $D\leq\tau+B'-B\leq\tau+A'-B<2A'$, since $B'\leq A'$ (as $A\geq B$ and
-$C\geq E$) and $\tau\leq\sigma A<A'$. Finally $A'r_v\leq r_s\leq a$ gives
-$2A'\leq2a/r_h<m$, so $0<D<m$, a contradiction. Hence each class contains
-at most three of $r_0,\ldots,r_h$.
+Consecutive remainders are coprime, so B\'ezout's identity gives $m\mid D$.
+If $\det M_{u,v}=-1$, then $D\geq\tau>0$. If it is $1$, then $E\geq1$ as
+$AE=1+BC$, and $\sigma\geq2$ because $M_{s,u}$ has $u-s\geq2$ factors, so
+$D\geq B>0$. In both cases $D\leq\tau+B'-B\leq\tau+A'-B<2A'$, since
+$B'\leq A'$ (as $A\geq B$ and $C\geq E$) and $\tau\leq\sigma A<A'$. Finally
+$A'r_v\leq r_s\leq a$ gives $2A'\leq2a/r_h<m$, so $0<D<m$, a
+contradiction. Hence each class contains at most three of
+$r_0,\ldots,r_h$, and $t$ classes hold at most $3t$ of them.
 \end{proof}
 Since Lemma~\ref{lem:prefix} holds for every $m>2a/r_h$, one stored prefix
 serves every later modulus, although these moduli are not known in advance.
-For every available $m>2a/r_h$, when $\sqrt h>1$, Lemma~\ref{lem:gap}
+For every available $m>2a/r_h$, when $h\geq3$, Lemma~\ref{lem:gap}
 applied to the prefix gives three instructions that generate
 \begin{equation}\label{eq:contract}
-0<w<\frac{m}{\sqrt h-1}.
+0<w<\frac{3m}{h-2},
 \end{equation}
+since $t-1\geq(h-2)/3>0$.
 We call these three instructions a \emph{contraction} of $m$, and $w$ the new
 modulus.
 
@@ -279,7 +258,7 @@ Euclid reaches $1$ in four. The example illustrates contraction without a
 saving on this pair.
 
 \section{Construction and recurrence}\label{sec:construction}
-Fix an integer $n>16$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil>4$.
+Fix an integer $n>25$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil>5$.
 After normalisation, assume $a>b>1$ are coprime and $a\leq N$.
 We use $N^{3/4}$ as the \emph{early threshold} and $N^{1/3}$ as the
 \emph{target modulus}. Any thresholds $N^\alpha,N^\beta$ with $\alpha<1$,
@@ -307,12 +286,12 @@ Lemma~\ref{lem:prefix} applies to every available
 $m>N^{1/3}$. Starting at $m=r_h$, repeatedly replace $m$ by the value $w$ of
 \eqref{eq:contract} until $0<m\leq N^{1/3}$. Set
 \[
-\kappa=\sqrt h-1>1,\qquad
+\kappa=\frac{h-2}3>1,\qquad
 J=\left\lceil\frac{2n/3}{\log\kappa}\right\rceil.
 \]
 There are at most $J$ contractions: if $J$ have occurred then
 $m<N/\kappa^{J}\leq N^{1/3}$. Since
-$\log\kappa=\tfrac14\log n+O(1)$, their cost is $3J=O(n/\log n)$.
+$\log\kappa=\tfrac12\log n+O(1)$, their cost is $3J=O(n/\log n)$.
 This is the source of the saving: the prefix costs only $O(\sqrt n)$
 instructions, and every contraction reuses it.
 
@@ -350,7 +329,7 @@ For $n\geq2$ let $f(n)=n/\log n$. The ratios
 show that, beyond a fixed threshold, $f(\lceil3n/4\rceil)\leq\tfrac78f(n)$ and
 $2f(\lceil n/3\rceil)\leq\tfrac56f(n)$. Both overheads in
 \eqref{eq:recurrence} are at most $c_0f(n)$ for a fixed $c_0$. Choose the
-induction threshold above $16$, where the recurrence holds, and large enough
+induction threshold above $25$, where the recurrence holds, and large enough
 that both recursive indices are at least $2$ and strictly less than $n$. Choose
 $C'\geq8c_0$, increased to cover the finitely many values below the threshold.
 Strong induction then gives $T(n)\leq C'f(n)$: the two bounds are
@@ -361,8 +340,7 @@ and the theorem holds with $C=2C'$.
 \end{proof}
 
 \subsection{The leading coefficient}
-The same construction, with the three-per-class count of
-Lemma~\ref{lem:prefix} and a longer prefix, gives a more precise bound.
+The same construction with a longer prefix gives a more precise bound.
 
 \begin{corollary}\label{cor:three}
 For every $\varepsilon>0$, there is an $a_0$ such that for every
@@ -948,7 +926,7 @@ Paper & Lean declaration(s)\\\midrule
 Theorem~\ref{thm:main} & \lean{uniform_real_bound}\\
 Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
 Lemma~\ref{lem:gap} & \lean{small_remainder}\\
-Lemma~\ref{lem:prefix} & \lean{prefix_pairs_distinct}, \lean{prefix_class_card_le_three}\\
+Lemma~\ref{lem:prefix} & \lean{prefix_class_card_le_three}, \lean{residue_card_three}\\
 Lemma~\ref{lem:fact-representation} & \lean{Book.callsCoprimeness_eq}${}^\dagger$,
 \lean{Book.callsRemGcd_eq}${}^\dagger$, \lean{Book.callsGcd_eq}${}^\dagger$\\
 Corollary~\ref{cor:three} & \lean{uniform_real_bound_three}${}^\dagger$, \lean{uniform_intrinsic_bound_three}${}^\dagger$\\
@@ -986,8 +964,9 @@ Costs are lengths of explicit remainder derivations. The finite theorem
 \lean{sizeCost_step} proves the recurrence from natural-number size
 parameters; it does not assume a recurrence for the cost function.
 For the initial Big-O proof, Lean uses
-$j=\lfloor\log n\rfloor$, $p=\lfloor j/4\rfloor$ and $h=2^{2p}+1$
-in place of $h=\lceil\sqrt n\rceil$, and checks the integer rounding
+$j=\lfloor\log n\rfloor$, $p=\lfloor j/4\rfloor$, $h=2^{2p}+1$ and
+contraction ratio $2^p$ in place of $h=\lceil\sqrt n\rceil$ and
+$\kappa=(h-2)/3$, and checks the integer rounding
 estimates before passing to real logarithms. The refinement uses the
 tunable parameters of Corollary~\ref{cor:three} and checks the rounding limits
 preserving coefficient $3$.

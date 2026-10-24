@@ -25,7 +25,6 @@ import ShortGCD
 #print axioms ShortGCD.uniform_gcd_certificates
 #print axioms ShortGCD.gcd_certificate_lower
 -- The upper bound.
-#print axioms ShortGCD.prefix_pairs_distinct
 #print axioms ShortGCD.prefix_class_card_le_three
 #print axioms ShortGCD.residue_card_three
 #print axioms ShortGCD.small_remainder

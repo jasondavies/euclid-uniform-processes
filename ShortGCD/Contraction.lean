@@ -9,9 +9,8 @@ public import ShortGCD.Prefix
 /-! # Contraction with a reservoir
 
 `Reservoir R L k`: the set `R` has at least `k + 1` residues modulo every `m > L`. By the
-Euclidean-prefix lemma, the stored prefix `r_0, …, r_h` is one when `k² < h` and `2a ≤ L r_h`
-(`prefix_reservoir`), and by the three-per-class bound also when `3k ≤ h`
-(`prefix_reservoir_three`). Each contraction costs three calls and shrinks the modulus below `m/k`,
+Euclidean-prefix lemma, the stored prefix `r_0, …, r_h` is one when `3k ≤ h` and
+`2a ≤ L r_h` (`prefix_reservoir`). Each contraction costs three calls and shrinks the modulus below `m/k`,
 and `large_branch` assembles the large branch: prefix, `J` contractions, then
 `finish_from_modulus`.
 -/
@@ -52,29 +51,10 @@ theorem Reservoir.iterate {R : Finset ℕ} {L k : ℕ} (hR : Reservoir R L k)
       obtain ⟨z,hz,hzL,hgen⟩ := ih T (hRS.trans hd.subset) w hwT hw hwsize
       exact ⟨z,hz,hzL,(hd.then_generate hgen).mono_cost (by omega)⟩
 
-/-- The Euclidean prefix is a reservoir for every sufficiently large modulus. -/
+/-- The Euclidean prefix `r_0, …, r_h` is a reservoir for every modulus above `L` when
+`3k ≤ h`. The recurrence and coprimality are also required at `h`, for the next remainder
+`r_{h+1}`. -/
 theorem prefix_reservoir (r q : ℕ → ℕ) (a h L k : ℕ)
-    (hpos : ∀ i, i ≤ h → 0 < r i)
-    (hbound : ∀ i, i ≤ h → r i ≤ a)
-    (hlower : ∀ i, i ≤ h → r h ≤ r i)
-    (hcop : ∀ i, i < h → Nat.Coprime (r i) (r (i+1)))
-    (hq : ∀ i, i+2 ≤ h → 0 < q i)
-    (heq : ∀ i, i+2 ≤ h → r i = q i*r (i+1)+r (i+2))
-    (hL : 2*a ≤ L*r h) (hsize : k^2 < h) :
-    Reservoir ((Finset.range (h+1)).image r) L k := by
-  intro m hm
-  have hm' : 2*a < m*r h := hL.trans_lt
-    (Nat.mul_lt_mul_of_pos_right hm (hpos h le_rfl))
-  have hinj := prefix_pairs_distinct r q a h m hpos hbound hlower hcop hq heq hm'
-  have hcard := residue_card_sq r h m hinj
-  have he : (((Finset.range (h+1)).image r).image (fun x => x % m)) =
-      (Finset.range (h+1)).image (fun i => r i % m) := by simp only [Finset.image_image, Function.comp_def]
-  rw [he]
-  nlinarith
-
-/-- The linear count: the prefix is a reservoir when `3k ≤ h`, given the next remainder
-`r_{h+1}` as well. -/
-theorem prefix_reservoir_three (r q : ℕ → ℕ) (a h L k : ℕ)
     (hpos : 0 < r h)
     (hbound : ∀ i, i ≤ h → r i ≤ a)
     (hlower : ∀ i, i ≤ h → r h ≤ r i)

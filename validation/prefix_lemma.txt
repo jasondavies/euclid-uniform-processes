@@ -1,2 +1,2 @@
-instances checked: 254722179, failures: 0
-control (hypothesis dropped, a < 400): 296615 collisions
+instances checked: 254722179, failures: 0, instances with a class of three: 850826
+control (hypothesis dropped, a < 400): 149871 instances with a class of four or more

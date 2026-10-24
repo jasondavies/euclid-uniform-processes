@@ -75,8 +75,8 @@ class Certificate:
             residue_witness = {x % m: x for x in R}
             residues = sorted(residue_witness)
             t = len(residues)
-            assert t*t >= h, (n,h,t)
-            # Each residue class holds at most three of the h+1 prefix values.
+            # Euclidean-prefix lemma: each residue class holds at most three of
+            # the h+1 prefix values.
             assert 3*t >= len(R), (n,h,t)
             assert (m//g)*R[-1] > 2*a
             lo,hi = min(zip(residues,residues[1:]), key=lambda z:z[1]-z[0])

@@ -192,11 +192,9 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | --- | --- |
 | For every ε > 0: G(a, b) ≤ (3 + ε) log₂ a / log₂ log₂ a for all b ≤ a, once a is large enough | `uniform_real_bound_three` |
 | For every ε > 0: `callsCoprimeness`, `callsGcd` and `callsRemGcd` are at most (3 + ε) log₂ a / log₂ log₂ a for all 1 ≤ b ≤ a, once a is large enough | `uniform_intrinsic_bound_three` |
-| Consecutive pairs in a coprime Euclidean prefix are distinct modulo every m > 2a/r_h | `prefix_pairs_distinct` |
-| If the h consecutive residue pairs are distinct, the number t of individual residues satisfies h ≤ t² | `residue_card_sq` |
-| Modulo every m > 2a/r_h, each residue class contains r_i for at most three indices i ≤ h | `prefix_class_card_le_three` |
+| Euclidean-prefix lemma: modulo every m > 2a/r_h, each residue class contains r_i for at most three indices i ≤ h | `prefix_class_card_le_three` |
 | Hence the number t of residues of r_0, …, r_h satisfies h + 1 ≤ 3t | `residue_card_three` |
-| So a prefix with 3k ≤ h has at least k + 1 residues modulo every m > 2a/r_h, and each contraction shrinks the modulus below m/k | `prefix_reservoir_three` |
+| So a prefix with 3k ≤ h has at least k + 1 residues modulo every m > 2a/r_h, and each contraction shrinks the modulus below m/k | `prefix_reservoir` |
 | The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 3 | `Sharp.limsup_profile_le_three` |
 | For every fixed K and every C > 3: sizeCost(a) + K ≤ C · log₂ a / log₂ log₂ a once a is large enough | `eventually_sizeCost_add_le_three` |
 | For one real constant C: G(a, b) ≤ C · log₂ a / log₂ log₂ a for every a ≥ 4 and b ≤ a | `uniform_real_bound` |
@@ -488,7 +486,7 @@ programs and this program in full.
 [scripts/check.sh](scripts/check.sh) builds the library, reruns the axiom audit and the
 quick finite checks below, and compares each output with its recorded file; CI
 ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs it on every push and pull
-request. It leaves out `check_prefix_lemma.py`, which takes about a minute and checks a
+request. It leaves out `check_prefix_lemma.py`, which takes about three minutes and checks a
 lemma that Lean proves in general. A separate manual workflow
 ([palomar-preflight.yml](.github/workflows/palomar-preflight.yml)) runs Palomar's own
 verifier, including the comparator, on a chosen commit.
@@ -517,13 +515,14 @@ python3 scripts/check_prefix_lemma.py
   and replay checker. Run directly, it prints one example per size, using seed 20261016
   and base size 256 bits.
 - **[check_prefix_lemma.py](scripts/check_prefix_lemma.py)** checks the Euclidean-prefix
-  lemma (`prefix_pairs_distinct`): if r_0 = a, r_1 = b, r_2, … are the Euclidean
-  remainders and m > 2a/r_h, then the pairs (r_i mod m, r_{i+1} mod m), 0 ≤ i < h, are
-  distinct. It checks every coprime pair with 3 ≤ a < 1500 and 1 ≤ b < a, every prefix
+  lemma (`prefix_class_card_le_three`): if r_0 = a, r_1 = b, r_2, … are the Euclidean
+  remainders and m > 2a/r_h, then each residue class modulo m contains at most three of
+  r_0, …, r_h. It checks every coprime pair with 3 ≤ a < 1500 and 1 ≤ b < a, every prefix
   length h, and up to 60 consecutive moduli above the threshold 2a/r_h, restricted to
   m < 4a. This gives 254,722,179 instances. A failure exits with a nonzero status and
-  reports the first counterexample. As a control it also counts collisions when the
-  threshold is dropped.
+  reports the first counterexample. It also counts the instances where a class holds
+  exactly three values, so the bound is attained, and, as a control, the instances with
+  four or more in a class when the threshold is dropped.
 
 Results are in [validation/](validation/). The scripts search for derivations with
 ordinary arithmetic; only the remainder facts of the derivation they return are counted.

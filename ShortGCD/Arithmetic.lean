@@ -33,7 +33,7 @@ def smallBits (n : ℕ) := (n+2)/3
 theorem parameter_bounds {n : ℕ} (hj : 32 ≤ Nat.log 2 n) :
     let j := Nat.log 2 n
     let p := j/4
-    0 < n ∧ 1 ≤ p ∧ (2^p)^2 < prefixLength n ∧
+    0 < n ∧ 1 ≤ p ∧ 3*2^p ≤ prefixLength n ∧
     2*2^n ≤ 2^(smallBits n)*2^(earlyBits n) ∧
     2^n ≤ 2^(smallBits n)*(2^p)^(contractionCount n) ∧
     (prefixLength n+1)*j ≤ 64*n ∧
@@ -77,9 +77,12 @@ theorem parameter_bounds {n : ℕ} (hj : 32 ≤ Nat.log 2 n) :
     rw [Nat.log_div_base_pow] at hmono
     exact hmono
   refine ⟨by omega,by omega,?_,?_,?_,?_,?_,?_,?_,hlog1,hlog2,?_,?_⟩
-  · change (2^p)^2 < 2^(2*p)+1
-    rw [←pow_mul, Nat.mul_comm p 2]
-    omega
+  · change 3*2^p ≤ 2^(2*p)+1
+    have h4 : 4 ≤ 2^p := by
+      calc 4 = 2^2 := by norm_num
+           _ ≤ 2^p := Nat.pow_le_pow_right (by omega) hp
+    rw [Nat.mul_comm 2 p, pow_mul]
+    nlinarith
   · rw [←pow_add]
     have he : n+1 ≤ smallBits n+earlyBits n := by dsimp [smallBits,earlyBits]; omega
     calc 2*2^n = 2^(n+1) := by rw [pow_succ,Nat.mul_comm]

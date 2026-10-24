@@ -132,7 +132,7 @@ theorem register_coprime_step {a b A L M h k J : ℕ}
     have hpos' : ∀ i, i < h → 0 < r (i+1) := fun i hi => hpos (i+1) (by omega)
     have hdesc := remainder_desc hab hpos'
     have hR : Reservoir ((Finset.range (h+1)).image r) M k := by
-      apply prefix_reservoir_three r (fun i => r i / r (i+1)) a h M k (hpos h le_rfl)
+      apply prefix_reservoir r (fun i => r i / r (i+1)) a h M k (hpos h le_rfl)
         (fun i _ => remainder_bound hab.le i) (remainder_lower hab hpos')
         (fun i _ => (remainder_gcd a b i).trans hcop.gcd_eq_one)
       · intro i hi

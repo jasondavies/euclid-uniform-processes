@@ -17,7 +17,6 @@
 'ShortGCD.noncoprime_certificate_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.uniform_gcd_certificates' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.gcd_certificate_lower' depends on axioms: [propext, Classical.choice, Quot.sound]
-'ShortGCD.prefix_pairs_distinct' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.prefix_class_card_le_three' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.residue_card_three' depends on axioms: [propext, Classical.choice, Quot.sound]
 'ShortGCD.small_remainder' depends on axioms: [propext, Classical.choice, Quot.sound]
