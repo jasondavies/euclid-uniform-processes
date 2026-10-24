@@ -2,6 +2,7 @@
   "challenge_module": "Challenge",
   "solution_module": "Solution",
   "theorem_names": [
+    "ShortGCD.generates_G",
     "ShortGCD.uniform_real_bound_three",
     "ShortGCD.uniform_intrinsic_bound_three",
     "ShortGCD.not_conjecture_3_4",
@@ -18,6 +19,7 @@
     "ShortGCD.TailSource.executes_correct",
     "ShortGCD.TailSource.executes_total",
     "ShortGCD.TailSource.arbitrarily_small_coefficient",
+    "ShortGCD.ClosureDepth.depth_mem",
     "ShortGCD.ClosureDepth.no_logarithmic_sequences",
     "ShortGCD.Book.callsCoprimeness_eq",
     "ShortGCD.Book.callsRemGcd_eq",

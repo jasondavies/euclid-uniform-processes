@@ -69,9 +69,9 @@ lemma derives_stage {a b : ℤ} {S T : Finset ℕ} {n k : ℕ} (h : Derives S n 
       exact rem_add_mem (ih x hx) (ih y hy)
     · exact stage_mono a b (by omega) (ih z hz)
 
-/-- **Closure depth is at most one more than the derivation length.** For `a > 0`,
-`g(a, b) ≤ 1 + G(a, rem(b, a))`. -/
-theorem depth_le (a b : ℕ) (ha : 0 < a) : depth a b ≤ 1 + G a (b % a) := by
+/-- For `a > 0`, the gcd lies in stage `1 + G(a, rem(b, a))`. -/
+lemma gcd_mem_stage (a b : ℕ) (ha : 0 < a) :
+    (Int.gcd a b : ℤ) ∈ stage a b (1 + G a (b % a)) := by
   obtain ⟨n, T, hn, hd, hw⟩ := generates_G a (b % a)
   have hS : ∀ x ∈ ({a, b % a} : Finset ℕ), (x : ℤ) ∈ stage a b 1 := by
     intro x hx
@@ -83,10 +83,20 @@ theorem depth_le (a b : ℕ) (ha : 0 < a) : depth a b ≤ 1 + G a (b % a) := by
     rw [Nat.gcd_comm a (b % a), ← Nat.gcd_rec, Nat.gcd_comm]
   have hmem := derives_stage hd hS _ hw
   rw [hg] at hmem
-  apply Nat.sInf_le
   show ((Int.gcd (a : ℤ) (b : ℤ) : ℕ) : ℤ) ∈ stage a b (1 + G a (b % a))
   rw [Int.gcd_natCast_natCast]
   exact stage_mono a b (by omega) hmem
+
+/-- **Closure depth is at most one more than the derivation length.** For `a > 0`,
+`g(a, b) ≤ 1 + G(a, rem(b, a))`. -/
+theorem depth_le (a b : ℕ) (ha : 0 < a) : depth a b ≤ 1 + G a (b % a) :=
+  Nat.sInf_le (gcd_mem_stage a b ha)
+
+/-- **The closure depth is attained**: for `a > 0`, `gcd(a, b)` lies in stage `g(a, b)`, so
+`g(a, b)` is a genuine least stage and not the default value of an empty infimum. -/
+theorem depth_mem (a b : ℕ) (ha : 0 < a) : (Int.gcd a b : ℤ) ∈ stage a b (depth a b) :=
+  Nat.sInf_mem (s := {k | (Int.gcd (a : ℤ) (b : ℤ) : ℤ) ∈ stage a b k})
+    ⟨_, gcd_mem_stage a b ha⟩
 
 /-- **The closure depth is `O(log a / log log a)`**, uniformly in `b ≥ 1`. -/
 theorem depth_bound : ∃ C : ℝ, 0 < C ∧ ∀ a b : ℕ, 4 ≤ a → 1 ≤ b →

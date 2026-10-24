@@ -24,15 +24,16 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Reusing a stored Euclidean prefix, we derive $\gcd(a,b)$ from $a,b$ with
-$O(\log a/\log\log a)$ applications of the remainder function alone,
-uniformly in $b\leq a$; Euclid's algorithm needs order $\log a$ in the
+Reusing a stored Euclidean prefix, we show that every pair $a\geq b$ has a
+derivation of $\gcd(a,b)$ from $a,b$ with $O(\log a/\log\log a)$
+applications of the remainder function alone; Euclid's algorithm needs order $\log a$ in the
 worst case. These derivations bound the intrinsic complexity
 of gcd and coprimeness by the same order, refuting Moschovakis's conjectured
 logarithmic lower bounds for uniform processes; by his best-uniform-process
 theorem, a single uniform process attains this bound.
 The Main Conjecture for algorithms remains open. We also prove an
-$\Omega(\log\log a)$ lower bound for almost all coprime pairs and give,
+$\Omega(\log\log a)$ lower bound on this complexity for almost all coprime
+pairs and give,
 for each $\varepsilon>0$, a nondeterministic register program computing gcd
 that, on every input $a\geq b\geq1$, has a successful computation using at
 most $\varepsilon\log a+O(1)$ remainder calls. The upper bound also answers
@@ -113,7 +114,8 @@ remainder-call complexity of coprimeness in the book's Euclidean structure
 on positive coprime inputs, and bounds those of gcd to within $2$
 (Proposition~\ref{prop:certificates}). Theorem~\ref{thm:main} therefore
 refutes Conjecture~3.4 of \cite{moschovakis2012} and version (4F-5) of the
-Main Conjecture, and limits what the homomorphism method can prove. The
+Main Conjecture, and shows that lower bounds from the homomorphism method
+cannot exceed $O(\log a/\log\log a)$ for these problems. The
 book's best-uniform-process theorem then gives a single process with the
 same bound on every input. The upper bound also settles an open problem
 of van den Dries and Moschovakis on the closure depth of the gcd
@@ -428,6 +430,13 @@ $S_{k+1}$, by induction on $k$: its operands are $a$, $r$ or earlier values,
 all in $S_k$, and every divisor in the derivation is positive.
 Theorem~\ref{thm:main} bounds $G(a,r)$.
 \end{proof}
+In the bit model of parallel computation, Kannan, Miller and Rudolph
+\cite{kmr1987} and Chor and Goldreich \cite{chorgoldreich1990} compute the
+gcd of $n$-bit integers in parallel time $O(n\log\log n/\log n)$ and
+$O(n/\log n)$, counting bit operations. Van den Dries and Moschovakis posed
+their question later, for the closure under exact integer operations, where
+each operation on whole integers is one step;
+Corollary~\ref{cor:closure-depth} gives depth of the same order there.
 
 \section{Certificates and uniform processes}\label{sec:certificates}
 \paragraph{Structures and certificates.}
@@ -630,7 +639,8 @@ process computing the function, hence to every recursive program
 \cite[Proposition~4E.1, Corollary~4E.2]{moschovakis2019}.
 By Corollary~\ref{cor:refute}, no lower bound on the intrinsic complexities
 listed there can grow faster than $\log a/\log\log a$, so a logarithmic lower bound
-for algorithms must use restrictions beyond uniformity, such as finite program
+for algorithms must use properties of programs not shared by all uniform
+processes, such as finite program
 syntax or determinism.
 
 \section{An almost-all lower bound}\label{sec:loglog}
@@ -819,7 +829,7 @@ unlike Bshouty's bound in his model, our upper bound is not known to be
 optimal.
 
 \paragraph{One program.}
-For this construction, the obstacle to one sublogarithmic program is reusable
+For this construction, an obstacle to one sublogarithmic program is reusable
 access to a prefix whose length grows with the input. A nondeterministic
 program can guess the close pair, but it must hold all $h+1$ prefix values;
 regenerating them would cost about $h$ calls per contraction. By
@@ -855,7 +865,7 @@ The Python planner in the accompanying
 repository\footnote{\url{https://github.com/jasondavies/euclid-uniform-processes}}
 chooses instructions offline with unrestricted arithmetic, using the
 parameters of Theorem~\ref{thm:main} from Section~\ref{sec:construction};
-below a base size (256 bits by default) it uses Euclid's algorithm. An independent replay then checks
+below a base size (256 bits by default) it uses Euclid's algorithm. A separate replay script then checks
 operand availability, nonzero divisors, every remainder equation and the
 final gcd.
 
@@ -921,14 +931,62 @@ The development is also packaged for the Palomar registry:
 with every definition visible and deliberate \texttt{sorry} placeholders.
 \texttt{Solution.lean} imports the proved library, independently of these placeholders.
 Palomar's comparator checks that the proved statements are exactly those of
-\texttt{Challenge.lean} and replays the proofs through Lean's kernel and
-independent kernels. \texttt{comparator.json} lists all twenty compared
-theorems; Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
+\texttt{Challenge.lean} and replays the proofs through Lean's kernel and the
+independent kernels NanoDa and con-ron; we ran it on the current version.
+\texttt{comparator.json} lists all twenty-two compared theorems, including
+that $G$ and the closure depth are attained (\lean{generates_G},
+\lean{ClosureDepth.depth_mem}), so the bounds on them are not about empty
+infima; Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
 Version~1 of the registry entry \cite{palomar2026} records this
 verification for commit \texttt{40279dd}, covering thirteen statements: the
 earlier coefficient-$6$ forms of the two leading-coefficient theorems and
 eleven others. The coefficient-$3$ forms and the program, closure-depth and
 book-certificate statements were added afterwards.
+
+\begin{table}[!t]
+\centering\small
+\caption{Main results and Lean declarations, all in the namespace \texttt{ShortGCD}. Names marked ${}^\dagger$ are compared against \texttt{Challenge.lean}.}
+\label{tab:lean}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.67\textwidth}@{}}
+\toprule
+Paper & Lean declaration(s)\\\midrule
+Theorem~\ref{thm:main} & \lean{uniform_real_bound}, \lean{generates_G}${}^\dagger$\\
+Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
+Lemma~\ref{lem:gap} & \lean{small_remainder}\\
+Lemma~\ref{lem:prefix} & \lean{prefix_class_card_le_three}, \lean{residue_card_three}; for \eqref{eq:contract}, \lean{prefix_reservoir}\\
+Lemma~\ref{lem:fact-representation} (consequence used) & \lean{Book.callsCoprimeness_eq}${}^\dagger$,
+\lean{Book.callsRemGcd_eq}${}^\dagger$, \lean{Book.callsGcd_eq}${}^\dagger$\\
+Corollary~\ref{cor:three} & \lean{uniform_real_bound_three}${}^\dagger$, \lean{uniform_intrinsic_bound_three}${}^\dagger$\\
+Proposition~\ref{prop:certificates} &
+\lean{callsGcd_le}, \lean{callsGcd_zero_left}, \lean{callsRemGcd_le_callsGcd},
+\lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
+\lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
+Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
+Corollary~\ref{cor:refute} &
+\lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
+\lean{not_main_conjecture_4F5_Neps}${}^\dagger$, and the literal readings
+\lean{not_conjecture_3_4_literal}${}^\dagger$,
+\lean{not_main_conjecture_4F5_literal}${}^\dagger$\\
+Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
+Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le}, \lean{ClosureDepth.depth_mem}${}^\dagger$,
+\lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}${}^\dagger$\\
+Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le}, \lean{G_eq_D},
+\lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
+Theorem~\ref{thm:registers} &
+\lean{TailProgram.Fixed.limsup_profile_le},
+\lean{TailProgram.Fixed.eventually_accepts_bound}, \lean{TailSource.executes_iff},
+\lean{TailSource.total_registers},
+\lean{TailSource.executes_correct}${}^\dagger$,
+\lean{TailSource.executes_total}${}^\dagger$,
+\lean{TailSource.arbitrarily_small_coefficient}${}^\dagger$\\
+Recursive programs (Section~\ref{sec:programs}) &
+\lean{TailRecursive.program_tailRecursive},
+\lean{TailRecursive.stacks_bounded},
+\lean{TailRecursive.executes_iff_steps},
+\lean{TailRecursive.arbitrarily_small_coefficient}\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \paragraph{Arithmetic bounds.}
 Costs are lengths of explicit remainder derivations. The finite theorem
@@ -990,50 +1048,6 @@ separate transitions, and only remainder transitions are charged
 \cite[Table~1, p.~75]{moschovakis2019}. Closures represent
 substitution in machine states, not extra program data.
 
-\begin{table}[!h]
-\centering\small
-\caption{Main results and Lean declarations, all in the namespace \texttt{ShortGCD}. Names marked ${}^\dagger$ are compared against \texttt{Challenge.lean}.}
-\label{tab:lean}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.67\textwidth}@{}}
-\toprule
-Paper & Lean declaration(s)\\\midrule
-Theorem~\ref{thm:main} & \lean{uniform_real_bound}\\
-Normalisation \eqref{eq:normalize} & \lean{G_normalize}\\
-Lemma~\ref{lem:gap} & \lean{small_remainder}\\
-Lemma~\ref{lem:prefix} & \lean{prefix_class_card_le_three}, \lean{residue_card_three}; for \eqref{eq:contract}, \lean{prefix_reservoir}\\
-Lemma~\ref{lem:fact-representation} & \lean{Book.callsCoprimeness_eq}${}^\dagger$,
-\lean{Book.callsRemGcd_eq}${}^\dagger$, \lean{Book.callsGcd_eq}${}^\dagger$\\
-Corollary~\ref{cor:three} & \lean{uniform_real_bound_three}${}^\dagger$, \lean{uniform_intrinsic_bound_three}${}^\dagger$\\
-Proposition~\ref{prop:certificates} &
-\lean{callsGcd_le},
-\lean{exists_certifiesGcd}${}^\dagger$, \lean{G_le_callsRemGcd}${}^\dagger$,
-\lean{G_le_callsGcd}${}^\dagger$, \lean{callsCoprimeness_eq_G}${}^\dagger$\\
-Remark~\ref{rem:noncoprime} & \lean{callsCoprimeness_le}, \lean{exists_certifiesCoprimeness}${}^\dagger$\\
-Corollary~\ref{cor:refute} &
-\lean{not_conjecture_3_4}${}^\dagger$, \lean{not_main_conjecture_4F5}${}^\dagger$,
-\lean{not_main_conjecture_4F5_Neps}${}^\dagger$, and the literal readings
-\lean{not_conjecture_3_4_literal}${}^\dagger$,
-\lean{not_main_conjecture_4F5_literal}${}^\dagger$\\
-Corollary~\ref{cor:uniform} & Cited Theorem~4F.1; not formalised here\\
-Corollary~\ref{cor:closure-depth} & \lean{ClosureDepth.depth_le},
-\lean{ClosureDepth.depth_bound}, \lean{ClosureDepth.no_logarithmic_sequences}${}^\dagger$\\
-Proposition~\ref{prop:loglog} & \lean{AlmostAll.card_D_le},
-\lean{tendsto_card_callsCoprimeness_loglog}${}^\dagger$\\
-Theorem~\ref{thm:registers} &
-\lean{TailProgram.Fixed.limsup_profile_le},
-\lean{TailProgram.Fixed.eventually_accepts_bound}, \lean{TailSource.executes_iff},
-\lean{TailSource.total_registers},
-\lean{TailSource.executes_correct}${}^\dagger$,
-\lean{TailSource.executes_total}${}^\dagger$,
-\lean{TailSource.arbitrarily_small_coefficient}${}^\dagger$\\
-Recursive programs (Section~\ref{sec:programs}) &
-\lean{TailRecursive.program_tailRecursive},
-\lean{TailRecursive.stacks_bounded},
-\lean{TailRecursive.executes_iff_steps},
-\lean{TailRecursive.arbitrarily_small_coefficient}\\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \section*{Declaration of AI-generated research and authorship}
 This manuscript is the product of an AI-driven research process. During a
@@ -1050,8 +1064,8 @@ formalisation and to the review and revision of the manuscript.
 The Lean development gives a machine-checkable version of the main claims.
 Lean's kernel checks the proofs, including the mathlib results they use,
 relative to the axioms listed in Appendix~\ref{app:lean}. That includes the
-correspondence between the fact-based certificates and the book's
-definitions (Lemma~\ref{lem:fact-representation}); the book's general
+equality of the book-style and fact-based complexities, the consequence of
+Lemma~\ref{lem:fact-representation} that we use; the book's general
 theory of uniform processes, used through the cited Theorem~4F.1, is not
 formalised.
 
@@ -1068,12 +1082,25 @@ Research Report 1989-376-38, Department of Computer Science, University of
 Calgary, December 1989.
 \href{https://doi.org/10.11575/PRISM/30475}{doi:10.11575/\allowbreak PRISM/30475}.
 
+\bibitem{chorgoldreich1990}
+Benny Chor and Oded Goldreich.
+An improved parallel algorithm for integer GCD.
+\emph{Algorithmica} 5(1--4):1--10, 1990.
+\href{https://doi.org/10.1007/BF01840374}{doi:10.1007/BF01840374}.
+
 \bibitem{deMouraUllrich2021}
 Leonardo de Moura and Sebastian Ullrich.
 The Lean~4 theorem prover and programming language.
 In \emph{Automated Deduction -- CADE~28}, Lecture Notes in Computer Science,
 vol.~12699, pp.~625--635. Springer, 2021.
 \href{https://doi.org/10.1007/978-3-030-79876-5_37}{doi:10.1007/978-3-030-79876-5\_37}.
+
+\bibitem{kmr1987}
+Ravindran Kannan, Gary Miller and Larry Rudolph.
+Sublinear parallel algorithm for computing the greatest common divisor of
+two integers.
+\emph{SIAM Journal on Computing} 16(1):7--16, 1987.
+\href{https://doi.org/10.1137/0216002}{doi:10.1137/0216002}.
 
 \bibitem{knuth1997}
 Donald E. Knuth.

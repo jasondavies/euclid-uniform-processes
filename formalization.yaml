@@ -188,6 +188,11 @@ review:
 alignment:
   namespace: "ShortGCD"
   statements:
+    - source: "Paper, definition of G (derivations), used by Theorem 1 and Corollary 4"
+      lean: "ShortGCD.generates_G"
+      module: "ShortGCD.Composition"
+      status: proved
+      note: "G is attained: some derivation with G(a, b) remainder calls reaches gcd(a, b), so G is not an empty infimum."
     - source: "Paper, leading-coefficient corollary (Corollary 4)"
       lean: "ShortGCD.uniform_real_bound_three"
       module: "ShortGCD.SharpBound"
@@ -278,6 +283,11 @@ alignment:
       note: >-
         No positive integers αₙ → ∞, βₙ and C > 0 have g(αₙ, βₙ) > C log₂ αₙ for all n, with
         g the closure depth defined as in the source (iq(a, 0) = a, rem(a, 0) = a).
+    - source: "van den Dries and Moschovakis 2009, definition of g (p. 2:6); paper, closure-depth corollary"
+      lean: "ShortGCD.ClosureDepth.depth_mem"
+      module: "ShortGCD.ClosureDepth"
+      status: proved
+      note: "The closure depth is attained: for a > 0, gcd(a, b) lies in stage g(a, b), so g is not an empty infimum."
     - source: "Paper, fact-representation lemma; Moschovakis 2019, §§1D, 4C–4E (coprimeness in Nε)"
       lean: "ShortGCD.Book.callsCoprimeness_eq"
       module: "ShortGCD.BookCertificates"

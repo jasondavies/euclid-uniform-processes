@@ -19,6 +19,8 @@ import ShortGCD
 #print axioms ShortGCD.callsGcd_zero_right
 #print axioms ShortGCD.callsRem_eq_D
 #print axioms ShortGCD.G_eq_D
+#print axioms ShortGCD.generates_G
+#print axioms ShortGCD.G_normalize
 -- Certificates.
 #print axioms ShortGCD.coprime_certificate_bound
 #print axioms ShortGCD.noncoprime_certificate_bound
@@ -27,6 +29,7 @@ import ShortGCD
 -- The upper bound.
 #print axioms ShortGCD.prefix_class_card_le_three
 #print axioms ShortGCD.residue_card_three
+#print axioms ShortGCD.prefix_reservoir
 #print axioms ShortGCD.small_remainder
 #print axioms ShortGCD.sizeCost_step
 #print axioms ShortGCD.uniform_bit_bound
@@ -73,6 +76,7 @@ import ShortGCD
 -- The closure-depth question of van den Dries and Moschovakis.
 #print axioms ShortGCD.ClosureDepth.rem_natCast
 #print axioms ShortGCD.ClosureDepth.depth_le
+#print axioms ShortGCD.ClosureDepth.depth_mem
 #print axioms ShortGCD.ClosureDepth.depth_bound
 #print axioms ShortGCD.ClosureDepth.no_logarithmic_sequences
 -- The book's certificates and intrinsic complexities (the fact-representation lemma).

@@ -138,6 +138,11 @@ noncomputable def callsRemGcd (a b : ℕ) : ℕ :=
 
 /-! ## Upper bounds -/
 
+/-- **`G` is attained**: some derivation from `a, b` with `G a b` remainder calls reaches
+`gcd(a, b)`, so `G` is a genuine minimum and not the default value of an empty infimum. -/
+theorem generates_G (a b : ℕ) : Generates {a,b} (G a b) (Nat.gcd a b) := by
+  sorry
+
 /-- **Leading coefficient 3** (the paper's Corollary 4). For every `ε > 0`, for all sufficiently
 large `a` and every `b ≤ a`, `G a b ≤ (3 + ε) log₂ a / log₂ log₂ a`. Euclid's algorithm needs
 about `1.44 log₂ a` calls in the worst case. -/
@@ -460,6 +465,11 @@ def stage (a b : ℤ) : ℕ → Set ℤ
 
 /-- The closure depth `g(a, b)`: the least stage containing `gcd(a, b)`. -/
 noncomputable def depth (a b : ℤ) : ℕ := sInf {k | (Int.gcd a b : ℤ) ∈ stage a b k}
+
+/-- **The closure depth is attained**: for `a > 0`, `gcd(a, b)` lies in stage `g(a, b)`, so
+`g(a, b)` is a genuine least stage and not the default value of an empty infimum. -/
+theorem depth_mem (a b : ℕ) (ha : 0 < a) : (Int.gcd a b : ℤ) ∈ stage a b (depth a b) := by
+  sorry
 
 /-- **Answer to the Open Problem.** There are no positive integers `αₙ → ∞`, `βₙ` and
 `C > 0` with `g(αₙ, βₙ) > C log₂ αₙ` for all `n`. -/

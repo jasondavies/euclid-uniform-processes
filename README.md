@@ -198,6 +198,7 @@ need no remainder facts (`callsGcd_zero_left`, `callsGcd_zero_right`).
 | The upper limit of sizeCost(2ⁿ) · log₂ n / n is at most 3 | `Sharp.limsup_profile_le_three` |
 | For every fixed K and every C > 3: sizeCost(a) + K ≤ C · log₂ a / log₂ log₂ a once a is large enough | `eventually_sizeCost_add_le_three` |
 | For one real constant C: G(a, b) ≤ C · log₂ a / log₂ log₂ a for every a ≥ 4 and b ≤ a | `uniform_real_bound` |
+| G is attained: some derivation with G(a, b) remainder calls reaches gcd(a, b) | `generates_G` |
 | sizeCost(a) is O(log a / log log a) | `sizeCost_isBigO` |
 | sizeCost(a) is o(log a) | `sizeCost_isLittleO_log` |
 | For every ε > 0, eventually in M, `callsCoprimeness` and `callsGcd` are at most ε log₂ M on all pairs with 1 ≤ a ≤ M and 1 ≤ b ≤ M | `eventually_calls_le` |
@@ -247,6 +248,7 @@ the universe, certification, the calls(rem) norm and the intrinsic complexities.
 | --- | --- |
 | At positive divisors, the source's rem agrees with remainder on ℕ | `ClosureDepth.rem_natCast` |
 | g(a, b) ≤ 1 + G(a, rem(b, a)) for a > 0 | `ClosureDepth.depth_le` |
+| The closure depth is attained: gcd(a, b) lies in stage g(a, b) for a > 0 | `ClosureDepth.depth_mem` |
 | g(a, b) ≤ 1 + C · log₂ a / log₂ log₂ a for all a ≥ 4 and b ≥ 1 | `ClosureDepth.depth_bound` |
 | No positive aₙ → ∞, bₙ and C > 0 have g(aₙ, bₙ) > C log₂ aₙ for all n | `ClosureDepth.no_logarithmic_sequences` |
 
@@ -331,9 +333,9 @@ coefficient-3 forms and the program-family, closure-depth and book-certificate t
 were added afterwards.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
-  defines every notion the theorems use, and states the twenty compared theorems (listed
+  defines every notion the theorems use, and states the twenty-two compared theorems (listed
   in `comparator.json`) with `sorry`: the upper bounds, the refutations, their
-  non-vacuity, the program family, the closure-depth answer and the equalities with the
+  non-vacuity (certificates exist, and G and the closure depth are attained), the program family, the closure-depth answer and the equalities with the
   book's definitions.
 - **[Solution.lean](Solution.lean)** imports `ShortGCD`, where each of these declarations
   is defined and proved under the same name.
