@@ -891,7 +891,10 @@ All $78$ derivations and the example of Section~\ref{sec:contractions} pass
 replay. On the Fibonacci pairs, Euclid's worst case, the bits
 removed by successive contractions roughly double (16, 31, 64, 125 and 252
 at 512 bits), so few contractions are needed. These samples illustrate the construction; the
-asymptotic claim rests on the proof. The
+asymptotic claim rests on the proof. The table uses the parameters of
+Theorem~\ref{thm:main}; with those of Corollary~\ref{cor:three} and $c$ near $1$,
+the prefix exceeds the whole Euclidean sequence at these sizes, so the
+coefficient $3$ is asymptotic only. The
 accompanying repository also checks scaled and noncoprime inputs, rejects invalid traces, and tests the prefix
 lemma over a finite range. The repository README gives scripts, commands,
 test ranges, seeds and individual results. The Python checks are not formally verified;
