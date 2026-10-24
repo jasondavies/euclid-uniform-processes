@@ -44,9 +44,10 @@ includes the link to the book's own definitions: Lean states the book's certific
 intrinsic complexities directly and proves them equal to those used in the refutations.
 The result has not yet been reviewed by an expert in the area.
 
-**AI transparency.** This work was produced entirely by AI systems, including the main
-result, the Lean formalisation and the manuscript; the human author initiated the
-research and directed the AI systems. The paper ends with a full declaration.
+**AI transparency.** The main result, the Lean formalisation and the manuscript were
+produced by AI systems; the human author initiated the research, directed the AI systems,
+has checked the arguments and takes full responsibility for the content. The paper ends
+with a full declaration.
 
 Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf).
 Palomar registry entry: [PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1), which verifies

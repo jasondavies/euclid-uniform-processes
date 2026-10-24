@@ -148,8 +148,10 @@ automation:
       prompting_notes: "n/a"
   spend_usd: "not tracked"
   notes: >-
-    The work was produced entirely by AI systems. During a broader investigation initiated
-    by the human author, GPT-6-Astra identified the principal result. The author then
+    The main result, the formalization and the manuscript were produced by AI systems; the
+    human author has checked the arguments and takes full responsibility for the content.
+    During a broader investigation initiated by the human author, GPT-6-Astra identified
+    the principal result. The author then
     directed GPT-6-Astra (via Codex) and Claude Opus 5.5 (via Claude Code) to formalize the
     results in Lean and to write the manuscript; both contributed to the formalization and
     to the review and revision of the manuscript. The author wrote no part of the text or
