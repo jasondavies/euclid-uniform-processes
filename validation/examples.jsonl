@@ -1,3 +1,3 @@
-{"bits": 512, "certificate_rem_calls": 196, "euclid_to_1_calls": 326, "reservoir_phases": 1, "contractions": 30, "max_recursion": 1, "verified": true, "seconds": 0.0}
-{"bits": 2048, "certificate_rem_calls": 669, "euclid_to_1_calls": 1204, "reservoir_phases": 3, "contractions": 151, "max_recursion": 2, "verified": true, "seconds": 0.007}
-{"bits": 8192, "certificate_rem_calls": 2059, "euclid_to_1_calls": 4754, "reservoir_phases": 4, "contractions": 600, "max_recursion": 4, "verified": true, "seconds": 0.463}
+{"bits": 512, "certificate_rem_calls": 193, "euclid_to_1_calls": 326, "reservoir_phases": 1, "contractions": 23, "max_recursion": 1, "verified": true, "seconds": 0.0}
+{"bits": 2048, "certificate_rem_calls": 649, "euclid_to_1_calls": 1204, "reservoir_phases": 2, "contractions": 119, "max_recursion": 2, "verified": true, "seconds": 0.013}
+{"bits": 8192, "certificate_rem_calls": 1986, "euclid_to_1_calls": 4754, "reservoir_phases": 6, "contractions": 486, "max_recursion": 4, "verified": true, "seconds": 0.926}

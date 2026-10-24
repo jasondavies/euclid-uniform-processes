@@ -9,7 +9,7 @@ Proposed upper bound: O(log(max(a,b)) / log(log(max(a,b)))) certificate length.
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
-from math import gcd, isqrt
+from math import gcd
 from random import Random
 
 @dataclass
@@ -51,9 +51,9 @@ class Certificate:
                 a,b=b,self.emit(a,b)
             return b
         self.phases += 1
-        h = isqrt(n)
-        if h*h < n:
-            h += 1
+        # The paper's parameters: k = 2^p with p = floor(floor(log2 n)/2), h = 3k.
+        k = 1 << ((n.bit_length()-1)//2)
+        h = 3*k
         upper = g << (3*n//4)
         lower = g << ((n+2)//3)
         R=[a,b]
@@ -77,7 +77,7 @@ class Certificate:
             t = len(residues)
             # Euclidean-prefix lemma: each residue class holds at most three of
             # the h+1 prefix values.
-            assert 3*t >= len(R), (n,h,t)
+            assert 3*t >= len(R) and t >= k+1, (n,h,t)
             assert (m//g)*R[-1] > 2*a
             lo,hi = min(zip(residues,residues[1:]), key=lambda z:z[1]-z[0])
             gap=hi-lo

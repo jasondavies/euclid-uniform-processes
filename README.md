@@ -501,7 +501,7 @@ python3 scripts/check_prefix_lemma.py
 - **[check_certificates.py](scripts/check_certificates.py)** runs a 310-case suite. It
   covers zero inputs, equal inputs, scaled non-coprime inputs, random large inputs and
   Fibonacci pairs. With seed 20261016 and base size 64 bits, the 310 cases include
-  175 noncoprime pairs and exercise 3,543 contractions. Four invalid traces are rejected.
+  175 noncoprime pairs and exercise 2,107 contractions. Four invalid traces are rejected.
 - **[benchmark_certificates.py](scripts/benchmark_certificates.py)** reproduces the
   manuscript's table (about 15 seconds). With seed 20261016 and base size 256 bits, it
   samples 25 coprime pairs at each of 512, 2048 and 8192 bits (a uniform of that bit

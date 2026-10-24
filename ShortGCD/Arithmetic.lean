@@ -6,33 +6,32 @@ public import Mathlib
 
 /-! # Parameter choices for the uniform bound
 
-Natural-number parameters for `sizeCost_step` at size `2^n`: with `j = ⌊log₂ n⌋` and
-`p = j/4`, a prefix of length `4^p + 1`, `n/p + 1` contractions of ratio `2^p`, and recursive
-sizes of about `3n/4` and `n/3` bits. `parameter_bounds` collects the inequalities they
-satisfy, and `absorb` is the arithmetic step of the induction in `UpperBound`.
+Natural-number parameters for `sizeCost_step` at size `2^n`, as in the paper: with
+`j = ⌊log₂ n⌋` and `p = ⌊j/2⌋`, a prefix of `h = 3k` steps with `k = 2^p`, `J = ⌈n/p⌉`
+contractions of ratio `k`, and recursive sizes `⌈3n/4⌉` and `⌈n/3⌉` bits. `parameter_bounds`
+collects the inequalities they satisfy, and `absorb` is the arithmetic step of the induction
+in `UpperBound`.
 -/
 
 namespace ShortGCD
 
 /-- Elementary exponential domination, used to bound the cost of storing the prefix. -/
-theorem four_mul_add_three_le_pow {p : ℕ} (hp : 2 ≤ p) : 4*p+3 ≤ 2^(2*p) := by
+theorem four_mul_add_two_le_pow {p : ℕ} (hp : 5 ≤ p) : 4*p+2 ≤ 2^p := by
   induction p, hp using Nat.le_induction with
   | base => norm_num
   | succ p hp ih =>
-    have he : 2*(p+1) = 2*p+2 := by omega
-    rw [he,pow_add]
-    norm_num
+    rw [pow_succ]
     omega
 
 /-- Integer parameters for the construction, avoiding rounding issues with real powers. -/
-def prefixLength (n : ℕ) := 2^(2*(Nat.log 2 n/4))+1
-def contractionCount (n : ℕ) := n/(Nat.log 2 n/4)+1
+def prefixLength (n : ℕ) := 3*2^(Nat.log 2 n/2)
+def contractionCount (n : ℕ) := (n+Nat.log 2 n/2-1)/(Nat.log 2 n/2)
 def earlyBits (n : ℕ) := (3*n+3)/4
 def smallBits (n : ℕ) := (n+2)/3
 
 theorem parameter_bounds {n : ℕ} (hj : 32 ≤ Nat.log 2 n) :
     let j := Nat.log 2 n
-    let p := j/4
+    let p := j/2
     0 < n ∧ 1 ≤ p ∧ 3*2^p ≤ prefixLength n ∧
     2*2^n ≤ 2^(smallBits n)*2^(earlyBits n) ∧
     2^n ≤ 2^(smallBits n)*(2^p)^(contractionCount n) ∧
@@ -43,31 +42,43 @@ theorem parameter_bounds {n : ℕ} (hj : 32 ≤ Nat.log 2 n) :
     8*earlyBits n ≤ 7*n ∧ 8*(2*smallBits n) ≤ 7*n := by
   dsimp only
   let j := Nat.log 2 n
-  let p := j/4
+  let p := j/2
   have hj' : 32 ≤ j := hj
   have hjn : j ≤ n := Nat.log_le_self 2 n
   have hn : 32 ≤ n := hj'.trans hjn
-  have hp : 2 ≤ p := by dsimp [p]; omega
-  have h4p : 4*p ≤ j := by dsimp [p]; omega
-  have hjp : j ≤ 8*p := by dsimp [p]; omega
-  have hjexp : j ≤ 2^(2*p) := by
-    have hh := four_mul_add_three_le_pow hp
-    have : j ≤ 4*p+3 := by dsimp [p]; omega
+  have hp : 16 ≤ p := by dsimp [p]; omega
+  have h2p : 2*p ≤ j := by dsimp [p]; omega
+  have hjp : j ≤ 2*p+1 := by dsimp [p]; omega
+  have hexp : 2^p*2^p ≤ n := by
+    rw [← pow_add]
+    exact (Nat.pow_le_pow_right (by omega : 1 ≤ 2) (by omega : p+p ≤ j)).trans
+      (Nat.pow_log_le_self 2 (by omega))
+  have hprefix : (prefixLength n+1)*j ≤ 2*n := by
+    change (3*2^p+1)*j ≤ 2*n
+    have hpow := four_mul_add_two_le_pow (by omega : 5 ≤ p)
+    have h1 : 1 ≤ 2^p := Nat.one_le_pow _ _ (by omega)
+    have hj2 : (3*2^p+1)*j ≤ (4*2^p)*(2*p+1) :=
+      Nat.mul_le_mul (by omega) hjp
+    calc (3*2^p+1)*j ≤ (4*2^p)*(2*p+1) := hj2
+         _ = 2*2^p*(4*p+2) := by ring
+         _ ≤ 2*2^p*2^p := Nat.mul_le_mul_left _ hpow
+         _ = 2*(2^p*2^p) := by ring
+         _ ≤ 2*n := Nat.mul_le_mul_left _ hexp
+  have hdiv : contractionCount n*p ≤ n+p-1 := by
+    change (n+p-1)/p*p ≤ n+p-1
+    exact Nat.div_mul_le_self _ _
+  have hnJ : n ≤ p*contractionCount n := by
+    change n ≤ p*((n+p-1)/p)
+    have h1 := Nat.mod_lt (n+p-1) (by omega : 0 < p)
+    have h2 := Nat.mod_add_div (n+p-1) p
+    generalize p*((n+p-1)/p) = X at h2 ⊢
     omega
-  have hexp : 2^(4*p) ≤ n :=
-    (Nat.pow_le_pow_right (by omega : 1 ≤ 2) h4p).trans (Nat.pow_log_le_self 2 (by omega))
-  have hprefix : prefixLength n*j ≤ 2*n := by
-    change (2^(2*p)+1)*j ≤ 2*n
-    have hh := Nat.mul_le_mul_left (2^(2*p)+1) hjexp
-    have hpow : 2^(2*p)*2^(2*p) = 2^(4*p) := by rw [←pow_add]; congr 1; omega
-    have hpowpos : 1 ≤ 2^(2*p) := Nat.one_le_pow _ _ (by omega)
-    nlinarith
-  have hJ : contractionCount n*j ≤ 16*n := by
-    change (n/p+1)*j ≤ 16*n
-    have hdiv : n/p*p ≤ n := Nat.div_mul_le_self n p
-    have hprod := Nat.mul_le_mul_left (n/p+1) hjp
-    have hpn : p ≤ n := (Nat.div_le_self j 4).trans hjn
-    nlinarith
+  have hJ : contractionCount n*j ≤ 6*n := by
+    calc contractionCount n*j ≤ contractionCount n*(3*p) :=
+          Nat.mul_le_mul_left _ (by omega)
+         _ = 3*(contractionCount n*p) := by ring
+         _ ≤ 3*(n+p-1) := Nat.mul_le_mul_left _ hdiv
+         _ ≤ 6*n := by omega
   have hlog1 : j-2 ≤ Nat.log 2 (earlyBits n) := by
     have hmono := Nat.log_mono_right (b := 2) (show n/2^2 ≤ earlyBits n from by dsimp [earlyBits]; omega)
     rw [Nat.log_div_base_pow] at hmono
@@ -76,27 +87,15 @@ theorem parameter_bounds {n : ℕ} (hj : 32 ≤ Nat.log 2 n) :
     have hmono := Nat.log_mono_right (b := 2) (show n/2^2 ≤ smallBits n from by dsimp [smallBits]; omega)
     rw [Nat.log_div_base_pow] at hmono
     exact hmono
-  refine ⟨by omega,by omega,?_,?_,?_,?_,?_,?_,?_,hlog1,hlog2,?_,?_⟩
-  · change 3*2^p ≤ 2^(2*p)+1
-    have h4 : 4 ≤ 2^p := by
-      calc 4 = 2^2 := by norm_num
-           _ ≤ 2^p := Nat.pow_le_pow_right (by omega) hp
-    rw [Nat.mul_comm 2 p, pow_mul]
-    nlinarith
+  refine ⟨by omega,by omega,le_rfl,?_,?_,hprefix.trans (by omega),?_,?_,?_,hlog1,hlog2,?_,?_⟩
   · rw [←pow_add]
     have he : n+1 ≤ smallBits n+earlyBits n := by dsimp [smallBits,earlyBits]; omega
     calc 2*2^n = 2^(n+1) := by rw [pow_succ,Nat.mul_comm]
          _ ≤ _ := Nat.pow_le_pow_right (by omega) he
-  · have hnJ : n ≤ p*contractionCount n := by
-      dsimp [contractionCount,p,j]
-      have := Nat.mod_lt n (by omega : 0 < Nat.log 2 n/4)
-      have := Nat.mod_add_div n (Nat.log 2 n/4)
-      nlinarith
-    have hh : 2^n ≤ (2^p)^(contractionCount n) := by
+  · have hh : 2^n ≤ (2^p)^(contractionCount n) := by
       rw [←pow_mul]
       exact Nat.pow_le_pow_right (by omega) hnJ
     exact hh.trans (Nat.le_mul_of_pos_left _ (by positivity))
-  · nlinarith
   · nlinarith
   · dsimp [earlyBits]; omega
   · dsimp [smallBits]; omega

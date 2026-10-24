@@ -33,8 +33,9 @@ theorem uniform_bit_bound :
     by_cases hj : 32 ≤ Nat.log 2 n
     · obtain ⟨hn,hp,hkh,hthreshold,hpower,ho1,ho2,hearly,hsmall,hlog1,hlog2,hd1,hd2⟩ := parameter_bounds hj
       have hrec := sizeCost_step (A := 2^n) (L := 2^(earlyBits n))
-        (M := 2^(smallBits n)) (h := prefixLength n) (k := 2^(Nat.log 2 n/4))
-        (J := contractionCount n) (Nat.one_le_pow _ _ (by omega)) (by exact Nat.zero_lt_succ _)
+        (M := 2^(smallBits n)) (h := prefixLength n) (k := 2^(Nat.log 2 n/2))
+        (J := contractionCount n) (Nat.one_le_pow _ _ (by omega))
+        (show 0 < prefixLength n by unfold prefixLength; positivity)
         (Nat.one_le_pow _ _ (by omega)) hkh hthreshold hpower
       have hi1 := ih (earlyBits n) hearly
       have hi2 := ih (smallBits n) hsmall

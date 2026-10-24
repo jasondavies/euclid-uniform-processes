@@ -85,13 +85,14 @@ G(a,b)\leq C\,\frac{\log a}{\log\log a}.
 The key is to store one short Euclidean prefix and reuse it many times.
 For sufficiently large $n$, let $a>b$ be coprime with $a\leq N=2^n$.
 Store a Euclidean prefix
-$r_0=a,r_1=b,\ldots,r_h$, where $h=\lceil\sqrt n\rceil$.
+$r_0=a,r_1=b,\ldots,r_h$, where $h=3k$ and $k=2^{\lfloor(\log n)/2\rfloor}$
+is about $\sqrt n$.
 If the prefix reaches a positive remainder at most $N^{3/4}$, take one
 further remainder and recurse on the resulting smaller pair.
 Otherwise, modulo every $m>N^{1/3}$, each residue class contains at most
-three prefix values, so the prefix occupies at least $(h+1)/3$ residue
+three prefix values, so the prefix occupies at least $k+1$ residue
 classes (Lemma~\ref{lem:prefix}). A close pair of residues lets three
-remainder calls produce a positive value below $3m/(h-2)$
+remainder calls produce a positive value below $m/k$
 (Lemma~\ref{lem:gap}). Reusing the same prefix, we repeatedly shrink the
 modulus from $r_h$ to at most $N^{1/3}$ in $O(n/\log n)$ calls.
 Since $m$ need not be coprime to $a$ or $b$, two recursive gcd
@@ -99,8 +100,8 @@ derivations on inputs at most $N^{1/3}$ finish: of $d=\gcd(m,\rem(a,m))$,
 and then of $\gcd(d,\rem(b,m))$.
 If $T(n)$ is the worst derivation cost for inputs at most $2^n$, the
 resulting recurrence \eqref{eq:recurrence} gives $T(n)=O(n/\log n)$.
-A longer prefix sharpens the upper coefficient to $3+o(1)$
-(Corollary~\ref{cor:three}).
+Taking $k$ about $n^c$ with $c$ close to $1$ instead sharpens the upper
+coefficient to $3+o(1)$ (Corollary~\ref{cor:three}).
 
 \paragraph{Consequences and further results.}
 Section~\ref{sec:certificates} shows that $G(a,b)$ equals the intrinsic
@@ -237,12 +238,13 @@ $r_0,\ldots,r_h$, and $t$ classes hold at most $3t$ of them.
 \end{proof}
 Since Lemma~\ref{lem:prefix} holds for every $m>2a/r_h$, one stored prefix
 serves every later modulus, although these moduli are not known in advance.
-For every available $m>2a/r_h$, when $h\geq3$, Lemma~\ref{lem:gap}
-applied to the prefix gives three instructions that generate
+If $h=3k$ with $k\geq1$, then $3t\geq3k+1$, so the prefix occupies at least
+$k+1$ residue classes modulo every available $m>2a/r_h$, and
+Lemma~\ref{lem:gap} applied to the prefix gives three instructions that
+generate
 \begin{equation}\label{eq:contract}
-0<w<\frac{3m}{h-2},
+0<w<\frac mk.
 \end{equation}
-since $t-1\geq(h-2)/3>0$.
 We call these three instructions a \emph{contraction} of $m$, and $w$ the new
 modulus.
 
@@ -258,7 +260,12 @@ Euclid reaches $1$ in four. The example illustrates contraction without a
 saving on this pair.
 
 \section{Construction and recurrence}\label{sec:construction}
-Fix an integer $n>25$ and put $N=2^n$ and $h=\lceil\sqrt n\rceil>5$.
+Fix an integer $n>16$ and put
+\[
+N=2^n,\qquad p=\lfloor(\log n)/2\rfloor\geq2,\qquad k=2^p,\qquad h=3k,
+\qquad J=\lceil n/p\rceil,
+\]
+so that $k\leq\sqrt n$ and $k^J\geq N$.
 After normalisation, assume $a>b>1$ are coprime and $a\leq N$.
 We use $N^{3/4}$ as the \emph{early threshold} and $N^{1/3}$ as the
 \emph{target modulus}. Any thresholds $N^\alpha,N^\beta$ with $\alpha<1$,
@@ -284,14 +291,9 @@ h+1+T(\lceil3n/4\rceil).
 Otherwise $r_h>N^{3/4}$, so $2a/r_h<2N^{1/4}<N^{1/3}$ (as $n>12$), and
 Lemma~\ref{lem:prefix} applies to every available
 $m>N^{1/3}$. Starting at $m=r_h$, repeatedly replace $m$ by the value $w$ of
-\eqref{eq:contract} until $0<m\leq N^{1/3}$. Set
-\[
-\kappa=\frac{h-2}3>1,\qquad
-J=\left\lceil\frac{2n/3}{\log\kappa}\right\rceil.
-\]
-There are at most $J$ contractions: if $J$ have occurred then
-$m<N/\kappa^{J}\leq N^{1/3}$. Since
-$\log\kappa=\tfrac12\log n+O(1)$, their cost is $3J=O(n/\log n)$.
+\eqref{eq:contract} until $0<m\leq N^{1/3}$. There are at most $J$
+contractions, since $J$ of them would give $m<N/k^J\leq1$. Since
+$p=\tfrac12\log n+O(1)$, their cost is $3J=O(n/\log n)$.
 This is the source of the saving: the prefix costs only $O(\sqrt n)$
 instructions, and every contraction reuses it.
 
@@ -329,7 +331,7 @@ For $n\geq2$ let $f(n)=n/\log n$. The ratios
 show that, beyond a fixed threshold, $f(\lceil3n/4\rceil)\leq\tfrac78f(n)$ and
 $2f(\lceil n/3\rceil)\leq\tfrac56f(n)$. Both overheads in
 \eqref{eq:recurrence} are at most $c_0f(n)$ for a fixed $c_0$. Choose the
-induction threshold above $25$, where the recurrence holds, and large enough
+induction threshold above $16$, where the recurrence holds, and large enough
 that both recursive indices are at least $2$ and strictly less than $n$. Choose
 $C'\geq8c_0$, increased to cover the finitely many values below the threshold.
 Strong induction then gives $T(n)\leq C'f(n)$: the two bounds are
@@ -340,7 +342,8 @@ and the theorem holds with $C=2C'$.
 \end{proof}
 
 \subsection{The leading coefficient}
-The same construction with a longer prefix gives a more precise bound.
+The same construction with $p=\lfloor c\log n\rfloor$ for $c$ close to $1$
+gives a more precise bound.
 
 \begin{corollary}\label{cor:three}
 For every $\varepsilon>0$, there is an $a_0$ such that for every
@@ -360,9 +363,9 @@ p=\lfloor c\log n\rfloor,\qquad k=2^p,\qquad h=3k,
 Use $N^\alpha$ as the early threshold and $N^\beta$ as the target modulus,
 where $N=2^n$. In the late case $r_h>N^\alpha$, so
 $2a/r_h<2N^{1-\alpha}=2N^{\beta/2}<N^\beta$ for sufficiently large $n$, and
-the prefix lemma applies to every modulus above $N^\beta$. Since $3t\geq h+1=3k+1$, the prefix occupies at least $k+1$ residue classes,
-so each contraction reduces the modulus by a factor greater than $k$.
-Moreover $k^J\geq N$, so $J$ contractions suffice.
+the prefix lemma applies to every modulus above $N^\beta$. By
+\eqref{eq:contract}, each contraction reduces the modulus by a factor
+greater than $k$, and $k^J\geq N$, so $J$ contractions suffice.
 Writing $f(n)=n/\log n$, we have
 \[
 h=O(n^{c})=o(f(n)),\qquad
@@ -764,8 +767,7 @@ one further remainder gives the positive coprime pair $r_j,r_{j+1}$,
 bounded by $N^\alpha$, at total cost at most $h$; continue with that pair.
 Otherwise $r_h>N^\alpha$. As in the late case of Corollary~\ref{cor:three}, now
 with $p$ fixed, the prefix lemma applies to every modulus above $N^\beta$
-for large $n$, the prefix occupies $t$ residue classes with $3t\geq h+1$, so
-$t\geq k+1$, and at
+for large $n$, and by \eqref{eq:contract} at
 most $\lceil n/p\rceil$ contractions, using a modulus register and two
 scratch registers, produce a positive $m\leq N^\beta$. Then put
 $u=\rem(a,m)$ and $v=\rem(b,m)$, and run Euclid's algorithm in place on $m,u$
@@ -860,14 +862,14 @@ the Euclidean count stops when $1$ first appears.
  & \multicolumn{2}{c}{Fibonacci pair}\\
 \cmidrule(lr){2-3}\cmidrule(l){4-5}
 Input bits & Construction & Euclid & Construction & Euclid\\\midrule
-512 & 189 / 214 / 226 & 266 / 295 / 337 & 38 & 735\\
-2048 & 617 / 647 / 669 & 1136 / 1192 / 1260 & 60 & 2948\\
-8192 & 2007 / 2037 / 2059 & 4664 / 4774 / 4890 & 110 & 11798\\\bottomrule
+512 & 193 / 210 / 228 & 266 / 295 / 337 & 53 & 735\\
+2048 & 612 / 626 / 644 & 1136 / 1192 / 1260 & 106 & 2948\\
+8192 & 1918 / 1957 / 1985 & 4664 / 4774 / 4890 & 212 & 11798\\\bottomrule
 \end{tabular}
 \end{center}
 All $78$ derivations and the example of Section~\ref{sec:contractions} pass
 replay. On the Fibonacci pairs, Euclid's worst case, the bits
-removed by successive contractions roughly double (16, 31, 64, 125 and 252
+removed by successive contractions roughly double (32, 66, 131 and 248
 at 512 bits), so few contractions are needed. These samples illustrate the construction; the
 asymptotic claim rests on the proof. The table uses the parameters of
 Theorem~\ref{thm:main}; with those of Corollary~\ref{cor:three} and $c$ near $1$,
@@ -963,11 +965,10 @@ Recursive programs (Section~\ref{sec:programs}) &
 Costs are lengths of explicit remainder derivations. The finite theorem
 \lean{sizeCost_step} proves the recurrence from natural-number size
 parameters; it does not assume a recurrence for the cost function.
-For the initial Big-O proof, Lean uses
-$j=\lfloor\log n\rfloor$, $p=\lfloor j/4\rfloor$, $h=2^{2p}+1$ and
-contraction ratio $2^p$ in place of $h=\lceil\sqrt n\rceil$ and
-$\kappa=(h-2)/3$, and checks the integer rounding
-estimates before passing to real logarithms. The refinement uses the
+For the initial Big-O proof, Lean uses the parameters of
+Section~\ref{sec:construction}, with $p=\lfloor\lfloor\log n\rfloor/2\rfloor$,
+and checks the integer rounding estimates before passing to real
+logarithms. The refinement uses the
 tunable parameters of Corollary~\ref{cor:three} and checks the rounding limits
 preserving coefficient $3$.
 For Proposition~\ref{prop:loglog}, Lean takes $B=a^{2^{-d}}/2$ separately
