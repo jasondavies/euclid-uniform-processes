@@ -1,3 +1,4 @@
+\pdfoutput=1
 \documentclass[11pt]{article}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -20,7 +21,7 @@
 \emergencystretch=2em
 \title{The Euclidean algorithm is not optimal among uniform processes}
 \author{Jason Davies\thanks{\href{mailto:jason@jasondavies.com}{\nolinkurl{jason@jasondavies.com}}}}
-\date{October 24, 2026}
+\date{October 26, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -862,7 +863,8 @@ for deterministic uniform processes remains open
 
 \section{Computational checks}\label{sec:checks}
 The Python planner in the accompanying
-repository\footnote{\url{https://github.com/jasondavies/euclid-uniform-processes}}
+repository\footnote{\url{https://github.com/jasondavies/euclid-uniform-processes};
+this paper describes release \texttt{v1.0}.}
 chooses instructions offline with unrestricted arithmetic, using the
 parameters of Theorem~\ref{thm:main} from Section~\ref{sec:construction};
 below a base size (256 bits by default) it uses Euclid's algorithm. A separate replay script then checks
@@ -926,22 +928,18 @@ Corollary~\ref{cor:closure-depth} is formalised with
 the source's definitions of $\operatorname{iq}$, $\rem$ and the closure
 stages, including their conventions at zero divisors.
 
-The development is also packaged for the Palomar registry:
-\texttt{Challenge.lean} imports only mathlib and states the main theorems
-with every definition visible and deliberate \texttt{sorry} placeholders.
-\texttt{Solution.lean} imports the proved library, independently of these placeholders.
-Palomar's comparator checks that the proved statements are exactly those of
-\texttt{Challenge.lean} and replays the proofs through Lean's kernel and the
-independent kernels NanoDa and con-ron; we ran it on the current version.
+The development is also packaged for the comparator of the Palomar
+registry: \texttt{Challenge.lean} imports only mathlib and states the main
+theorems with every definition visible and deliberate \texttt{sorry}
+placeholders, and \texttt{Solution.lean} imports the proved library,
+independently of these placeholders. The comparator checks that the proved
+statements are exactly those of \texttt{Challenge.lean} and replays the
+proofs through Lean's kernel and the independent kernels NanoDa and con-ron;
+we ran it on release \texttt{v1.0} of the repository.
 \texttt{comparator.json} lists all twenty-two compared theorems, including
 that $G$ and the closure depth are attained (\lean{generates_G},
 \lean{ClosureDepth.depth_mem}), so the bounds on them are not about empty
 infima; Table~\ref{tab:lean} marks those included here with ${}^\dagger$.
-Version~1 of the registry entry \cite{palomar2026} records this
-verification for commit \texttt{40279dd}, covering thirteen statements: the
-earlier coefficient-$6$ forms of the two leading-coefficient theorems and
-eleven others. The coefficient-$3$ forms and the program, closure-depth and
-book-certificate statements were added afterwards.
 
 \begin{table}[!t]
 \centering\small
@@ -1138,12 +1136,6 @@ Yiannis N. Moschovakis.
 Lecture Notes in Logic, vol.~48. Cambridge University Press and Association
 for Symbolic Logic, 2019.
 \href{https://doi.org/10.1017/9781108234238}{doi:10.1017/9781108234238}.
-
-\bibitem{palomar2026}
-Palomar registry. Entry
-\href{https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1}{PALOMAR-2026-10-23-000012},
-version~1, registered October 23, 2026, for commit \texttt{40279dd} of the
-repository.
 
 \bibitem{stein1967}
 J. Stein.

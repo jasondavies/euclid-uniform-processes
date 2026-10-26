@@ -49,9 +49,8 @@ produced by AI systems; the human author initiated the research, directed the AI
 has checked the arguments and takes full responsibility for the content. The paper ends
 with a full declaration.
 
-Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf).
-Palomar registry entry: [PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1), which verifies
-commit `40279dd`.
+Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf). The
+paper describes release `v1.0` of this repository.
 
 ## Results
 
@@ -326,12 +325,12 @@ RegisterRecursion compiles every register program into a tail-recursive program.
 ### Palomar packaging
 
 The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
-Lean-verified results. It is registered as
-[PALOMAR-2026-10-23-000012, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1),
-which records the verification of commit `40279dd` for thirteen statements: the earlier
-coefficient-6 forms of the two leading-coefficient theorems and eleven others. The
+Lean-verified results. Version 1 of its registry entry,
+[PALOMAR-2026-10-23-000012](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1),
+records the verification of an earlier commit, `40279dd`, for thirteen statements: the
+earlier coefficient-6 forms of the two leading-coefficient theorems and eleven others. The
 coefficient-3 forms and the program-family, closure-depth and book-certificate theorems
-were added afterwards.
+were added afterwards; an update covering all twenty-two statements is pending.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
   defines every notion the theorems use, and states the twenty-two compared theorems (listed
