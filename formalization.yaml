@@ -16,11 +16,19 @@ project:
     O(log a / log log a). This refutes Conjecture 3.4 of Moschovakis's 2012
     notes "Absolute lower bounds for uniform processes" and the version (4F-5) of the Main
     Conjecture in the book, both for the structure (ℕ, rem, eq0) and for
-    Nε = (ℕ, rem, eq0, eq1). The Main Conjecture for algorithms (deterministic or
-    nondeterministic recursive programs) is not addressed and remains open. Lower bounds
-    are also formalized: every gcd certificate needs at least as many remainder facts as the
-    shortest derivation, and the coprimeness complexity is at least (1 − ε) log₂ log₂ N on
-    all but o(N²) coprime pairs below N.
+    Nε = (ℕ, rem, eq0, eq1). The same bound answers negatively the closure-depth question
+    of van den Dries and Moschovakis (2009): there are no positive integers aₙ → ∞, bₙ and
+    C > 0 whose closure depth g(aₙ, bₙ) exceeds C log₂ aₙ for all n. For algorithms, the
+    library gives fixed nondeterministic register programs over (ℕ, rem, eq0) with
+    arbitrarily small logarithmic coefficients: for each ε > 0, one program with 3·2^p + 6
+    registers (any p > 3/ε) and no recursion stack has, on every input a ≥ b ≥ 1, a
+    convergent computation returning gcd(a, b) with at most ε log₂ a + B remainder calls,
+    and the same program written one function per line is a tail-recursive program with
+    bounded stacks. These programs depend on ε, so the Main Conjecture for algorithms
+    (deterministic or nondeterministic recursive programs) is not settled and remains
+    open. Lower bounds are also formalized: every gcd certificate needs at least as many
+    remainder facts as the shortest derivation, and the coprimeness complexity is at least
+    (1 − ε) log₂ log₂ N on all but o(N²) coprime pairs below N.
   authors:
     - "Jason Davies"
   license: "Apache-2.0"
