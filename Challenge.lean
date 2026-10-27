@@ -253,13 +253,15 @@ converges at a halting line whose term has a value, returning that value; its co
 number of remainder evaluations. `ofLabels` numbers lines written with labels from a finite
 type, putting the start line at `0`.
 
-The gcd program has `w + 2` registers: `u₀, u₁` hold the inputs `a, b` and the rest are
-work registers, initially `(a, b, a, …, a)`. Line `head` returns `a` if `b = 0`. At the main
-line `run` the program may assign `rem(uᵢ, uⱼ)` to any work register, or pass to the
-verification of a nonzero work register `uᵢ`: it sets `u₀ := rem(u₀, uᵢ)` and
-`u₁ := rem(u₁, uᵢ)`, and halts with `uᵢ` if both are zero. A zero candidate and a failed
-check go to `reject`, which loops. There is no stack. `Executes w a b c z` says that some
-convergent computation on `(a, b)` returns `z` with exactly `c` remainder calls.
+The gcd program has `w + 2` registers `u₀, u₁, u₂, …`, initialised by `TailSource.init` to
+`(a, b, a, b, a, …, a)`: `u₀ = a` and `u₁ = b` hold the inputs, and the work registers
+`u₂, u₃, u₄, …` start as `a, b, a, …, a`, so for `w ≥ 2` the main line has both inputs in
+work registers. Line `head` returns `a` if `b = 0`. At the main line `run` the program may
+assign `rem(uᵢ, uⱼ)` to any work register, or pass to the verification of a nonzero work
+register `uᵢ`: it sets `u₀ := rem(u₀, uᵢ)` and `u₁ := rem(u₁, uᵢ)`, and halts with `uᵢ` if
+both are zero. A zero candidate and a failed check go to `reject`, which loops. There is no
+stack. `Executes w a b c z` says that some convergent computation on `(a, b)` returns `z`
+with exactly `c` remainder calls.
 
 The theorems say that every convergent computation returns the gcd, that every input has
 one, and that for each `ε > 0` one fixed program of this kind has a computation of cost at
