@@ -70,9 +70,18 @@ class Certificate:
             R.append(self.emit(R[-2],R[-1]))
         m=R[-1]
         assert all(x > upper for x in R)
+        # Euclid's quotients, so that R[i] = Q[i]*R[i+1] + R[i+2]. Residues of the
+        # whole prefix then follow from those of its last two values by this
+        # recurrence, with two full-size reductions per contraction instead of h+1.
+        Q=[R[i]//R[i+1] for i in range(len(R)-2)]
         while m > lower:
             # Enumerating and sorting residues is unrestricted OFFLINE SEARCH.
-            residue_witness = {x % m: x for x in R}
+            res=[0]*len(R)
+            res[-1]=R[-1]%m
+            res[-2]=R[-2]%m
+            for i in range(len(R)-3,-1,-1):
+                res[i]=(Q[i]*res[i+1]+res[i+2])%m
+            residue_witness = {res[i]: R[i] for i in range(len(R))}
             residues = sorted(residue_witness)
             t = len(residues)
             # Euclidean-prefix lemma: each residue class holds at most three of

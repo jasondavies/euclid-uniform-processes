@@ -1,5 +1,9 @@
 # The Euclidean algorithm is not optimal among uniform processes
 
+**In one sentence:** the intrinsic remainder-call complexity of gcd is
+O(log a / log log a), so Moschovakis's conjectured logarithmic lower bounds for uniform
+processes are false; whether an actual algorithm can beat order log a remains open.
+
 Euclid's algorithm computes gcd(a, b) with about 1.44 log₂ a remainder operations in the
 worst case. Van den Dries and Moschovakis asked whether any algorithm restricted to the
 remainder operation and a zero test can do essentially better. Moschovakis's *Main
@@ -50,7 +54,9 @@ has checked the arguments and takes full responsibility for the content. The pap
 with a full declaration.
 
 Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf). The
-paper describes release `v1.0` of this repository.
+paper describes release `v1.0` of this repository. Lean verification of record: Palomar registry entry
+[PALOMAR-2026-10-23-000012, version 2](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=2),
+for commit `2548681` (release `v1.0`), covering all twenty-two compared theorems.
 
 ## Results
 
@@ -325,12 +331,12 @@ RegisterRecursion compiles every register program into a tail-recursive program.
 ### Palomar packaging
 
 The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
-Lean-verified results. Version 1 of its registry entry,
-[PALOMAR-2026-10-23-000012](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=1),
-records the verification of an earlier commit, `40279dd`, for thirteen statements: the
-earlier coefficient-6 forms of the two leading-coefficient theorems and eleven others. The
-coefficient-3 forms and the program-family, closure-depth and book-certificate theorems
-were added afterwards; an update covering all twenty-two statements is pending.
+Lean-verified results. It is registered as
+[PALOMAR-2026-10-23-000012, version 2](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=2),
+which records the verification of commit `2548681` (release `v1.0`) for all twenty-two
+compared theorems. Version 1 of the entry verified an earlier commit, `40279dd`, for
+thirteen statements, including the earlier coefficient-6 forms of the two
+leading-coefficient theorems.
 
 - **[Challenge.lean](Challenge.lean)** is the statement surface. It imports only Mathlib,
   defines every notion the theorems use, and states the twenty-two compared theorems (listed
