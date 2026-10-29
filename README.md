@@ -53,9 +53,9 @@ produced by AI systems; the human author initiated the research, directed the AI
 has checked the arguments and takes full responsibility for the content. The paper ends
 with a full declaration.
 
-Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf), also
-on Hexagon as [hexagon:2610.00604v1](https://hexagonmath.org/2610.00604v1). The paper describes
-release `v1.0` of this repository. Lean verification of record: Palomar registry entry
+Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf), also at
+[hexagon:2610.00604v1](https://hexagonmath.org/2610.00604v1). The paper describes release
+`v1.0` of this repository. Lean verification of record: Palomar registry entry
 [PALOMAR-2026-10-23-000012, version 2](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=2),
 for commit `2548681` (release `v1.0`), covering all twenty-two compared theorems.
 
