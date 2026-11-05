@@ -1,65 +1,100 @@
 # The Euclidean algorithm is not optimal among uniform processes
 
-**In one sentence:** the intrinsic remainder-call complexity of gcd is
-O(log a / log log a), so Moschovakis's conjectured logarithmic lower bounds for uniform
-processes are false; whether an actual algorithm can beat order log a remains open.
+**[Read the paper (PDF)](paper/euclid-uniform-processes.pdf)** ·
+[Hexagon](https://hexagonmath.org/2610.00604v1) ·
+[Lean verification](#lean-verification)
 
-Euclid's algorithm computes gcd(a, b) with about 1.44 log₂ a remainder operations in the
-worst case. Van den Dries and Moschovakis asked whether any algorithm restricted to the
-remainder operation and a zero test can do essentially better. Moschovakis's *Main
-Conjecture* says no: for every such algorithm α there is an r > 0 such that
+A *derivation* starts with two integers a ≥ b ≥ 1. Each step takes the remainder of two
+available values, using a positive divisor, and keeps the result for reuse. No constants
+are introduced. Only remainder calls are counted; choosing the operands is free.
 
-$$\mathrm{calls}_{\mathrm{rem}}(\alpha, a, b) > r \log a \quad \text{for infinitely many pairs } a > b \ge 1.$$
+We prove that gcd(a, b) always has such a derivation using **O(log a / log log a)**
+remainder calls, compared with Euclid's Θ(log a) worst-case count. The key is to store a
+short initial segment of Euclid's remainders and reuse it.
 
-Lower bounds like this are normally proved for Moschovakis's *uniform processes*, an
-abstract model of any computation that learns about its inputs only through the given
-operations; every program gives one. Moschovakis conjectured that the logarithmic lower
-bound already holds there: Conjecture 3.4 of his 2012 notes, and the precise version
-(4F-5) of the Main Conjecture in his 2019 book.
+These short derivations refute two conjectured logarithmic lower bounds for Moschovakis's
+*uniform processes*, a model broader than finite programs. **The Main Conjecture for
+algorithms remains open:** whether one fixed gcd program using only remainder and zero
+tests can achieve o(log a) remainder calls on every input is still unknown.
 
-**Main result: those uniform-process conjectures are false.** Every pair a ≥ b ≥ 1 has a
-derivation of gcd(a, b) with
+**Verification.** The new bounds and conjecture refutations are machine-checked in Lean 4.
+Obtaining a single uniform process additionally uses a cited theorem from Moschovakis's
+book. The result has not yet been reviewed by an expert in the area.
 
-$$\bigl(3 + o(1)\bigr) \frac{\log_2 a}{\log_2 \log_2 a}$$
+**AI provenance.** AI systems produced the main result, Lean formalisation, and manuscript.
+The human author initiated and directed the work, checked the arguments, and takes full
+responsibility for the content. The paper contains the full declaration.
 
-remainder calls, where each call takes the remainder of two values already computed. So
-the *intrinsic complexity* of gcd and of coprimeness, which bounds the cost of every
-uniform process from below, is o(log a). This refutes Conjecture 3.4 and (4F-5). With the
-book's Theorem 4F.1, a single uniform process attains this cost, ruling out the
-possibility raised on p. 188 of the book that the Main Conjecture holds for all uniform
-processes. It also means the homomorphism method, the standard tool for such lower
-bounds, cannot prove a logarithmic one. The terms are defined under
-[Notation](#notation).
+## The idea
 
-**Still open: the Main Conjecture for algorithms.** A derivation chooses which values to
-combine for free, so it does not give a program with this cost, and no single program with
-o(log a) remainder calls is known.
+For coprime inputs, store a short initial segment of Euclid's remainder sequence. If it
+already reaches small values, continue with the smaller problem. Otherwise, use the last
+stored value as the current modulus. While that modulus is still large, the stored values
+occupy many different residue classes modulo it. Two of those residues are close together,
+and at most three remainder calls produce a much smaller positive modulus: a *contraction*.
 
-**Also proved.** For remainder-only derivations, the known Ω(log log a) lower bound,
-previously proved for specific hard pairs, holds for almost all coprime pairs. For each
-ε > 0 there is a fixed nondeterministic gcd program, using a fixed number of registers and
-no recursion, whose cost is at most ε log₂ a + Bε; the program depends on ε. The bound
-also settles van den Dries and Moschovakis's open problem on the closure depth of the gcd
-(2009).
+Reuse the **same stored prefix** for the next contraction. Once the modulus is small
+enough, finish with two smaller gcd derivations. Repeated reuse of the prefix is what
+makes the saving possible. Scaling extends the bound to non-coprime inputs. The paper
+gives the thresholds and the proof.
 
-**Verified.** Everything above is machine-checked in Lean 4, except the step that uses the
-cited Theorem 4F.1; the refutations of Conjecture 3.4 and (4F-5) do not need it. This
-includes the link to the book's own definitions: Lean states the book's certificates and
-intrinsic complexities directly and proves them equal to those used in the refutations.
-The result has not yet been reviewed by an expert in the area.
+<details>
+<summary>Example: one contraction from (44, 17)</summary>
 
-**AI transparency.** The main result, the Lean formalisation and the manuscript were
-produced by AI systems; the human author initiated the research, directed the AI systems,
-has checked the arguments and takes full responsibility for the content. The paper ends
-with a full declaration.
+First store one Euclidean remainder:
 
-Read the paper: [euclid-uniform-processes.pdf](paper/euclid-uniform-processes.pdf), also at
-[hexagon:2610.00604v1](https://hexagonmath.org/2610.00604v1). The paper describes release
-`v1.0` of this repository. Lean verification of record: Palomar registry entry
-[PALOMAR-2026-10-23-000012, version 2](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=2),
-for commit `2548681` (release `v1.0`), covering all twenty-two compared theorems.
+$$44 \bmod 17 = 10.$$
 
-## Results
+Using 10 as the current modulus, make three calls:
+
+$$44 \bmod 10 = 4,\qquad 17 \bmod 10 = 7,\qquad 7 \bmod 4 = 3.$$
+
+The residues 4 and 7 are close, and the third remainder call produces the new modulus 3.
+The derivation computes only the selected residues; finding the pair is not charged.
+The full construction reuses its stored prefix across many contractions.
+
+One more call, 10 mod 3 = 1, finishes. This example takes five calls, while Euclid reaches
+1 in four: it illustrates the contraction, not a saving on this pair.
+
+</details>
+
+<a id="results"></a>
+
+## Results and scope
+
+### Sharper bound
+
+The leading coefficient in the upper bound is 3:
+
+$$\bigl(3 + o(1)\bigr) \frac{\log_2 a}{\log_2 \log_2 a}.$$
+
+Precisely, for every ε > 0, the coefficient 3 + ε works for all sufficiently large a
+and every 0 ≤ b ≤ a. The same leading coefficient bounds the intrinsic remainder-call
+complexities of gcd and coprimeness on positive inputs. No optimality of 3 is claimed.
+For comparison, Euclid's worst-case count is about 1.44 log₂ a. All logarithms below
+are to base 2.
+
+### Further results
+
+- **Almost-all lower bound.** For every ε > 0, all but o(N²) coprime pairs
+  2 ≤ b < a ≤ N need more than (1 − ε) log₂ log₂ N remainder calls to derive 1.
+  The known Ω(log log a) lower bound, previously proved for specific hard pairs, thus
+  holds for almost all coprime pairs.
+- **Program family.** For each ε > 0, there is a fixed nondeterministic gcd program
+  using only remainder and zero tests that, on every input a ≥ b ≥ 1, has a successful
+  computation using at most ε log₂ a + Bε remainder calls. Here Bε is independent of
+  the inputs. The program has a fixed number of registers and no recursion, and can
+  also be written as a tail-recursive program. **The program depends on ε**; this does
+  not give one sublogarithmic program. See [Program family](#program-family).
+- **The homomorphism-test barrier.** The standard homomorphism method for proving lower
+  bounds cannot establish a logarithmic bound for these problems. Arguments using
+  additional restrictions on computations remain open.
+- **Closure depth.** The bound also settles van den Dries and Moschovakis's 2009 open
+  problem about how many parallel stages of exact integer operations are needed to
+  produce the gcd. The depth is O(log a / log log a).
+
+<details>
+<summary>Notation and precise conjecture statements</summary>
 
 ### Notation
 
@@ -83,12 +118,17 @@ for commit `2548681` (release `v1.0`), covering all twenty-two compared theorems
 
 ### Upper bound and refutations
 
-The refined upper bound is **(3 + o(1)) log₂ a / log₂ log₂ a**, uniformly in b.
-Precisely, for every ε > 0, the coefficient 3 + ε works for all sufficiently large a
-and every 0 ≤ b ≤ a. The same leading coefficient holds for the intrinsic
-remainder-call complexities below on positive inputs. No optimality of 3 is claimed.
-The coefficient rests on the Euclidean-prefix lemma: modulo every
-m > 2a/r_h, each residue class contains at most three of the prefix values r_0, …, r_h.
+The Main Conjecture for algorithms says that for every gcd program α using only
+remainder and zero tests, there is an r > 0 such that
+
+$$\mathrm{calls}_{\mathrm{rem}}(\alpha, a, b) > r \log a \quad \text{for infinitely many pairs } a > b \ge 1.$$
+
+Every such program induces a uniform process. The refuted conjectures assert logarithmic
+lower bounds in that broader model.
+
+The coefficient 3 rests on the Euclidean-prefix lemma: for a coprime pair, modulo every
+m > 2a/r_h, each residue class contains at most three of the positive prefix values
+r_0, …, r_h.
 
 As a consequence, the intrinsic calls(rem)-complexity of both coprimeness and gcd in
 Nε is o(log a), uniformly over pairs with 1 ≤ b ≤ a. This refutes the uniform-process
@@ -117,43 +157,32 @@ optimal among its peers:
   best-uniform-process theorem (4F.1), which turns a small intrinsic complexity into a
   uniform process with that complexity. Theorem 4F.1 is cited, not formalised.
 
-### Further results
+### Closure depth
 
-- **Almost-all lower bound.** For every ε > 0, among coprime pairs b < a ≤ N, all but
-  o(N²) have D(a, b) > (1 − ε) log₂ log₂ N. So, for remainder-only derivations, the known
-  Ω(log log a) lower bound, previously proved for specific hard pairs, holds for almost
-  all coprime pairs.
-- **Program family.** For every ε > 0 there is a fixed nondeterministic gcd program,
-  using only rem and eq0, with a fixed number of registers and no recursion, whose cost
-  is at most ε log₂ a + Bε on all positive inputs a ≥ b. Written one function per line, it
-  is also a tail-recursive program in the book's sense. See
-  [Program family](#program-family).
-- **The homomorphism-test barrier.** The Homomorphism Test applied to all generated
-  primitive operation diagrams cannot prove a logarithmic lower bound: every input has a
-  certificate with o(log a) remainder facts. This leaves open arguments combining
-  homomorphisms with additional restrictions on computations.
-- **Closure depth.** The bound settles the Open Problem at the end of §3 of van den Dries
-  and Moschovakis, *Arithmetic Complexity*, ACM Transactions on Computational Logic 10(1),
-  2009, doi:10.1145/1459010.1459012 (p. 2:11;
-  [preprint](https://www.math.ucla.edu/~ynm/papers/ac.pdf)). There g(a, b) is the least
-  number of parallel stages, starting from {0, 1, a, b} and applying +, −, integer
-  quotient and remainder to all available pairs, after which gcd(a, b) is available. They
-  ask whether g(aₙ, bₙ) > C log aₙ along some sequence with aₙ → ∞. Since rem(b, a)
-  appears at the first stage, g(a, b) ≤ 1 + G(a, rem(b, a)) = O(log a / log log a)
-  uniformly in b, so no such sequence exists. This is formalised with the source's
-  definitions of iq, rem and the stages, including their conventions at zero divisors.
+The bound settles the Open Problem at the end of §3 of van den Dries
+and Moschovakis, *Arithmetic Complexity*, ACM Transactions on Computational Logic 10(1),
+2009, doi:10.1145/1459010.1459012 (p. 2:11;
+[preprint](https://www.math.ucla.edu/~ynm/papers/ac.pdf)). There g(a, b) is the least
+number of parallel stages, starting from {0, 1, a, b} and applying +, −, integer
+quotient and remainder to all available pairs, after which gcd(a, b) is available. They
+ask whether g(aₙ, bₙ) > C log aₙ along some sequence with aₙ → ∞. Since rem(b, a)
+appears at the first stage, g(a, b) ≤ 1 + G(a, rem(b, a)) = O(log a / log log a)
+uniformly in b, so no such sequence exists. This is formalised with the source's
+definitions of iq, rem and the stages, including their conventions at zero divisors.
+
+</details>
 
 ### What remains open
 
-**The Main Conjecture for algorithms.** The result shows that a proof of it must use
-properties beyond uniformity. It stays open because the construction gives no
-remainder-only algorithm, deterministic or nondeterministic, with this cost: choosing
-which two stored residues to combine is not charged, and a program would still need to
-implement reusable access to the growing stored prefix within the claimed cost. The
-[program family](#program-family) shows that the obstacle is memory, not recursion:
-W registers give coefficient about 3 / log₂ W. Whether every W-register program needs
-c log a / log W calls is open. (Pratt's algorithm, as presented in the book, is also a
-nondeterministic register program; we did not obtain his unpublished manuscript.)
+For this construction, an obstacle to one sublogarithmic program is reusable access to a
+prefix whose length grows with the input. Choosing a close pair of residues is free in a
+derivation; a fixed program must implement that access within the claimed remainder cost.
+The [program family](#program-family) gives coefficient about 3 / log₂ W with W registers.
+Whether every W-register gcd program needs c log a / log W calls on infinitely many
+inputs, for an absolute c > 0, is open. Recursion permits unbounded saved state, but how
+to retain and repeatedly access a growing prefix at the same cost remains open too.
+(Pratt's algorithm, as presented in the book, is also a nondeterministic register program;
+we did not obtain his unpublished manuscript.)
 
 ## Lean verification
 
@@ -168,6 +197,45 @@ lake env lean validation/Axioms.lean
 The last command should print the audit recorded in
 [validation/axioms.txt](validation/axioms.txt). CI runs the build and checks that
 the audit matches this file.
+
+The paper describes release `v1.0`. The verification of record is
+[Palomar entry PALOMAR-2026-10-23-000012, version 2](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=2),
+covering all twenty-two compared theorems at commit `2548681` (`v1.0`).
+
+`lake comparator` checks that each proved statement is exactly the one in Challenge.lean
+and replays the proofs through Lean's kernel and the independent kernels NanoDa and
+con-ron; all three accept. To run it locally (Linux, needs `bwrap`; the packages in
+`.lake/packages` must be real directories, not symlinks into another checkout):
+
+```sh
+./scripts/palomar/verify-comparator.sh
+python3 scripts/palomar/check-lean-sources.py
+```
+
+<a id="soundness-and-scope"></a>
+
+<details>
+<summary>Soundness and formal scope</summary>
+
+- **No added assumptions.** The proved library has no `sorry`/`admit` placeholders and adds
+  no axioms; the only `sorry`s are the deliberate holes in Challenge.lean. The recorded
+  axiom audit ([axioms.txt](validation/axioms.txt)) uses only `propext`,
+  `Classical.choice` and `Quot.sound`.
+- **Faithfulness to the book.** The refutations are stated about intrinsic complexities
+  defined from fact-based certificates. `ShortGCD.Book` states the book's own
+  definitions and proves that its intrinsic complexities equal these
+  (`Book.callsCoprimeness_eq`, `Book.callsRemGcd_eq`, `Book.callsGcd_eq`; all three are
+  compared), so the refutations are statements about the book's definitions.
+- **Cited, not formalised.** The book's general best-uniform-process theorem (4F.1) and
+  the abstract theory of uniform processes; the refutations do not need them. The known
+  lower bounds of van den Dries and Moschovakis, which the paper cites.
+- **Conventions.** Coprimeness in the refutations is the book's relation, which requires
+  positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses
+  `Nat.Coprime`; `callsCoprimeness_eq_callsRem` connects the two on positive coprime
+  inputs. For non-coprime inputs, D and `callsRem` are 0 only because their defining sets
+  are empty.
+
+</details>
 
 <details>
 <summary>Lean declarations: bounds, certificates, and refutations</summary>
@@ -261,7 +329,7 @@ the universe, certification, the calls(rem) norm and the intrinsic complexities.
 
 </details>
 
-### Module structure
+<a id="module-structure"></a>
 
 <details>
 <summary>Imports and proof structure</summary>
@@ -329,13 +397,12 @@ RegisterRecursion compiles every register program into a tail-recursive program.
 
 </details>
 
-### Palomar packaging
+<a id="palomar-packaging"></a>
 
-The repository is laid out for the [Palomar registry](https://palomar-registry.org) of
-Lean-verified results. It is registered as
-[PALOMAR-2026-10-23-000012, version 2](https://palomar-registry.org/entry?id=PALOMAR-2026-10-23-000012&version=2),
-which records the verification of commit `2548681` (release `v1.0`) for all twenty-two
-compared theorems. Version 1 of the entry verified an earlier commit, `40279dd`, for
+<details>
+<summary>Palomar packaging and verification history</summary>
+
+Version 1 of the entry verified an earlier commit, `40279dd`, for
 thirteen statements, including the earlier coefficient-6 forms of the two
 leading-coefficient theorems.
 
@@ -350,38 +417,10 @@ leading-coefficient theorems.
   **[formalization.yaml](formalization.yaml)** records the metadata, provenance, scope,
   fidelity notes and AI involvement.
 
-`lake comparator` checks that each proved statement is exactly the one in Challenge.lean
-and replays the proofs through Lean's kernel and the independent kernels NanoDa and
-con-ron; all three accept. To run it locally (Linux, needs `bwrap`; the packages in
-`.lake/packages` must be real directories, not symlinks into another checkout):
-
-```sh
-./scripts/palomar/verify-comparator.sh
-python3 scripts/palomar/check-lean-sources.py
-```
-
 The scripts in [scripts/palomar/](scripts/palomar/) are copied from Palomar's
 [template repository](https://github.com/PalomarRegistry/PalomarTemplate).
 
-### Soundness and scope
-
-- **No added assumptions.** The proved library has no `sorry`/`admit` placeholders and adds
-  no axioms; the only `sorry`s are the deliberate holes in Challenge.lean. The recorded
-  axiom audit ([axioms.txt](validation/axioms.txt)) uses only `propext`,
-  `Classical.choice` and `Quot.sound`.
-- **Faithfulness to the book.** The refutations are stated about intrinsic complexities
-  defined from fact-based certificates. `ShortGCD.Book` states the book's own
-  definitions and proves that its intrinsic complexities equal these
-  (`Book.callsCoprimeness_eq`, `Book.callsRemGcd_eq`, `Book.callsGcd_eq`; all three are
-  compared), so the refutations are statements about the book's definitions.
-- **Cited, not formalised.** The book's general best-uniform-process theorem (4F.1) and
-  the abstract theory of uniform processes; the refutations do not need them. The known
-  lower bounds of van den Dries and Moschovakis, which the paper cites.
-- **Conventions.** Coprimeness in the refutations is the book's relation, which requires
-  positive inputs. The reduction to D (`CoprimeCertificate`, `RemainderList`) uses
-  `Nat.Coprime`; `callsCoprimeness_eq_callsRem` connects the two on positive coprime
-  inputs. For non-coprime inputs, D and `callsRem` are 0 only because their defining sets
-  are empty.
+</details>
 
 ## Program family
 
@@ -397,6 +436,9 @@ The construction keeps a fixed-length Euclidean prefix and the contractions. Onc
 modulus m is small, it computes a mod m and b mod m and finishes with two Euclidean
 loops in place. The size thresholds appear only in the proof; the program does not
 compute them.
+
+<details>
+<summary>Register syntax, compilation, and stack bounds</summary>
 
 Lean checks the result for formal versions of two of the book's models of computation.
 
@@ -427,6 +469,8 @@ Lean checks the result for formal versions of two of the book's models of comput
 The result concerns the minimum successful cost of nondeterministic programs. It does
 not settle the book's Problem x2G.6, which asks whether every recursive function in
 the pointed Euclidean structure is tail recursive.
+
+</details>
 
 <details>
 <summary>Model conventions</summary>
@@ -491,15 +535,21 @@ programs and this program in full.
 
 </details>
 
-## Finite checks
+<a id="finite-checks"></a>
 
-[scripts/check.sh](scripts/check.sh) builds the library, reruns the axiom audit and the
-quick finite checks below, and compares each output with its recorded file; CI
-([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs it on every push and pull
-request. It leaves out `check_prefix_lemma.py`, which takes about three minutes and checks a
-lemma that Lean proves in general. A separate manual workflow
-([palomar-preflight.yml](.github/workflows/palomar-preflight.yml)) runs Palomar's own
-verifier, including the comparator, on a chosen commit.
+## Computational checks
+
+The Python scripts choose derivations using unrestricted arithmetic, then replay every
+remainder call to check its operands and result. Only the remainder calls in the returned
+derivation are counted. These finite checks supplement the Lean proof.
+
+Run the build, axiom audit, certificate checks, and benchmarks used by CI:
+
+```sh
+bash scripts/check.sh
+```
+
+To run the individual checks and examples:
 
 ```sh
 python3 scripts/check_certificates.py
@@ -507,6 +557,12 @@ python3 scripts/benchmark_certificates.py
 python3 remainder_only_certificate.py
 python3 scripts/check_prefix_lemma.py
 ```
+
+Results are recorded in [validation/](validation/). The exhaustive prefix check takes
+about three minutes and is separate from `check.sh`; Lean proves that lemma in general.
+
+<details>
+<summary>Test ranges, seeds, and replay procedures</summary>
 
 - **[check_certificates.py](scripts/check_certificates.py)** runs a 310-case suite. It
   covers zero inputs, equal inputs, scaled non-coprime inputs, random large inputs and
@@ -534,9 +590,12 @@ python3 scripts/check_prefix_lemma.py
   exactly three values, so the bound is attained, and, as a control, the instances with
   four or more in a class when the threshold is dropped.
 
-Results are in [validation/](validation/). The scripts search for derivations with
-ordinary arithmetic; only the remainder facts of the derivation they return are counted.
-These finite checks supplement the Lean proof.
+[scripts/check.sh](scripts/check.sh) compares the outputs with their recorded files.
+[CI](.github/workflows/ci.yml) runs it on every push and pull request. A separate manual
+[Palomar preflight workflow](.github/workflows/palomar-preflight.yml) runs the registry's
+verifier, including the comparator, on a chosen commit.
+
+</details>
 
 ## Repository layout
 
